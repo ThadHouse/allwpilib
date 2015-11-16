@@ -401,7 +401,7 @@ JNIEXPORT void JNICALL Java_edu_wpi_first_wpilibj_communication_FRCNetworkCommun
 {
 	MULTIWAIT_ID javaId = (MULTIWAIT_ID)env->GetDirectBufferAddress(id);
 	NETCOMM_LOG(logDEBUG) << "Mutex Ptr = " << javaId;
-	HALSetNewDataSem(javaId->native_handle());
+	HALSetNewDataSem(javaId);
 }
 
 /*
