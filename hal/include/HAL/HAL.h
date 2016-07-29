@@ -20,6 +20,7 @@
 #include "HAL/Constants.h"
 #include "HAL/Counter.h"
 #include "HAL/DIO.h"
+#include "HAL/DMA.h"
 #include "HAL/DriverStation.h"
 #include "HAL/Errors.h"
 #include "HAL/I2C.h"

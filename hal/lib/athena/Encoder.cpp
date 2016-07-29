@@ -226,6 +226,21 @@ static LimitedClassedHandleResource<HAL_EncoderHandle, Encoder,
                                     HAL_HandleEnum::Encoder>
     encoderHandles;
 
+namespace hal {
+bool GetEncoderHandles(HAL_EncoderHandle handle,
+                       HAL_FPGAEncoderHandle* fpgaEncoderHandle,
+                       HAL_CounterHandle* counterHandle) {
+  auto encoder = encoderHandles.Get(handle);
+  if (encoder == nullptr) {
+    return false;
+  }
+
+  *fpgaEncoderHandle = encoder->m_encoder;
+  *counterHandle = encoder->m_counter;
+  return true;
+}
+}  // namespace hal
+
 extern "C" {
 HAL_EncoderHandle HAL_InitializeEncoder(
     HAL_Handle digitalSourceHandleA, HAL_AnalogTriggerType analogTriggerTypeA,

@@ -14,6 +14,9 @@
 #include "PIDSource.h"
 #include "SensorBase.h"
 
+class DMA;
+class DMASample;
+
 /**
  * Analog input class.
  *
@@ -85,4 +88,6 @@ class AnalogInput : public SensorBase,
   int64_t m_accumulatorOffset;
 
   std::shared_ptr<ITable> m_table;
+  friend class DMA;
+  friend class DMASample;
 };

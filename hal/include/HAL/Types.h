@@ -43,4 +43,6 @@ typedef HAL_Handle HAL_EncoderHandle;
 
 typedef HAL_Handle HAL_GyroHandle;
 
+typedef HAL_Handle HAL_DMASampleHandle;
+
 typedef int32_t HAL_Bool;

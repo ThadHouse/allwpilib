@@ -159,6 +159,8 @@ const char* HAL_GetErrorMessage(int32_t code) {
       return VI_ERROR_INV_PARAMETER_MESSAGE;
     case HAL_PWM_SCALE_ERROR:
       return HAL_PWM_SCALE_ERROR_MESSAGE;
+    case HAL_INVALID_DMA_ADDITION:
+      return HAL_INVALID_DMA_ADDITION_MESSAGE;
     default:
       return "Unknown error status";
   }

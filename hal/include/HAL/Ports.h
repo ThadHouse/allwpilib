@@ -31,6 +31,7 @@ int32_t HAL_GetNumSolenoidPins(void);
 int32_t HAL_GetNumPDPModules(void);
 int32_t HAL_GetNumPDPChannels(void);
 int32_t HAL_GetNumCanTalons(void);
+int32_t HAL_GetNumDMAs(void);
 #ifdef __cplusplus
 }
 #endif

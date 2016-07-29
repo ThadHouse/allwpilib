@@ -18,6 +18,8 @@
 
 class DigitalSource;
 class DigitalGlitchFilter;
+class DMA;
+class DMASample;
 
 /**
  * Class to read quad encoders.
@@ -103,4 +105,6 @@ class Encoder : public SensorBase,
 
   std::shared_ptr<ITable> m_table;
   friend class DigitalGlitchFilter;
+  friend class DMA;
+  friend class DMASample;
 };

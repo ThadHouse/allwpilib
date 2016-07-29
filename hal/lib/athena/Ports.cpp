@@ -31,4 +31,5 @@ int32_t HAL_GetNumSolenoidPins(void) { return kNumSolenoidPins; }
 int32_t HAL_GetNumPDPModules(void) { return kNumPDPModules; }
 int32_t HAL_GetNumPDPChannels(void) { return kNumPDPChannels; }
 int32_t HAL_GetNumCanTalons(void) { return kNumCanTalons; }
+int32_t HAL_GetNumDMAs(void) { return kNumDMAs; }
 }

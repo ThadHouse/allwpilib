@@ -12,7 +12,16 @@
 #include "HAL/Encoder.h"
 
 namespace hal {
+
+bool GetEncoderHandles(HAL_EncoderHandle handle,
+                       HAL_FPGAEncoderHandle* fpgaEncoderHandle,
+                       HAL_CounterHandle* counterHandle);
+
 class Encoder {
+  friend bool GetEncoderHandles(HAL_EncoderHandle handle,
+                                HAL_FPGAEncoderHandle* fpgaEncoderHandle,
+                                HAL_CounterHandle* counterHandle);
+
  public:
   Encoder(HAL_Handle digitalSourceHandleA,
           HAL_AnalogTriggerType analogTriggerTypeA,

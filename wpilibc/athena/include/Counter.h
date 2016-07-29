@@ -17,6 +17,8 @@
 #include "SensorBase.h"
 
 class DigitalGlitchFilter;
+class DMA;
+class DMASample;
 
 /**
  * Class for counting the number of ticks on a digital input channel.
@@ -111,4 +113,6 @@ class Counter : public SensorBase,
 
   std::shared_ptr<ITable> m_table;
   friend class DigitalGlitchFilter;
+  friend class DMA;
+  friend class DMASample;
 };

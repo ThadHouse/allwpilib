@@ -20,7 +20,7 @@ constexpr int32_t kTimebase = 40000000;  ///< 40 MHz clock
 constexpr int32_t kDefaultOversampleBits = 0;
 constexpr int32_t kDefaultAverageBits = 7;
 constexpr double kDefaultSampleRate = 50000.0;
-static const uint32_t kAccumulatorChannels[] = {0, 1};
+static const int32_t kAccumulatorChannels[] = {0, 1};
 
 extern std::unique_ptr<tAI> analogInputSystem;
 extern std::unique_ptr<tAO> analogOutputSystem;

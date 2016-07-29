@@ -82,6 +82,9 @@
 #define HAL_HANDLE_ERROR -1098
 #define HAL_HANDLE_ERROR_MESSAGE \
   "HAL: A handle parameter was passed incorrectly"
+#define HAL_INVALID_DMA_ADDITION -1102
+#define HAL_INVALID_DMA_ADDITION_MESSAGE \
+  "HAL_AddDMA() only works before HAL_StartDMA()"
 
 #define VI_ERROR_SYSTEM_ERROR_MESSAGE "HAL - VISA: System Error";
 #define VI_ERROR_INV_OBJECT_MESSAGE "HAL - VISA: Invalid Object"
