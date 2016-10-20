@@ -169,6 +169,10 @@ fi
 # Setup the driver station to enable automatically in 10 seconds without waiting for the function to excecute.
 enableIn10Seconds&
 
+# Get the serial number and FPGADeviceCode for this rio
+export serialnum=`/sbin/fw_printenv -n serial#`
+export eval `/sbin/fw_printenv DeviceCode FPGADeviceCode DeviceDesc TargetClass`
+
 # Store the run command for the language
 RUN_COMMAND=none
 if [[ ${LANGUAGE} = java ]]; then
