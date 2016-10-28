@@ -16,8 +16,6 @@
 
 #include "HAL/HAL.h"
 #include "Task.h"
-#include "nivision.h"
-
 /**
  * Assert implementation.
  * This allows breakpoints to be set on an assert.
