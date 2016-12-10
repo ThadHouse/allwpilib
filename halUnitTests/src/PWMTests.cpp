@@ -160,5 +160,49 @@ TEST_P(PWMTest, TestTiming1x) {
   TestTiming(0, param);
 }
 
+TEST(PWMTest, TestAllocateAll) {
+  llvm::SmallVector<PWMHandle, 21> pwmHandles;
+  for (int i = 0; i < HAL_GetNumPWMChannels(); i++) {
+    int32_t status = 0;
+    pwmHandles.emplace_back(PWMHandle(i, &status));
+    ASSERT_EQ(status, 0);
+  }
+}
+
+TEST(PWMTest, TestMultipleAllocateFails) {
+  int32_t status = 0;
+  PWMHandle handle(0, &status);
+  ASSERT_NE(handle, HAL_kInvalidHandle);
+  ASSERT_EQ(status, 0);
+
+  PWMHandle handle2(0, &status);
+  ASSERT_EQ(handle2, HAL_kInvalidHandle);
+  ASSERT_EQ(status, RESOURCE_IS_ALLOCATED);
+}
+
+TEST(PWMTest, TestOverAllocateFails) {
+  int32_t status = 0;
+  PWMHandle handle(HAL_GetNumPWMChannels() + 1, &status);
+  ASSERT_EQ(handle, HAL_kInvalidHandle);
+  ASSERT_EQ(status, RESOURCE_OUT_OF_RANGE);
+}
+
+TEST(PWMTest, TestUnderAllocateFails) {
+  int32_t status = 0;
+  PWMHandle handle(-1, &status);
+  ASSERT_EQ(handle, HAL_kInvalidHandle);
+  ASSERT_EQ(status, PARAMETER_OUT_OF_RANGE);
+}
+
+TEST(PWMTest, TestCrossAllocationFails) {
+  int32_t status = 0;
+  DIOHandle dioHandle(10, true, &status);
+  ASSERT_NE(dioHandle, HAL_kInvalidHandle);
+  ASSERT_EQ(status, 0);
+  PWMHandle handle(10, &status);
+  ASSERT_EQ(handle, HAL_kInvalidHandle);
+  ASSERT_EQ(status, RESOURCE_IS_ALLOCATED);
+}
+
 INSTANTIATE_TEST_CASE_P(PWMCrossConnectTests, PWMTest,
                         ::testing::ValuesIn(PWM_DIO_CrossConnects));
