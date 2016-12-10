@@ -182,9 +182,9 @@ TEST(PWMTest, TestMultipleAllocateFails) {
 
 TEST(PWMTest, TestOverAllocateFails) {
   int32_t status = 0;
-  PWMHandle handle(HAL_GetNumPWMChannels() + 1, &status);
+  PWMHandle handle(HAL_GetNumPWMChannels(), &status);
   ASSERT_EQ(handle, HAL_kInvalidHandle);
-  ASSERT_EQ(status, RESOURCE_OUT_OF_RANGE);
+  ASSERT_EQ(status, PARAMETER_OUT_OF_RANGE);
 }
 
 TEST(PWMTest, TestUnderAllocateFails) {
