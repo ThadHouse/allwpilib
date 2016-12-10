@@ -1,0 +1,53 @@
+#pragma once
+
+#include "HAL/HAL.h"
+
+struct InterruptHandle { 
+ public:
+
+  InterruptHandle(HAL_Bool watcher, int32_t* status) {
+    handle = HAL_InitializeInterrupts(watcher, status);
+  }
+
+  ~InterruptHandle() { 
+    int32_t status = 0;
+    HAL_CleanInterrupts(handle, &status);
+  }
+
+  operator HAL_InterruptHandle() const { return handle; }
+ private:
+  HAL_InterruptHandle handle;
+};
+
+struct DIOHandle { 
+ public:
+
+  DIOHandle(int32_t port, HAL_Bool input, int32_t* status) {
+    handle = HAL_InitializeDIOPort(HAL_GetPort(port), input, status);
+  }
+
+  ~DIOHandle() { 
+    HAL_FreeDIOPort(handle);
+  }
+
+  operator HAL_DigitalHandle() const { return handle; }
+ private:
+  HAL_DigitalHandle handle;
+};
+
+struct PWMHandle { 
+ public:
+
+  PWMHandle(int32_t port, int32_t* status) {
+    handle = HAL_InitializePWMPort(HAL_GetPort(port), status);
+  }
+
+  ~PWMHandle() {
+    int32_t status = 0;
+    HAL_FreePWMPort(handle, &status);
+  }
+
+  operator HAL_DigitalHandle() const { return handle; }
+ private:
+  HAL_DigitalHandle handle;
+};
