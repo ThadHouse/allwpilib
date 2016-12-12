@@ -11,10 +11,9 @@ void setup() {
   Wire.begin(4);
   Wire.onReceive(receiveI2C);
   Wire.onRequest(requestI2C);
-  Serial.begin(9600);
+  Serial.begin(57600);
 
   spiBuf = malloc(16);
-  currentSPIMax = 16;
 
   // Set MISO to input
   pinMode(MISO, OUTPUT);
@@ -33,20 +32,15 @@ ISR (SPI_STC_vect)
 
   if (spiHasFinished) return;
 
-  if (spiCount >= currentSPIMax)
-  {
-    // Realloc
-    currentSPIMax *= 2; 
-    realloc(spiBuf, currentSPIMax);
-
-  }
+   
 
   spiBuf[spiCount] = data;
   spiCount++;
 
-  if (data == '\n') 
+ if (data == '\n') 
   {
     spiHasFinished = true;
+    return;
   }
 }
 
@@ -54,7 +48,20 @@ void loop() {
   // put your main code here, to run repeatedly:
   if (spiHasFinished)
   {
-    Serial.write(spiBuf, spiCount - 1);
+    if (spiBuf[0] == 1 && spiBuf[1] == 2)
+    {
+      // Transaction
+      // Send response test string to Master
+      char c = 0;
+      for (const char * p = "Welcome Back!" ; c = *p; p++)
+        SPDR=c; SPI.transfer(c);
+      }
+    else
+    {
+      // Just Read
+      Serial.write(spiBuf, spiCount);
+      Serial.flush();
+    }
     spiCount = 0;
     spiHasFinished = 0;
   }

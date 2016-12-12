@@ -10,8 +10,6 @@
 #include "HAL/cpp/priority_mutex.h"
 #include "HAL/cpp/priority_condition_variable.h"
 
-
-
 class DIOTest : public ::testing::TestWithParam<CrossConnectPair> {
 };
 

@@ -42,7 +42,7 @@ static void SetupSerialPort(HAL_SerialPort port, int32_t* status) {
   HAL_InitializeSerialPort(port, status);
   ASSERT_EQ(*status, 0);
 
-  HAL_SetSerialBaudRate(port, 9600, status);
+  HAL_SetSerialBaudRate(port, 57600, status);
   ASSERT_EQ(*status, 0);
 }
 
