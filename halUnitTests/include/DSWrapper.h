@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-void StartDsLoop();
+bool StartDsLoop();
 
 void SetJoystickHookedUp(int joystick, bool isHookedUp);
 
