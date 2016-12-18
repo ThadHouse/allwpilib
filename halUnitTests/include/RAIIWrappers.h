@@ -2,6 +2,8 @@
 
 #include "HAL/HAL.h"
 
+#include <iostream>
+
 struct InterruptHandle { 
  public:
 
@@ -54,4 +56,22 @@ struct PWMHandle {
   operator HAL_DigitalHandle() const { return handle; }
  private:
   HAL_DigitalHandle handle = 0;
+};
+
+struct SolenoidHandle { 
+ public:
+
+  SolenoidHandle() {}
+
+  SolenoidHandle(int32_t module, int32_t port, int32_t* status) {
+    handle = HAL_InitializeSolenoidPort(HAL_GetPortWithModule(module, port), status);
+  }
+
+  ~SolenoidHandle() {
+    HAL_FreeSolenoidPort(handle);
+  }
+
+  operator HAL_SolenoidHandle() const { return handle; }
+ private:
+  HAL_SolenoidHandle handle = 0;
 };

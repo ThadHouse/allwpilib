@@ -204,5 +204,5 @@ TEST(PWMTest, TestCrossAllocationFails) {
   ASSERT_EQ(status, RESOURCE_IS_ALLOCATED);
 }
 
-INSTANTIATE_TEST_CASE_P(PWMCrossConnectTests, PWMTest,
-                        ::testing::ValuesIn(PWM_DIO_CrossConnects));
+//INSTANTIATE_TEST_CASE_P(PWMCrossConnectTests, PWMTest,
+  //                      ::testing::ValuesIn(PWM_DIO_CrossConnects));

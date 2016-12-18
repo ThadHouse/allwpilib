@@ -18,8 +18,8 @@ const char* spiTestData = "Welcome Back!\n";
 class SPITest : public ::testing::TestWithParam<std::pair<int32_t, HAL_SerialPort>> {
 };
 
-INSTANTIATE_TEST_CASE_P(SPISerialPortCrossConnectTests, SPITest,
-                        ::testing::ValuesIn(SPI_Serial_CrossConnects));
+//INSTANTIATE_TEST_CASE_P(SPISerialPortCrossConnectTests, SPITest,
+//                        ::testing::ValuesIn(SPI_Serial_CrossConnects));
 
 static void SetupSerialPort(HAL_SerialPort port, int32_t* status) {
   *status = 0;

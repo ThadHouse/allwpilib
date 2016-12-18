@@ -15,7 +15,7 @@
 
 #define I2C_ADDRESS 4
 
-const char* i2cTestData = "Welcome Back!";
+const char* i2cTestData = "9Welcome Back!";
 
 class I2CTest : public ::testing::TestWithParam<std::pair<int32_t, HAL_SerialPort>> {
 };
@@ -28,6 +28,10 @@ TEST_P(I2CTest, TestI2CRead) {
   int32_t status = 0;
   HAL_InitializeI2C(param.first, &status);
   ASSERT_EQ(status, 0);
+
+  // Write our seed data
+  status = HAL_WriteI2C(param.first, I2C_ADDRESS, (uint8_t*)i2cTestData, strlen(i2cTestData));
+  ASSERT_EQ(status, 1);
 
   uint8_t buf[strlen(i2cTestData) + 1];
   status = HAL_ReadI2C(param.first, I2C_ADDRESS, buf, strlen(i2cTestData));
