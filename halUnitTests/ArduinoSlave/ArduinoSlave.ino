@@ -108,7 +108,7 @@ void loop()
           sprintf(msgString, "PDP ID: %d requested reset", canID);
           Serial.println(msgString);
       }
-      else
+      else if (rxBuf[0] == 0x40)
       {
         // Reset Energy
         requestedPdpEnergyReset[canID] = true;
