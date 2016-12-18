@@ -11,9 +11,9 @@ char msgString[128];
 volatile unsigned char solenoids[64];
 volatile unsigned char compressor[64];
 
-volatile bool requestedReset[64];
-
-volatile bool sendPcmStatus[64];
+volatile bool requestedPcmReset[64];
+volatile bool requestedPdpReset[64];
+volatile bool requestedPdpEnergyReset[64];
 
 
 
@@ -38,7 +38,9 @@ void setup()
   {
     solenoids[i] = 0;
     compressor[i] = 0;
-    requestedReset[i] = 0;
+    requestedPcmReset[i] = 0;
+    requestedPdpReset[i] = 0;
+    requestedPdpEnergyReset[i] = 0;
   }
 
   //while (!Serial);
@@ -81,7 +83,7 @@ void loop()
         case 0x40:
           // Control2
           // ResetStickyFaults
-          requestedReset[canID] = true;
+          requestedPcmReset[canID] = true;
           sprintf(msgString, "PCM ID: %d requested reset", canID);
           Serial.println(msgString);
           break;
@@ -89,6 +91,29 @@ void loop()
           // Control3
           // OneShot data
           break;
+      }
+    }
+    else if (((rxId & 0x1FFFFFFF) & 0x08041C00) == 0x08041C00)
+    {
+      // Got a PDP message
+
+      // Only 1 packet exists
+
+      int canID = rxId & 0x3F;
+      
+      if (rxBuf[0] == 0x80)
+      {
+        // Reset Sticky Faults
+        requestedPdpReset[canID] = true;
+          sprintf(msgString, "PDP ID: %d requested reset", canID);
+          Serial.println(msgString);
+      }
+      else
+      {
+        // Reset Energy
+        requestedPdpEnergyReset[canID] = true;
+          sprintf(msgString, "PDP ID: %d requested energy reset", canID);
+          Serial.println(msgString);
       }
     }
     return;
@@ -132,10 +157,28 @@ void receiveI2C(int count)
   }
   else if (i2cRecBuf[0] == '3')
   {
-    // 1 means requesting if reset
+    // 1 means requesting if pcm reset
     // 2nd byte is solenoid ID
-    i2cRecBuf[2] = requestedReset[i2cRecBuf[1]];
-    requestedReset[i2cRecBuf[1]] = false;
+    i2cRecBuf[2] = requestedPcmReset[i2cRecBuf[1]];
+    requestedPcmReset[i2cRecBuf[1]] = false;
+    lastCount = 3;
+  }
+
+  else if (i2cRecBuf[0] == '4')
+  {
+    // 1 means requesting if pdp reset
+    // 2nd byte is solenoid ID
+    i2cRecBuf[2] = requestedPdpReset[i2cRecBuf[1]];
+    requestedPdpReset[i2cRecBuf[1]] = false;
+    lastCount = 3;
+  }
+
+  else if (i2cRecBuf[0] == '5')
+  {
+    // 1 means requesting if pdp energy reset
+    // 2nd byte is solenoid ID
+    i2cRecBuf[2] = requestedPdpEnergyReset[i2cRecBuf[1]];
+    requestedPdpEnergyReset[i2cRecBuf[1]] = false;
     lastCount = 3;
   }
   else if (i2cRecBuf[0] = 'T')
