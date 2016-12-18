@@ -132,7 +132,7 @@ TEST_P(SolenoidTest, TestGetAll) {
     data[6 + i] = 0;
   }
 
-  HAL_WriteI2C(0, I2C_ADDRESS, data, 2 + 4 + 8;
+  HAL_WriteI2C(0, I2C_ADDRESS, data, 2 + 4 + 8);
 
   Wait(0.01);
 

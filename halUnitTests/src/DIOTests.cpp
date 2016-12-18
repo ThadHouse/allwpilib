@@ -20,7 +20,7 @@ TEST(DIOTest, TestAllocateAll) {
   llvm::SmallVector<DIOHandle, 32> dioHandles;
   for (int i = 0; i < HAL_GetNumDigitalChannels(); i++) {
     int32_t status = 0;
-    dioHandles.emplace_back(DIOHandle(i, true, &status));
+    dioHandles.emplace_back(i, true, &status);
     ASSERT_EQ(status, 0);
   }
 }
