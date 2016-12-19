@@ -1,7 +1,7 @@
-#include <chrono>
-#include <thread>
+#pragma once
 
-void Wait(double seconds) {
-  if (seconds < 0.0) return;
-  std::this_thread::sleep_for(std::chrono::duration<double>(seconds));
-}
+#include <stdint.h>
+
+void Wait(double seconds);
+
+void FillCANBuffer(uint8_t* sendArray, uint8_t* data, int arbId, int count);

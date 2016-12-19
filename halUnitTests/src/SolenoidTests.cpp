@@ -118,39 +118,28 @@ TEST_P(SolenoidTest, TestGetAll) {
 
   int canID = GetParam();
 
-  uint8_t data[2 + 4 + 8];
-
-  data[0] = 'T';
-  data[1] = 0;
+  uint8_t sendBuffer[2 + 4 + 8];
 
   int arbId = 0x9041400 | canID;
 
-  std::memcpy(&(data[2]), &arbId, 4);
+  uint8_t data[8] = {0};
+  FillCANBuffer(sendBuffer, data, arbId, 8);
 
-  data[6] = 0;
-  for (int i = 1; i < 8; i++) {
-    data[6 + i] = 0;
-  }
-
-  HAL_WriteI2C(0, I2C_ADDRESS, data, 2 + 4 + 8);
+  HAL_WriteI2C(0, I2C_ADDRESS, sendBuffer, 2 + 4 + 8);
 
   Wait(0.01);
-
   int32_t val = HAL_GetAllSolenoids(canID, &status);
   ASSERT_EQ(status, 0);
   ASSERT_EQ(val, 0);
 
-  data[0] = 'T';
-  data[1] = 0;
-
-  std::memcpy(&(data[2]), &arbId, 4);
-
-  data[6] = 0xff;
+  data[0] = 0xff;
   for (int i = 1; i < 8; i++) {
-    data[6 + i] = 0;
+    data[i] = 0;
   }
 
-  HAL_WriteI2C(0, I2C_ADDRESS, data, 2 + 4 + 8);
+  FillCANBuffer(sendBuffer, data, arbId, 8);
+
+  HAL_WriteI2C(0, I2C_ADDRESS, sendBuffer, 2 + 4 + 8);
 
   Wait(0.01);
 
@@ -160,17 +149,15 @@ TEST_P(SolenoidTest, TestGetAll) {
 
   for (int i = 0; i < 8; i++)
   {
-    data[0] = 'T';
-    data[1] = 0;
 
-    std::memcpy(&(data[2]), &arbId, 4);
-
-    data[6] = 1 << i;
+    data[0] = 1 << i;
     for (int i = 1; i < 8; i++) {
-      data[6 + i] = 0;
+      data[i] = 0;
     }
 
-    HAL_WriteI2C(0, I2C_ADDRESS, data, 2 + 4 + 8);
+    FillCANBuffer(sendBuffer, data, arbId, 8);
+
+    HAL_WriteI2C(0, I2C_ADDRESS, sendBuffer, 2 + 4 + 8);
 
     Wait(0.01);
 
