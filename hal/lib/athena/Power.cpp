@@ -56,11 +56,11 @@ double HAL_GetUserCurrent6V(int32_t* status) {
 }
 
 /**
- * Get the active state of the 6V rail
+ * Get the status of the 6V rail
  */
-HAL_Bool HAL_GetUserActive6V(int32_t* status) {
+HAL_PowerStatus HAL_GetUserStatus6V(int32_t* status) {
   initializePower(status);
-  return power->readStatus_User6V(status) == 4;
+  return static_cast<HAL_PowerStatus(power->readStatus_User6V(status));
 }
 
 /**
@@ -89,11 +89,11 @@ double HAL_GetUserCurrent5V(int32_t* status) {
 }
 
 /**
- * Get the active state of the 5V rail
+ * Get the status of the 5V rail
  */
-HAL_Bool HAL_GetUserActive5V(int32_t* status) {
+HAL_PowerStatus HAL_GetUserStatus5V(int32_t* status) {
   initializePower(status);
-  return power->readStatus_User5V(status) == 4;
+  return static_cast<HAL_PowerStatus(power->readStatus_User5V(status));
 }
 
 /**
@@ -122,11 +122,11 @@ double HAL_GetUserCurrent3V3(int32_t* status) {
 }
 
 /**
- * Get the active state of the 3.3V rail
+ * Get the status of the 3.3V rail
  */
-HAL_Bool HAL_GetUserActive3V3(int32_t* status) {
+HAL_PowerStatus HAL_GetUserStatus3V3(int32_t* status) {
   initializePower(status);
-  return power->readStatus_User3V3(status) == 4;
+  return static_cast<HAL_PowerStatus(power->readStatus_User3V3(status));
 }
 
 /**
@@ -137,5 +137,12 @@ int32_t HAL_GetUserCurrentFaults3V3(int32_t* status) {
   return static_cast<int32_t>(
       power->readFaultCounts_OverCurrentFaultCount3V3(status));
 }
+
+void HAL_SetUserVoltage3V3Disabled(HAL_Bool disable, int32_t* status) {
+  initializePower(status);
+  return 
+}
+void HAL_SetUserVoltage5VDisabled(HAL_Bool disable, int32_t* status);
+void HAL_SetUserVoltage6VDisabled(HAL_Bool disable, int32_t* status);
 
 }  // extern "C"
