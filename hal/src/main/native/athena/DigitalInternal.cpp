@@ -25,10 +25,10 @@ namespace hal {
 // Create a mutex to protect changes to the DO PWM config
 std::mutex digitalPwmMutex;
 
-std::unique_ptr<tDIO> digitalSystem;
-std::unique_ptr<tRelay> relaySystem;
-std::unique_ptr<tPWM> pwmSystem;
-std::unique_ptr<tSPI> spiSystem;
+std::shared_ptr<tDIO> digitalSystem;
+std::shared_ptr<tRelay> relaySystem;
+std::shared_ptr<tPWM> pwmSystem;
+std::shared_ptr<tSPI> spiSystem;
 
 static std::atomic<bool> digitalSystemsInitialized{false};
 static std::mutex initializeMutex;

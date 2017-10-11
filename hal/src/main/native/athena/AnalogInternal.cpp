@@ -17,8 +17,8 @@
 namespace hal {
 
 std::mutex analogRegisterWindowMutex;
-std::unique_ptr<tAI> analogInputSystem;
-std::unique_ptr<tAO> analogOutputSystem;
+std::shared_ptr<tAI> analogInputSystem;
+std::shared_ptr<tAO> analogOutputSystem;
 
 IndexedHandleResource<HAL_AnalogInputHandle, hal::AnalogPort, kNumAnalogInputs,
                       HAL_HandleEnum::AnalogInput>
