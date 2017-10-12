@@ -23,6 +23,10 @@ using namespace frc;
 std::mutex ErrorBase::_globalErrorMutex;
 Error ErrorBase::_globalError;
 
+ErrorBase::ErrorBase() {
+  HAL_Initialize(500, 0);
+}
+
 /**
  * @brief Retrieve the current error.
  * Get the current error information associated with this sensor.
