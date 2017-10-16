@@ -54,53 +54,42 @@ HAL_DigitalHandle HAL_InitializeDIOPort(HAL_PortHandle portHandle,
 
   port->channel = static_cast<uint8_t>(channel);
 
-  std::lock_guard<std::mutex> sync(digitalDIOMutex);
+  {
+    std::lock_guard<std::mutex> sync(digitalDIOMutex);
 
-  tDIO::tOutputEnable outputEnable = digitalSystem->readOutputEnable(status);
+    if (port->channel >= kNumDigitalHeaders + kNumDigitalMXPChannels) {
+      if (!getPortHandleSPIEnable(portHandle)) {
+        // if this flag is not set, we actually want DIO.
+        uint32_t bitToSet = 1u << remapSPIChannel(port->channel);
 
-  if (port->channel >= kNumDigitalHeaders + kNumDigitalMXPChannels) {
-    if (!getPortHandleSPIEnable(portHandle)) {
-      // if this flag is not set, we actually want DIO.
-      uint32_t bitToSet = 1u << remapSPIChannel(port->channel);
-
-      uint16_t specialFunctions = spiSystem->readEnableDIO(status);
-      // Set the field to enable SPI DIO
-      spiSystem->writeEnableDIO(specialFunctions | bitToSet, status);
-
-      if (input) {
-        outputEnable.SPIPort =
-            outputEnable.SPIPort & (~bitToSet);  // clear the field for read
-      } else {
-        outputEnable.SPIPort =
-            outputEnable.SPIPort | bitToSet;  // set the bits for write
+        uint16_t specialFunctions = spiSystem->readEnableDIO(status);
+        // Set the field to enable SPI DIO
+        spiSystem->writeEnableDIO(specialFunctions | bitToSet, status);
       }
-    }
-  } else if (port->channel < kNumDigitalHeaders) {
-    uint32_t bitToSet = 1u << port->channel;
-    if (input) {
-      outputEnable.Headers =
-          outputEnable.Headers & (~bitToSet);  // clear the bit for read
-    } else {
-      outputEnable.Headers =
-          outputEnable.Headers | bitToSet;  // set the bit for write
-    }
-  } else {
-    uint32_t bitToSet = 1u << remapMXPChannel(port->channel);
+    } else if (port->channel >= kNumDigitalHeaders) {
+      uint32_t bitToSet = 1u << remapMXPChannel(port->channel);
 
-    uint16_t specialFunctions =
-        digitalSystem->readEnableMXPSpecialFunction(status);
-    digitalSystem->writeEnableMXPSpecialFunction(specialFunctions & ~bitToSet,
-                                                 status);
-
-    if (input) {
-      outputEnable.MXP =
-          outputEnable.MXP & (~bitToSet);  // clear the bit for read
-    } else {
-      outputEnable.MXP = outputEnable.MXP | bitToSet;  // set the bit for write
+      uint16_t specialFunctions =
+          digitalSystem->readEnableMXPSpecialFunction(status);
+      digitalSystem->writeEnableMXPSpecialFunction(specialFunctions & ~bitToSet,
+                                                    status);
     }
   }
 
-  digitalSystem->writeOutputEnable(outputEnable, status);
+  if (*status != 0) {
+    // Free our structure, and return an invalid handle;
+    digitalChannelHandles.Free(handle, HAL_HandleEnum::DIO);
+    return HAL_kInvalidHandle;
+  }
+
+  *status = 0;
+  HAL_SetDIODirection(handle, input, status);
+
+  if (*status != 0) {
+    // Free our structure, and return an invalid handle;
+    digitalChannelHandles.Free(handle, HAL_HandleEnum::DIO);
+    return HAL_kInvalidHandle;
+  }
 
   return handle;
 }
@@ -293,6 +282,51 @@ void HAL_SetDIO(HAL_DigitalHandle dioPortHandle, HAL_Bool value,
     }
     digitalSystem->writeDO(currentDIO, status);
   }
+}
+
+void HAL_SetDIODirection(HAL_DigitalHandle dioPortHandle, HAL_Bool input,
+                         int32_t* status) {
+  auto port = digitalChannelHandles.Get(dioPortHandle, HAL_HandleEnum::DIO);
+  if (port == nullptr) {
+    *status = HAL_HANDLE_ERROR;
+    return;
+  }
+
+  std::lock_guard<std::mutex> sync(digitalDIOMutex);
+
+  tDIO::tOutputEnable outputEnable = digitalSystem->readOutputEnable(status);
+
+  if (port->channel >= kNumDigitalHeaders + kNumDigitalMXPChannels) {
+    if (!getPortHandleSPIEnable(dioPortHandle)) {
+      uint32_t bitToSet = 1u << remapSPIChannel(port->channel);
+      if (input) {
+        outputEnable.SPIPort =
+            outputEnable.SPIPort & (~bitToSet);  // clear the field for read
+      } else {
+        outputEnable.SPIPort =
+            outputEnable.SPIPort | bitToSet;  // set the bits for write
+      }
+    }
+  } else if (port->channel < kNumDigitalHeaders) {
+    uint32_t bitToSet = 1u << port->channel;
+    if (input) {
+      outputEnable.Headers =
+          outputEnable.Headers & (~bitToSet);  // clear the bit for read
+    } else {
+      outputEnable.Headers =
+          outputEnable.Headers | bitToSet;  // set the bit for write
+    }
+  } else {
+    uint32_t bitToSet = 1u << remapMXPChannel(port->channel);
+    if (input) {
+      outputEnable.MXP =
+          outputEnable.MXP & (~bitToSet);  // clear the bit for read
+    } else {
+      outputEnable.MXP = outputEnable.MXP | bitToSet;  // set the bit for write
+    }
+  }
+
+  digitalSystem->writeOutputEnable(outputEnable, status);
 }
 
 /**
