@@ -18,6 +18,8 @@
 
 namespace frc {
 
+class TriStateDigital
+
 /**
  * Class to write to digital outputs.
  * Write values to the digital output channels. Other devices implemented
@@ -50,12 +52,15 @@ class DigitalOutput : public DigitalSource, public LiveWindowSendable {
   void InitTable(std::shared_ptr<nt::NetworkTable> subTable) override;
 
  private:
+  explicit DigitalOutput(HAL_DigitalHandle handle);
   int m_channel;
   HAL_DigitalHandle m_handle;
   HAL_DigitalPWMHandle m_pwmGenerator;
 
   nt::NetworkTableEntry m_valueEntry;
   NT_EntryListener m_valueListener = 0;
+
+  friend class TriStateDigital;
 };
 
 }  // namespace frc

@@ -17,6 +17,7 @@
 namespace frc {
 
 class DigitalGlitchFilter;
+class TriStateDigital;
 
 /**
  * Class to read a digital input.
@@ -45,11 +46,13 @@ class DigitalInput : public DigitalSource, public LiveWindowSendable {
   void InitTable(std::shared_ptr<nt::NetworkTable> subTable) override;
 
  private:
+  explicit DigitalInput(HAL_DigitalHandle handle);
   int m_channel;
   HAL_DigitalHandle m_handle;
 
   nt::NetworkTableEntry m_valueEntry;
   friend class DigitalGlitchFilter;
+  friend class TriStateDigital;
 };
 
 }  // namespace frc
