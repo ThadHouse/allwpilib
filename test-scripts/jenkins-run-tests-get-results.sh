@@ -16,7 +16,7 @@ flock -x 200 || exit 1
 
 # To work around memory leak, kill NetComm and restart the teststand
 # (the teststand dies when NetComm is killed)
-SSH_RESTART_NETCOMM="ssh -t ${ROBOT_ADDRESS} sh -c 'killall FRC_NetCommDaemon; sleep 1; /etc/init.d/teststand stop; /etc/init.d/teststand start; sleep 1'"
+SSH_RESTART_NETCOMM="ssh -t ${ROBOT_ADDRESS} sh -c 'killall FRC_NetCommDaemon; sleep 1; /etc/init.d/teststand stop'"
 if [ $(which sshpass) ]; then
 	sshpass -p "" ${SSH_RESTART_NETCOMM}
 else
