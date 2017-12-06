@@ -86,7 +86,7 @@ void NotifierThreadJNI::Main() {
       jvm->AttachCurrentThreadAsDaemon(reinterpret_cast<void **>(&env), &args);
   if (rs != JNI_OK) return;
 
-  std::unique_lock<std::mutex> lock(m_mutex);
+  std::unique_lock<wpi::mutex> lock(m_mutex);
   while (m_active) {
     m_cond.wait(lock, [&] { return !m_active || m_notify; });
     if (!m_active) break;
@@ -148,7 +148,7 @@ Java_edu_wpi_first_wpilibj_hal_NotifierJNI_initializeNotifier(
   notify->Start();
   notify->SetFunc(env, func, mid);
   int32_t status = 0;
-  HAL_NotifierHandle notifierHandle = 
+  HAL_NotifierHandle notifierHandle =
       HAL_InitializeNotifierNonThreadedUnsafe(notifierHandler, notify, &status);
 
   NOTIFIERJNI_LOG(logDEBUG) << "Notifier Handle = " << notifierHandle;

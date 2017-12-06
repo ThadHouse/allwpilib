@@ -46,7 +46,7 @@ struct Notifier {
 class NotifierThread : public wpi::SafeThread {
  public:
   void Main() {
-    std::unique_lock<std::mutex> lock(m_mutex);
+    std::unique_lock<wpi::mutex> lock(m_mutex);
     while (m_active) {
       m_cond.wait(lock, [&] { return !m_active || m_notify; });
       if (!m_active) break;
