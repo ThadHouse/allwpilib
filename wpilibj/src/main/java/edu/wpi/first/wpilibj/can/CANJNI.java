@@ -30,6 +30,12 @@ public class CANJNI extends JNIWrapper {
   public static native byte[] FRCNetCommCANSessionMuxReceiveMessage(
       IntBuffer messageID, int messageIDMask, ByteBuffer timeStamp);
 
+  /*
+   * This is a Packed API in order to do CAN without allocation.
+   * buffer must be 17 bytes long
+   */
+  @SuppressWarnings("MethodName")
+  public static native int GetPackedCANMessage(byte[] buffer, int arbIdMask);
 
   @SuppressWarnings("MethodName")
   public static native void GetCANStatus(CANStatus status);

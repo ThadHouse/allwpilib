@@ -9,6 +9,7 @@
 #include <jni.h>
 
 #include "HAL/cpp/Log.h"
+#include "HAL/Errors.h"
 #include "HAL/CAN.h"
 #include "HALUtil.h"
 #include "edu_wpi_first_wpilibj_can_CANJNI.h"
@@ -121,8 +122,47 @@ Java_edu_wpi_first_wpilibj_can_CANJNI_FRCNetCommCANSessionMuxReceiveMessage(
   CANJNI_LOG(logDEBUG) << "Status: " << status;
 
   if (!CheckCANStatus(env, status, *messageIDPtr)) return nullptr;
-  return MakeJByteArray(env, llvm::StringRef{reinterpret_cast<const char*>(buffer), 
+  return MakeJByteArray(env, llvm::StringRef{reinterpret_cast<const char*>(buffer),
                         static_cast<size_t>(dataSize)});
+}
+
+/*
+ * Class:     edu_wpi_first_wpilibj_can_CANJNI
+ * Method:    GetPackedCANMessage
+ * Signature: ([BI)I
+ */
+JNIEXPORT jint JNICALL
+Java_edu_wpi_first_wpilibj_can_CANJNI_GetPackedCANMessage(
+  JNIEnv * env, jclass, jbyteArray packedData, jint idMask) {
+
+  if (!packedData) return NULL_PARAMETER;
+
+  auto arrLen = env->GetArrayLength(packedData);
+
+  if (arrLen < 17) return PARAMETER_OUT_OF_RANGE;
+
+
+  uint8_t data[17];
+  uint8_t dataSize = 0;
+  uint32_t messageId = 0;
+  uint32_t timeStamp = 0;
+  int32_t status = 0;
+
+
+  HAL_CAN_ReceiveMessage(&messageId, idMask, data, &dataSize, &timeStamp, &status);
+
+  // Copy data in
+  // 0-7: buffer
+  // 8: bufLen
+  // 9-12: arbId;
+  // 13-16: timestamp
+  data[8] = dataSize;
+  std::memcpy(data + 9, &messageId, sizeof(messageId));
+  std::memcpy(data + 13, &timeStamp, sizeof(timeStamp));
+
+  env->SetByteArrayRegion(packedData, 0, 17, reinterpret_cast<jbyte*>(data));
+
+  return status;
 }
 
 /*
@@ -143,7 +183,7 @@ JNIEXPORT void JNICALL Java_edu_wpi_first_wpilibj_can_CANJNI_GetCANStatus
   int32_t status = 0;
   HAL_CAN_GetCANStatus(&percentBusUtilization, &busOffCount, &txFullCount,
                        &receiveErrorCount, &transmitErrorCount, &status);
-  
+
   if (!CheckStatus(env, status)) return;
 
   SetCanStatusObject(env, canStatus, percentBusUtilization, busOffCount,
