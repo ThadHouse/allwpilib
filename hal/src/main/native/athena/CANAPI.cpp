@@ -7,10 +7,14 @@
 
 #include "HAL/CANAPI.h"
 
-#include <llvm/MapVector.h>
+#include <atomic>
+#include <ctime>
+
+#include <llvm/DenseMap.h>
 
 #include "HAL/CAN.h"
 #include "HAL/Errors.h"
+#include "HAL/HAL.h"
 #include "HAL/handles/UnlimitedHandleResource.h"
 
 using namespace hal;
@@ -35,6 +39,32 @@ struct CANStorage {
 static UnlimitedHandleResource<HAL_CANHandle, CANStorage, HAL_HandleEnum::CAN>*
     canHandles;
 
+static std::atomic_bool HasFixedTime{false};
+static uint64_t timeSpanDiff;
+
+static void CheckDeltaTime() {
+  if (HasFixedTime) return;
+  HasFixedTime = true;
+
+  // TODO: Fix locking
+  timespec t;
+  clock_gettime(CLOCK_MONOTONIC, &t);
+
+  int32_t status = 0;
+  uint64_t fpgaTime = HAL_GetFPGATime(&status);
+
+  // Convert t to microseconds
+  uint64_t us = t.tv_sec * 1000000 + t.tv_nsec / 1000;
+
+  timeSpanDiff =
+      us - fpgaTime;  // This assumes CLOCK_MONOTONIC is greater then FPGA Time.
+}
+
+static inline uint64_t ConvertToFPGATime(uint32_t canMs) {
+  uint64_t canMsToUs = canMs * 1000;
+  return canMsToUs - timeSpanDiff;
+}
+
 namespace hal {
 namespace init {
 void InitializeCANAPI() {
@@ -50,6 +80,7 @@ static int32_t CreateCANId(CANStorage* storage, int32_t id) { return 0; }
 HAL_CANHandle HAL_InitializeCAN(HAL_CANManufacturer manufacturer,
                                 int32_t deviceId, HAL_CANDeviceType deviceType,
                                 int32_t* status) {
+  CheckDeltaTime();
   auto can = std::make_shared<CANStorage>();
 
   auto handle = canHandles->Allocate(can);
@@ -147,11 +178,20 @@ void HAL_ReadCANPacketNew(HAL_CANHandle handle, int32_t apiId, uint8_t* data,
 
   uint32_t messageId = 0;
   uint8_t dataSize = 0;
-  uint32_t timestamp = 0;
-  HAL_CAN_ReceiveMessage(&messageId, id, data, &dataSize, &timestamp, status);
+  uint32_t ts = 0;
+  HAL_CAN_ReceiveMessage(&messageId, id, data, &dataSize, &ts, status);
 
+  uint64_t timestamp = ConvertToFPGATime(ts);
+
+  if (*status == 0) {
+    std::unique_lock<wpi::mutex> lock(can->mapMutex);
+    auto& msg = can->receives[id];
+    msg.length = dataSize;
+    msg.lastTimeStamp = timestamp;
+    std::memcpy(msg.data, data, dataSize);
+  }
   *length = dataSize;
-  *receivedTimestamp = timestamp;  // TODO : Fix this
+  *receivedTimestamp = timestamp;
 }
 
 void HAL_ReadCANPacketLatest(HAL_CANHandle handle, int32_t apiId, uint8_t* data,
@@ -166,11 +206,13 @@ void HAL_ReadCANPacketLatest(HAL_CANHandle handle, int32_t apiId, uint8_t* data,
 
   uint32_t messageId = 0;
   uint8_t dataSize = 0;
-  uint32_t timestamp = 0;
-  HAL_CAN_ReceiveMessage(&messageId, id, data, &dataSize, &timestamp, status);
-  std::unique_lock<wpi::mutex> lock(can->mapMutex);
+  uint32_t ts = 0;
+  HAL_CAN_ReceiveMessage(&messageId, id, data, &dataSize, &ts, status);
 
-  if (status == 0) {
+  uint64_t timestamp = ConvertToFPGATime(ts);
+
+  std::unique_lock<wpi::mutex> lock(can->mapMutex);
+  if (*status == 0) {
     // fresh update
     auto& msg = can->receives[id];
     msg.length = dataSize;
@@ -202,11 +244,13 @@ void HAL_ReadCANPacketTimeout(HAL_CANHandle handle, int32_t apiId,
 
   uint32_t messageId = 0;
   uint8_t dataSize = 0;
-  uint32_t timestamp = 0;
-  HAL_CAN_ReceiveMessage(&messageId, id, data, &dataSize, &timestamp, status);
-  std::unique_lock<wpi::mutex> lock(can->mapMutex);
+  uint32_t ts = 0;
+  HAL_CAN_ReceiveMessage(&messageId, id, data, &dataSize, &ts, status);
 
-  if (status == 0) {
+  uint64_t timestamp = ConvertToFPGATime(ts);
+
+  std::unique_lock<wpi::mutex> lock(can->mapMutex);
+  if (*status == 0) {
     // fresh update
     auto& msg = can->receives[id];
     msg.length = dataSize;

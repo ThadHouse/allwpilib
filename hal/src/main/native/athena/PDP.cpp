@@ -9,6 +9,7 @@
 
 #include <memory>
 
+#include "HAL/CANAPI.h"
 #include "HAL/Errors.h"
 #include "HAL/Ports.h"
 #include "HAL/cpp/make_unique.h"
