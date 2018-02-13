@@ -262,10 +262,11 @@ void HAL_ReadCANPacketTimeout(HAL_CANHandle handle, int32_t apiId,
     auto i = can->receives.find(id);
     if (i != can->receives.end()) {
       // Found, check if new enough
-      uint64_t now = 0;  // TODO: fix
+      uint64_t now = HAL_GetFPGATime(status);
       if (now - i->second.lastTimeStamp >
           static_cast<uint64_t>(timeoutMs) * 1000) {
         // Timeout, return bad status
+        *status = HAL_CAN_TIMEOUT;
         return;
       }
       std::memcpy(i->second.data, data, i->second.length);
