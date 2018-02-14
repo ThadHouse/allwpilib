@@ -276,3 +276,65 @@ void HAL_ReadCANPacketTimeout(HAL_CANHandle handle, int32_t apiId,
     }
   }
 }
+
+void HAL_ReadCANPeriodicPacket(HAL_CANHandle handle, int32_t apiId,
+                               uint8_t* data, int32_t* length,
+                               uint64_t* receivedTimestamp, int32_t timeoutMs,
+                               int32_t periodMs, int32_t* status) {
+  auto can = canHandles->Get(handle);
+  if (!can) {
+    *status = HAL_HANDLE_ERROR;
+    return;
+  }
+  auto id = CreateCANId(can.get(), apiId);
+
+  {
+    std::unique_lock<wpi::mutex> lock(can->mapMutex);
+    auto i = can->receives.find(id);
+    if (i != can->receives.end()) {
+      uint64_t now = HAL_GetFPGATime(status);
+      // Found, check if new enough
+      if (now - i->second.lastTimeStamp <
+          static_cast<uint64_t>(periodMs) * 1000) {
+        *status = 0;
+        std::memcpy(i->second.data, data, i->second.length);
+        *length = i->second.length;
+        *receivedTimestamp = i->second.lastTimeStamp;
+      }
+    }
+  }
+
+  uint32_t messageId = 0;
+  uint8_t dataSize = 0;
+  uint32_t ts = 0;
+  HAL_CAN_ReceiveMessage(&messageId, id, data, &dataSize, &ts, status);
+
+  uint64_t timestamp = ConvertToFPGATime(ts);
+
+  std::unique_lock<wpi::mutex> lock(can->mapMutex);
+  if (*status == 0) {
+    // fresh update
+    auto& msg = can->receives[id];
+    msg.length = dataSize;
+    *length = dataSize;
+    msg.lastTimeStamp = timestamp;
+    *receivedTimestamp = timestamp;
+    std::memcpy(msg.data, data, dataSize);
+  } else {
+    auto i = can->receives.find(id);
+    if (i != can->receives.end()) {
+      // Found, check if new enough
+      uint64_t now = HAL_GetFPGATime(status);
+      if (now - i->second.lastTimeStamp >
+          static_cast<uint64_t>(timeoutMs) * 1000) {
+        // Timeout, return bad status
+        *status = HAL_CAN_TIMEOUT;
+        return;
+      }
+      std::memcpy(i->second.data, data, i->second.length);
+      *length = i->second.length;
+      *receivedTimestamp = i->second.lastTimeStamp;
+      *status = 0;
+    }
+  }
+}

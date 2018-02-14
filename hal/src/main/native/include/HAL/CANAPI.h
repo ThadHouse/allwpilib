@@ -68,6 +68,10 @@ void HAL_ReadCANPacketTimeout(HAL_CANHandle handle, int32_t apiId,
                               uint8_t* data, int32_t* length,
                               uint64_t* receivedTimestamp, int32_t timeoutMs,
                               int32_t* status);
+void HAL_ReadCANPeriodicPacket(HAL_CANHandle handle, int32_t apiId,
+                               uint8_t* data, int32_t* length,
+                               uint64_t* receivedTimestamp, int32_t timeoutMs,
+                               int32_t periodMs, int32_t* status);
 
 #ifdef __cplusplus
 }  // extern "C"

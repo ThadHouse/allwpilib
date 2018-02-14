@@ -24,14 +24,15 @@ static constexpr HAL_CANManufacturer manufacturer =
 static constexpr HAL_CANDeviceType deviceType =
     HAL_CANDeviceType::HAL_CAN_Dev_kPowerDistribution;
 
-static constexpr int32_t Status1 = 0x1400;
-static constexpr int32_t Status2 = 0x1440;
-static constexpr int32_t Status3 = 0x1480;
-static constexpr int32_t StatusEnergy = 0x1740;
+static constexpr int32_t Status1 = 0x50;
+static constexpr int32_t Status2 = 0x51;
+static constexpr int32_t Status3 = 0x52;
+static constexpr int32_t StatusEnergy = 0x5D;
 
-static constexpr int32_t Control1 = 0x1C00;
+static constexpr int32_t Control1 = 0x70;
 
 static constexpr int32_t TimeoutMs = 50;
+static constexpr int32_t StatusPeriodMs = 25;
 
 /* encoder/decoders */
 union PdpStatus1 {
@@ -105,17 +106,9 @@ union PdpStatusEnergy {
   };
 };
 
-static IndexedHandleResource<HAL_PDPHandle, HAL_CANHandle, kNumPDPModules,
-                             HAL_HandleEnum::CAN>* pdpHandles;
-
 namespace hal {
 namespace init {
-void InitializePDP() {
-  static IndexedHandleResource<HAL_PDPHandle, HAL_CANHandle, kNumPDPModules,
-                               HAL_HandleEnum::CAN>
-      pH;
-  pdpHandles = &pH;
-}
+void InitializePDP() {}
 }  // namespace init
 }  // namespace hal
 
@@ -137,6 +130,8 @@ HAL_PDPHandle HAL_InitializePDP(int32_t module, int32_t* status) {
   return handle;
 }
 
+void HAL_CleanPDP(HAL_PDPHandle handle) { HAL_CleanCAN(handle); }
+
 HAL_Bool HAL_CheckPDPModule(int32_t module) {
   return module < kNumPDPModules && module >= 0;
 }
@@ -150,8 +145,9 @@ double HAL_GetPDPTemperature(HAL_PDPHandle handle, int32_t* status) {
   int32_t length = 0;
   uint64_t receivedTimestamp = 0;
 
-  HAL_ReadCANPacketTimeout(handle, Status3, pdpStatus.data, &length,
-                           &receivedTimestamp, TimeoutMs, status);
+  HAL_ReadCANPeriodicPacket(handle, Status3, pdpStatus.data, &length,
+                            &receivedTimestamp, TimeoutMs, StatusPeriodMs,
+                            status);
 
   return pdpStatus.temp * 1.03250836957542 - 67.8564500484966;
 }
@@ -161,63 +157,182 @@ double HAL_GetPDPVoltage(HAL_PDPHandle handle, int32_t* status) {
   int32_t length = 0;
   uint64_t receivedTimestamp = 0;
 
-  HAL_ReadCANPacketTimeout(handle, Status3, pdpStatus.data, &length,
-                           &receivedTimestamp, TimeoutMs, status);
+  HAL_ReadCANPeriodicPacket(handle, Status3, pdpStatus.data, &length,
+                            &receivedTimestamp, TimeoutMs, StatusPeriodMs,
+                            status);
 
   return pdpStatus.busVoltage * 0.05 + 4.0;
 }
 
 double HAL_GetPDPChannelCurrent(HAL_PDPHandle handle, int32_t channel,
                                 int32_t* status) {
-  if (!checkPDPInit(module, status)) return 0;
+  if (!HAL_CheckPDPChannel(channel)) {
+    *status = PARAMETER_OUT_OF_RANGE;
+    return 0;
+  }
 
-  double current;
+  int32_t length = 0;
+  uint64_t receivedTimestamp = 0;
 
-  *status = pdp[module]->GetChannelCurrent(channel, current);
+  double raw = 0;
 
-  return current;
+  if (channel <= 5) {
+    PdpStatus1 pdpStatus;
+    HAL_ReadCANPeriodicPacket(handle, Status1, pdpStatus.data, &length,
+                              &receivedTimestamp, TimeoutMs, StatusPeriodMs,
+                              status);
+    switch (channel) {
+      case 0:
+        raw = (static_cast<uint32_t>(pdpStatus.chan1_h8) << 2) |
+              pdpStatus.chan1_l2;
+        break;
+      case 1:
+        raw = (static_cast<uint32_t>(pdpStatus.chan2_h6) << 4) |
+              pdpStatus.chan2_l4;
+        break;
+      case 2:
+        raw = (static_cast<uint32_t>(pdpStatus.chan3_h4) << 6) |
+              pdpStatus.chan3_l6;
+        break;
+      case 3:
+        raw = (static_cast<uint32_t>(pdpStatus.chan4_h2) << 8) |
+              pdpStatus.chan4_l8;
+        break;
+      case 4:
+        raw = (static_cast<uint32_t>(pdpStatus.chan5_h8) << 2) |
+              pdpStatus.chan5_l2;
+        break;
+      case 5:
+        raw = (static_cast<uint32_t>(pdpStatus.chan6_h6) << 4) |
+              pdpStatus.chan6_l4;
+        break;
+    }
+  } else if (channel <= 11) {
+    PdpStatus2 pdpStatus;
+    HAL_ReadCANPeriodicPacket(handle, Status2, pdpStatus.data, &length,
+                              &receivedTimestamp, TimeoutMs, StatusPeriodMs,
+                              status);
+    switch (channel) {
+      case 6:
+        raw = (static_cast<uint32_t>(pdpStatus.chan7_h8) << 2) |
+              pdpStatus.chan7_l2;
+        break;
+      case 7:
+        raw = (static_cast<uint32_t>(pdpStatus.chan8_h6) << 4) |
+              pdpStatus.chan8_l4;
+        break;
+      case 8:
+        raw = (static_cast<uint32_t>(pdpStatus.chan9_h4) << 6) |
+              pdpStatus.chan9_l6;
+        break;
+      case 9:
+        raw = (static_cast<uint32_t>(pdpStatus.chan10_h2) << 8) |
+              pdpStatus.chan10_l8;
+        break;
+      case 10:
+        raw = (static_cast<uint32_t>(pdpStatus.chan11_h8) << 2) |
+              pdpStatus.chan11_l2;
+        break;
+      case 11:
+        raw = (static_cast<uint32_t>(pdpStatus.chan12_h6) << 4) |
+              pdpStatus.chan12_l4;
+        break;
+    }
+  } else {
+    PdpStatus3 pdpStatus;
+    HAL_ReadCANPeriodicPacket(handle, Status3, pdpStatus.data, &length,
+                              &receivedTimestamp, TimeoutMs, StatusPeriodMs,
+                              status);
+    switch (channel) {
+      case 12:
+        raw = (static_cast<uint32_t>(pdpStatus.chan13_h8) << 2) |
+              pdpStatus.chan13_l2;
+        break;
+      case 13:
+        raw = (static_cast<uint32_t>(pdpStatus.chan14_h6) << 4) |
+              pdpStatus.chan14_l4;
+        break;
+      case 14:
+        raw = (static_cast<uint32_t>(pdpStatus.chan15_h4) << 6) |
+              pdpStatus.chan15_l6;
+        break;
+      case 15:
+        raw = (static_cast<uint32_t>(pdpStatus.chan16_h2) << 8) |
+              pdpStatus.chan16_l8;
+        break;
+    }
+  }
+
+  return raw * 0.125;
 }
 
 double HAL_GetPDPTotalCurrent(HAL_PDPHandle handle, int32_t* status) {
-  if (!checkPDPInit(module, status)) return 0;
+  PdpStatusEnergy pdpStatus;
+  int32_t length = 0;
+  uint64_t receivedTimestamp = 0;
 
-  double current;
+  HAL_ReadCANPeriodicPacket(handle, StatusEnergy, pdpStatus.data, &length,
+                            &receivedTimestamp, TimeoutMs, StatusPeriodMs,
+                            status);
 
-  *status = pdp[module]->GetTotalCurrent(current);
-
-  return current;
+  uint32_t raw;
+  raw = pdpStatus.TotalCurrent_125mAperunit_h8;
+  raw <<= 4;
+  raw |= pdpStatus.TotalCurrent_125mAperunit_l4;
+  return 0.125 * raw;
 }
 
 double HAL_GetPDPTotalPower(HAL_PDPHandle handle, int32_t* status) {
-  if (!checkPDPInit(module, status)) return 0;
+  PdpStatusEnergy pdpStatus;
+  int32_t length = 0;
+  uint64_t receivedTimestamp = 0;
 
-  double power;
+  HAL_ReadCANPeriodicPacket(handle, StatusEnergy, pdpStatus.data, &length,
+                            &receivedTimestamp, TimeoutMs, StatusPeriodMs,
+                            status);
 
-  *status = pdp[module]->GetTotalPower(power);
-
-  return power;
+  uint32_t raw;
+  raw = pdpStatus.Power_125mWperunit_h4;
+  raw <<= 8;
+  raw |= pdpStatus.Power_125mWperunit_m8;
+  raw <<= 4;
+  raw |= pdpStatus.Power_125mWperunit_l4;
+  return 0.125 * raw;
 }
 
 double HAL_GetPDPTotalEnergy(HAL_PDPHandle handle, int32_t* status) {
-  if (!checkPDPInit(module, status)) return 0;
+  PdpStatusEnergy pdpStatus;
+  int32_t length = 0;
+  uint64_t receivedTimestamp = 0;
 
-  double energy;
+  HAL_ReadCANPeriodicPacket(handle, StatusEnergy, pdpStatus.data, &length,
+                            &receivedTimestamp, TimeoutMs, StatusPeriodMs,
+                            status);
 
-  *status = pdp[module]->GetTotalEnergy(energy);
+  uint32_t raw;
+  raw = pdpStatus.Energy_125mWPerUnitXTmeas_h4;
+  raw <<= 8;
+  raw |= pdpStatus.Energy_125mWPerUnitXTmeas_mh8;
+  raw <<= 8;
+  raw |= pdpStatus.Energy_125mWPerUnitXTmeas_ml8;
+  raw <<= 8;
+  raw |= pdpStatus.Energy_125mWPerUnitXTmeas_l8;
 
-  return energy;
+  double energyJoules = 0.125 * raw; /* mW integrated every TmeasMs */
+  energyJoules *= 0.001;             /* convert from mW to W */
+  energyJoules *=
+      pdpStatus.TmeasMs_likelywillbe20ms_; /* multiplied by TmeasMs = joules */
+  return 0.125 * raw;
 }
 
 void HAL_ResetPDPTotalEnergy(HAL_PDPHandle handle, int32_t* status) {
-  if (!checkPDPInit(module, status)) return;
-
-  *status = pdp[module]->ResetEnergy();
+  uint8_t pdpControl[] = {0x40}; /* only bit set is ResetEnergy */
+  HAL_WriteCANPacket(handle, pdpControl, 1, Control1, status);
 }
 
 void HAL_ClearPDPStickyFaults(HAL_PDPHandle handle, int32_t* status) {
-  if (!checkPDPInit(module, status)) return;
-
-  *status = pdp[module]->ClearStickyFaults();
+  uint8_t pdpControl[] = {0x80}; /* only bit set is ClearStickyFaults */
+  HAL_WriteCANPacket(handle, pdpControl, 1, Control1, status);
 }
 
 }  // extern "C"
