@@ -44,6 +44,27 @@ public abstract class RobotBase {
   // This is usually 1, but it is best to make sure
   public static final long MAIN_THREAD_ID = Thread.currentThread().getId();
 
+  private static void setupCameraServerShared() {
+    CameraServerShared shared = new CameraServerShared();
+    shared.setRobotMainThreadId(() -> {
+      return MAIN_THREAD_ID;
+    });
+    shared.setReportAxisCamera(id -> {
+      HAL.report(tResourceType.kResourceType_AxisCamera, id);
+    });
+    shared.setReportUsbCamera(id -> {
+      HAL.report(tResourceType.kResourceType_PCVideoServer, id);
+    });
+    shared.setReportVideoServer(id -> {
+      HAL.report(tResourceType.kResourceType_PCVideoServer, id);
+    });
+    shared.setReportDriverStationError(err -> {
+      DriverStation.reportError(err, true);
+    });
+
+    CameraServerShared.setCameraServerShared(shared);
+  }
+
   protected final DriverStation m_ds;
 
   /**
@@ -57,6 +78,7 @@ public abstract class RobotBase {
    */
   protected RobotBase() {
     NetworkTableInstance inst = NetworkTableInstance.getDefault();
+    setupCameraServerShared();
     inst.setNetworkIdentity("Robot");
     inst.startServer("/home/lvuser/networktables.ini");
     m_ds = DriverStation.getInstance();

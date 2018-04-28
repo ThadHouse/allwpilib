@@ -29,7 +29,7 @@ licenseUpdateExclude {
 }
 
 includeGuardRoots {
-  src/main/native/cpp/
-  src/main/native/include/
-  src/test/native/cpp/
+  wpiutil/src/main/native/cpp/
+  wpiutil/src/main/native/include/
+  wpiutil/src/test/native/cpp/
 }
