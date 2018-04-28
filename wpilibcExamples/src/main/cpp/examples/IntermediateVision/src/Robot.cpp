@@ -23,6 +23,7 @@
  */
 class Robot : public frc::IterativeRobot {
 #if defined(__linux__)
+
 private:
 	static void VisionThread() {
 		// Get the USB camera from CameraServer

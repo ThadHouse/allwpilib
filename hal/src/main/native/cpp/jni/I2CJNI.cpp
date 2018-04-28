@@ -1,19 +1,20 @@
 /*----------------------------------------------------------------------------*/
-/* Copyright (c) FIRST 2016. All Rights Reserved.                             */
+/* Copyright (c) 2016-2018 FIRST. All Rights Reserved.                        */
 /* Open Source Software - may be modified and shared by FRC teams. The code   */
 /* must be accompanied by the FIRST BSD license file in the root directory of */
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-#include <assert.h>
 #include <jni.h>
-#include "HAL/cpp/Log.h"
 
-#include "edu_wpi_first_wpilibj_hal_I2CJNI.h"
+#include <cassert>
+
+#include <support/jni_util.h>
 
 #include "HAL/I2C.h"
+#include "HAL/cpp/Log.h"
 #include "HALUtil.h"
-#include "support/jni_util.h"
+#include "edu_wpi_first_wpilibj_hal_I2CJNI.h"
 
 using namespace frc;
 using namespace wpi::java;
@@ -25,13 +26,13 @@ TLogLevel i2cJNILogLevel = logWARNING;
   if (level > i2cJNILogLevel) \
     ;                         \
   else                        \
-  Log().Get(level)
+    Log().Get(level)
 
 extern "C" {
 
 /*
  * Class:     edu_wpi_first_wpilibj_hal_I2CJNI
- * Method:    i2cInitialize
+ * Method:    i2CInitialize
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL Java_edu_wpi_first_wpilibj_hal_I2CJNI_i2CInitialize(
@@ -49,6 +50,16 @@ JNIEXPORT void JNICALL Java_edu_wpi_first_wpilibj_hal_I2CJNI_i2CInitialize(
  * Method:    i2CTransaction
  * Signature: (IBLjava/nio/ByteBuffer;BLjava/nio/ByteBuffer;B)I
  */
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_I2CJNI
+ * Method:    i2CTransaction
+ * Signature: (IBLjava/lang/Object;BLjava/lang/Object;B)I
+ */
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_I2CJNI
+ * Method:    i2CTransaction
+ * Signature: (IBLjava/lang/Object;BLjava/lang/Object;B)I
+ */
 JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_I2CJNI_i2CTransaction(
     JNIEnv* env, jclass, jint port, jbyte address, jobject dataToSend,
     jbyte sendSize, jobject dataReceived, jbyte receiveSize) {
@@ -65,8 +76,9 @@ JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_I2CJNI_i2CTransaction(
       (uint8_t*)env->GetDirectBufferAddress(dataReceived);
   I2CJNI_LOG(logDEBUG) << "DataReceivedPtr = " << (jint*)dataReceivedPtr;
   I2CJNI_LOG(logDEBUG) << "ReceiveSize = " << (jint)receiveSize;
-  jint returnValue = HAL_TransactionI2C(static_cast<HAL_I2CPort>(port), address, dataToSendPtr, sendSize,
-                                    dataReceivedPtr, receiveSize);
+  jint returnValue =
+      HAL_TransactionI2C(static_cast<HAL_I2CPort>(port), address, dataToSendPtr,
+                         sendSize, dataReceivedPtr, receiveSize);
   I2CJNI_LOG(logDEBUG) << "ReturnValue = " << returnValue;
   return returnValue;
 }
@@ -75,6 +87,16 @@ JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_I2CJNI_i2CTransaction(
  * Class:     edu_wpi_first_wpilibj_hal_I2CJNI
  * Method:    i2CTransactionB
  * Signature: (IB[BB[BB)I
+ */
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_I2CJNI
+ * Method:    i2CTransactionB
+ * Signature: (IB?B?B)I
+ */
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_I2CJNI
+ * Method:    i2CTransactionB
+ * Signature: (IB?B?B)I
  */
 JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_I2CJNI_i2CTransactionB(
     JNIEnv* env, jclass, jint port, jbyte address, jbyteArray dataToSend,
@@ -88,11 +110,11 @@ JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_I2CJNI_i2CTransactionB(
   I2CJNI_LOG(logDEBUG) << "ReceiveSize = " << (jint)receiveSize;
   jint returnValue =
       HAL_TransactionI2C(static_cast<HAL_I2CPort>(port), address,
-                         reinterpret_cast<const uint8_t *>(
+                         reinterpret_cast<const uint8_t*>(
                              JByteArrayRef(env, dataToSend).array().data()),
                          sendSize, recvBuf.data(), receiveSize);
   env->SetByteArrayRegion(dataReceived, 0, receiveSize,
-                          reinterpret_cast<const jbyte *>(recvBuf.data()));
+                          reinterpret_cast<const jbyte*>(recvBuf.data()));
   I2CJNI_LOG(logDEBUG) << "ReturnValue = " << returnValue;
   return returnValue;
 }
@@ -101,6 +123,16 @@ JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_I2CJNI_i2CTransactionB(
  * Class:     edu_wpi_first_wpilibj_hal_I2CJNI
  * Method:    i2CWrite
  * Signature: (IBLjava/nio/ByteBuffer;B)I
+ */
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_I2CJNI
+ * Method:    i2CWrite
+ * Signature: (IBLjava/lang/Object;B)I
+ */
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_I2CJNI
+ * Method:    i2CWrite
+ * Signature: (IBLjava/lang/Object;B)I
  */
 JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_I2CJNI_i2CWrite(
     JNIEnv* env, jclass, jint port, jbyte address, jobject dataToSend,
@@ -115,7 +147,8 @@ JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_I2CJNI_i2CWrite(
   }
   I2CJNI_LOG(logDEBUG) << "DataToSendPtr = " << dataToSendPtr;
   I2CJNI_LOG(logDEBUG) << "SendSize = " << (jint)sendSize;
-  jint returnValue = HAL_WriteI2C(static_cast<HAL_I2CPort>(port), address, dataToSendPtr, sendSize);
+  jint returnValue = HAL_WriteI2C(static_cast<HAL_I2CPort>(port), address,
+                                  dataToSendPtr, sendSize);
   I2CJNI_LOG(logDEBUG) << "ReturnValue = " << (jint)returnValue;
   return returnValue;
 }
@@ -124,6 +157,16 @@ JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_I2CJNI_i2CWrite(
  * Class:     edu_wpi_first_wpilibj_hal_I2CJNI
  * Method:    i2CWriteB
  * Signature: (IB[BB)I
+ */
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_I2CJNI
+ * Method:    i2CWriteB
+ * Signature: (IB?B)I
+ */
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_I2CJNI
+ * Method:    i2CWriteB
+ * Signature: (IB?B)I
  */
 JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_I2CJNI_i2CWriteB(
     JNIEnv* env, jclass, jint port, jbyte address, jbyteArray dataToSend,
@@ -134,7 +177,7 @@ JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_I2CJNI_i2CWriteB(
   I2CJNI_LOG(logDEBUG) << "SendSize = " << (jint)sendSize;
   jint returnValue =
       HAL_WriteI2C(static_cast<HAL_I2CPort>(port), address,
-                   reinterpret_cast<const uint8_t *>(
+                   reinterpret_cast<const uint8_t*>(
                        JByteArrayRef(env, dataToSend).array().data()),
                    sendSize);
   I2CJNI_LOG(logDEBUG) << "ReturnValue = " << (jint)returnValue;
@@ -146,6 +189,16 @@ JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_I2CJNI_i2CWriteB(
  * Method:    i2CRead
  * Signature: (IBLjava/nio/ByteBuffer;B)I
  */
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_I2CJNI
+ * Method:    i2CRead
+ * Signature: (IBLjava/lang/Object;B)I
+ */
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_I2CJNI
+ * Method:    i2CRead
+ * Signature: (IBLjava/lang/Object;B)I
+ */
 JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_I2CJNI_i2CRead(
     JNIEnv* env, jclass, jint port, jbyte address, jobject dataReceived,
     jbyte receiveSize) {
@@ -156,7 +209,8 @@ JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_I2CJNI_i2CRead(
       (uint8_t*)env->GetDirectBufferAddress(dataReceived);
   I2CJNI_LOG(logDEBUG) << "DataReceivedPtr = " << dataReceivedPtr;
   I2CJNI_LOG(logDEBUG) << "ReceiveSize = " << receiveSize;
-  jint returnValue = HAL_ReadI2C(static_cast<HAL_I2CPort>(port), address, dataReceivedPtr, receiveSize);
+  jint returnValue = HAL_ReadI2C(static_cast<HAL_I2CPort>(port), address,
+                                 dataReceivedPtr, receiveSize);
   I2CJNI_LOG(logDEBUG) << "ReturnValue = " << returnValue;
   return returnValue;
 }
@@ -165,6 +219,16 @@ JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_I2CJNI_i2CRead(
  * Class:     edu_wpi_first_wpilibj_hal_I2CJNI
  * Method:    i2CReadB
  * Signature: (IB[BB)I
+ */
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_I2CJNI
+ * Method:    i2CReadB
+ * Signature: (IB?B)I
+ */
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_I2CJNI
+ * Method:    i2CReadB
+ * Signature: (IB?B)I
  */
 JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_I2CJNI_i2CReadB(
     JNIEnv* env, jclass, jint port, jbyte address, jbyteArray dataReceived,
@@ -175,9 +239,10 @@ JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_I2CJNI_i2CReadB(
   I2CJNI_LOG(logDEBUG) << "ReceiveSize = " << receiveSize;
   llvm::SmallVector<uint8_t, 128> recvBuf;
   recvBuf.resize(receiveSize);
-  jint returnValue = HAL_ReadI2C(static_cast<HAL_I2CPort>(port), address, recvBuf.data(), receiveSize);
+  jint returnValue = HAL_ReadI2C(static_cast<HAL_I2CPort>(port), address,
+                                 recvBuf.data(), receiveSize);
   env->SetByteArrayRegion(dataReceived, 0, receiveSize,
-                          reinterpret_cast<const jbyte *>(recvBuf.data()));
+                          reinterpret_cast<const jbyte*>(recvBuf.data()));
   I2CJNI_LOG(logDEBUG) << "ReturnValue = " << returnValue;
   return returnValue;
 }

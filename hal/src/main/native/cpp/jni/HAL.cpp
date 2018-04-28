@@ -1,21 +1,23 @@
 /*----------------------------------------------------------------------------*/
-/* Copyright (c) FIRST 2016. All Rights Reserved.                             */
+/* Copyright (c) 2016-2018 FIRST. All Rights Reserved.                        */
 /* Open Source Software - may be modified and shared by FRC teams. The code   */
 /* must be accompanied by the FIRST BSD license file in the root directory of */
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
+#include "HAL/HAL.h"
+
+#include <jni.h>
+
+#include <cassert>
 #include <cstring>
 
-#include <assert.h>
-#include <jni.h>
-#include "HAL/cpp/Log.h"
+#include <support/jni_util.h>
 
-#include "HAL/HAL.h"
 #include "HAL/DriverStation.h"
-#include "edu_wpi_first_wpilibj_hal_HAL.h"
+#include "HAL/cpp/Log.h"
 #include "HALUtil.h"
-#include "support/jni_util.h"
+#include "edu_wpi_first_wpilibj_hal_HAL.h"
 
 using namespace frc;
 using namespace wpi::java;
@@ -27,22 +29,22 @@ static TLogLevel netCommLogLevel = logWARNING;
   if (level > netCommLogLevel) \
     ;                          \
   else                         \
-  Log().Get(level)
+    Log().Get(level)
 
 extern "C" {
 
 /*
- * Class: edu_wpi_first_wpilibj_hal_HAL
- * Method:    Initialize
- * Signature: (Z)II
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    initialize
+ * Signature: (II)Z
  */
-JNIEXPORT jboolean JNICALL
-Java_edu_wpi_first_wpilibj_hal_HAL_initialize(JNIEnv*, jclass, jint timeout, jint mode) {
+JNIEXPORT jboolean JNICALL Java_edu_wpi_first_wpilibj_hal_HAL_initialize(
+    JNIEnv*, jclass, jint timeout, jint mode) {
   return HAL_Initialize(timeout, mode);
 }
 
 /*
- * Class: edu_wpi_first_wpilibj_hal_HAL
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
  * Method:    observeUserProgramStarting
  * Signature: ()V
  */
@@ -52,7 +54,7 @@ Java_edu_wpi_first_wpilibj_hal_HAL_observeUserProgramStarting(JNIEnv*, jclass) {
 }
 
 /*
- * Class: edu_wpi_first_wpilibj_hal_HAL
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
  * Method:    observeUserProgramDisabled
  * Signature: ()V
  */
@@ -62,18 +64,18 @@ Java_edu_wpi_first_wpilibj_hal_HAL_observeUserProgramDisabled(JNIEnv*, jclass) {
 }
 
 /*
- * Class: edu_wpi_first_wpilibj_hal_HAL
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
  * Method:    observeUserProgramAutonomous
  * Signature: ()V
  */
 JNIEXPORT void JNICALL
-Java_edu_wpi_first_wpilibj_hal_HAL_observeUserProgramAutonomous(
-    JNIEnv*, jclass) {
+Java_edu_wpi_first_wpilibj_hal_HAL_observeUserProgramAutonomous(JNIEnv*,
+                                                                jclass) {
   HAL_ObserveUserProgramAutonomous();
 }
 
 /*
- * Class: edu_wpi_first_wpilibj_hal_HAL
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
  * Method:    observeUserProgramTeleop
  * Signature: ()V
  */
@@ -83,7 +85,7 @@ Java_edu_wpi_first_wpilibj_hal_HAL_observeUserProgramTeleop(JNIEnv*, jclass) {
 }
 
 /*
- * Class: edu_wpi_first_wpilibj_hal_HAL
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
  * Method:    observeUserProgramTest
  * Signature: ()V
  */
@@ -97,8 +99,17 @@ Java_edu_wpi_first_wpilibj_hal_HAL_observeUserProgramTest(JNIEnv*, jclass) {
  * Method:    HAL_Report
  * Signature: (IIILjava/lang/String;)I
  */
-JNIEXPORT jint JNICALL
-Java_edu_wpi_first_wpilibj_hal_HAL_report(
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    report
+ * Signature: (IIILjava/lang/String;)I
+ */
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    report
+ * Signature: (IIILjava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_HAL_report(
     JNIEnv* paramEnv, jclass, jint paramResource, jint paramInstanceNumber,
     jint paramContext, jstring paramFeature) {
   JStringRef featureStr{paramEnv, paramFeature};
@@ -107,21 +118,21 @@ Java_edu_wpi_first_wpilibj_hal_HAL_report(
                         << " instance:" << paramInstanceNumber
                         << " context:" << paramContext
                         << " feature:" << featureStr.c_str();
-  jint returnValue =
-      HAL_Report(paramResource, paramInstanceNumber, paramContext, featureStr.c_str());
+  jint returnValue = HAL_Report(paramResource, paramInstanceNumber,
+                                paramContext, featureStr.c_str());
   return returnValue;
 }
 
 /*
- * Class: edu_wpi_first_wpilibj_hal_HAL
- * Method:    NativeGetControlWord
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    nativeGetControlWord
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL
 Java_edu_wpi_first_wpilibj_hal_HAL_nativeGetControlWord(JNIEnv*, jclass) {
   NETCOMM_LOG(logDEBUG) << "Calling HAL Control Word";
   static_assert(sizeof(HAL_ControlWord) == sizeof(jint),
-      "Java int must match the size of control word");
+                "Java int must match the size of control word");
   HAL_ControlWord controlWord;
   std::memset(&controlWord, 0, sizeof(HAL_ControlWord));
   HAL_GetControlWord(&controlWord);
@@ -131,8 +142,8 @@ Java_edu_wpi_first_wpilibj_hal_HAL_nativeGetControlWord(JNIEnv*, jclass) {
 }
 
 /*
- * Class: edu_wpi_first_wpilibj_hal_HAL
- * Method:    NativeGetAllianceStation
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    nativeGetAllianceStation
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL
@@ -148,18 +159,26 @@ Java_edu_wpi_first_wpilibj_hal_HAL_nativeGetAllianceStation(JNIEnv*, jclass) {
  * Method:    HAL_GetJoystickAxes
  * Signature: (B[F)S
  */
-JNIEXPORT jshort JNICALL
-Java_edu_wpi_first_wpilibj_hal_HAL_getJoystickAxes(JNIEnv* env, jclass,
-                                                   jbyte joystickNum,
-                                                   jfloatArray axesArray) {
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    getJoystickAxes
+ * Signature: (B?)S
+ */
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    getJoystickAxes
+ * Signature: (B?)S
+ */
+JNIEXPORT jshort JNICALL Java_edu_wpi_first_wpilibj_hal_HAL_getJoystickAxes(
+    JNIEnv* env, jclass, jbyte joystickNum, jfloatArray axesArray) {
   NETCOMM_LOG(logDEBUG) << "Calling HALJoystickAxes";
   HAL_JoystickAxes axes;
   HAL_GetJoystickAxes(joystickNum, &axes);
 
   jsize javaSize = env->GetArrayLength(axesArray);
-  if (axes.count > javaSize)
-  {
-    ThrowIllegalArgumentException(env, "Native array size larger then passed in java array size");
+  if (axes.count > javaSize) {
+    ThrowIllegalArgumentException(
+        env, "Native array size larger then passed in java array size");
   }
 
   env->SetFloatArrayRegion(axesArray, 0, axes.count, axes.axes);
@@ -172,18 +191,26 @@ Java_edu_wpi_first_wpilibj_hal_HAL_getJoystickAxes(JNIEnv* env, jclass,
  * Method:    HAL_GetJoystickPOVs
  * Signature: (B[S)S
  */
-JNIEXPORT jshort JNICALL
-Java_edu_wpi_first_wpilibj_hal_HAL_getJoystickPOVs(JNIEnv* env, jclass,
-                                                   jbyte joystickNum,
-                                                   jshortArray povsArray) {
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    getJoystickPOVs
+ * Signature: (B?)S
+ */
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    getJoystickPOVs
+ * Signature: (B?)S
+ */
+JNIEXPORT jshort JNICALL Java_edu_wpi_first_wpilibj_hal_HAL_getJoystickPOVs(
+    JNIEnv* env, jclass, jbyte joystickNum, jshortArray povsArray) {
   NETCOMM_LOG(logDEBUG) << "Calling HALJoystickPOVs";
   HAL_JoystickPOVs povs;
   HAL_GetJoystickPOVs(joystickNum, &povs);
 
   jsize javaSize = env->GetArrayLength(povsArray);
-  if (povs.count > javaSize)
-  {
-    ThrowIllegalArgumentException(env, "Native array size larger then passed in java array size");
+  if (povs.count > javaSize) {
+    ThrowIllegalArgumentException(
+        env, "Native array size larger then passed in java array size");
   }
 
   env->SetShortArrayRegion(povsArray, 0, povs.count, povs.povs);
@@ -192,18 +219,21 @@ Java_edu_wpi_first_wpilibj_hal_HAL_getJoystickPOVs(JNIEnv* env, jclass,
 }
 
 /*
- * Class: edu_wpi_first_wpilibj_hal_HAL
- * Method:    HAL_GetJoystickButtons
- * Signature: (BL)I
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    getJoystickButtons
+ * Signature: (BLjava/lang/Object;)I
  */
-JNIEXPORT jint JNICALL
-Java_edu_wpi_first_wpilibj_hal_HAL_getJoystickButtons(JNIEnv* env, jclass,
-                                                      jbyte joystickNum,
-                                                      jobject count) {
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    getJoystickButtons
+ * Signature: (BLjava/lang/Object;)I
+ */
+JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_HAL_getJoystickButtons(
+    JNIEnv* env, jclass, jbyte joystickNum, jobject count) {
   NETCOMM_LOG(logDEBUG) << "Calling HALJoystickButtons";
   HAL_JoystickButtons joystickButtons;
   HAL_GetJoystickButtons(joystickNum, &joystickButtons);
-  jbyte *countPtr = (jbyte *)env->GetDirectBufferAddress(count);
+  jbyte* countPtr = (jbyte*)env->GetDirectBufferAddress(count);
   NETCOMM_LOG(logDEBUG) << "Buttons = " << joystickButtons.buttons;
   NETCOMM_LOG(logDEBUG) << "Count = " << (jint)joystickButtons.count;
   *countPtr = joystickButtons.count;
@@ -212,15 +242,13 @@ Java_edu_wpi_first_wpilibj_hal_HAL_getJoystickButtons(JNIEnv* env, jclass,
 }
 
 /*
- * Class: edu_wpi_first_wpilibj_hal_HAL
- * Method:    HAL_SetJoystickOutputs
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    setJoystickOutputs
  * Signature: (BISS)I
  */
-JNIEXPORT jint JNICALL
-Java_edu_wpi_first_wpilibj_hal_HAL_setJoystickOutputs(JNIEnv*, jclass,
-                                                      jbyte port, jint outputs,
-                                                      jshort leftRumble,
-                                                      jshort rightRumble) {
+JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_HAL_setJoystickOutputs(
+    JNIEnv*, jclass, jbyte port, jint outputs, jshort leftRumble,
+    jshort rightRumble) {
   NETCOMM_LOG(logDEBUG) << "Calling HAL_SetJoystickOutputs on port " << port;
   NETCOMM_LOG(logDEBUG) << "Outputs: " << outputs;
   NETCOMM_LOG(logDEBUG) << "Left Rumble: " << leftRumble
@@ -229,25 +257,23 @@ Java_edu_wpi_first_wpilibj_hal_HAL_setJoystickOutputs(JNIEnv*, jclass,
 }
 
 /*
- * Class: edu_wpi_first_wpilibj_hal_HAL
- * Method:    HAL_GetJoystickIsXbox
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    getJoystickIsXbox
  * Signature: (B)I
  */
-JNIEXPORT jint JNICALL
-Java_edu_wpi_first_wpilibj_hal_HAL_getJoystickIsXbox(JNIEnv*, jclass,
-                                                     jbyte port) {
+JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_HAL_getJoystickIsXbox(
+    JNIEnv*, jclass, jbyte port) {
   NETCOMM_LOG(logDEBUG) << "Calling HAL_GetJoystickIsXbox";
   return HAL_GetJoystickIsXbox(port);
 }
 
 /*
- * Class: edu_wpi_first_wpilibj_hal_HAL
- * Method:    HAL_GetJoystickType
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    getJoystickType
  * Signature: (B)I
  */
-JNIEXPORT jint JNICALL
-Java_edu_wpi_first_wpilibj_hal_HAL_getJoystickType(JNIEnv*, jclass,
-                                                   jbyte port) {
+JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_HAL_getJoystickType(
+    JNIEnv*, jclass, jbyte port) {
   NETCOMM_LOG(logDEBUG) << "Calling HAL_GetJoystickType";
   return HAL_GetJoystickType(port);
 }
@@ -257,25 +283,32 @@ Java_edu_wpi_first_wpilibj_hal_HAL_getJoystickType(JNIEnv*, jclass,
  * Method:    HAL_GetJoystickName
  * Signature: (B)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL
-Java_edu_wpi_first_wpilibj_hal_HAL_getJoystickName(JNIEnv* env, jclass,
-                                                   jbyte port) {
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    getJoystickName
+ * Signature: (B)Ljava/lang/String;
+ */
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    getJoystickName
+ * Signature: (B)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_edu_wpi_first_wpilibj_hal_HAL_getJoystickName(
+    JNIEnv* env, jclass, jbyte port) {
   NETCOMM_LOG(logDEBUG) << "Calling HAL_GetJoystickName";
-  char *joystickName = HAL_GetJoystickName(port);
+  char* joystickName = HAL_GetJoystickName(port);
   jstring str = MakeJString(env, joystickName);
   HAL_FreeJoystickName(joystickName);
   return str;
 }
 
 /*
- * Class: edu_wpi_first_wpilibj_hal_HAL
- * Method:    HAL_GetJoystickAxisType
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    getJoystickAxisType
  * Signature: (BB)I
  */
-JNIEXPORT jint JNICALL
-Java_edu_wpi_first_wpilibj_hal_HAL_getJoystickAxisType(JNIEnv*, jclass,
-                                                       jbyte joystickNum,
-                                                       jbyte axis) {
+JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_HAL_getJoystickAxisType(
+    JNIEnv*, jclass, jbyte joystickNum, jbyte axis) {
   NETCOMM_LOG(logDEBUG) << "Calling HAL_GetJoystickAxisType";
   return HAL_GetJoystickAxisType(joystickNum, axis);
 }
@@ -286,12 +319,12 @@ Java_edu_wpi_first_wpilibj_hal_HAL_getJoystickAxisType(JNIEnv*, jclass,
  * Signature: ()Z
  */
 JNIEXPORT jboolean JNICALL
-Java_edu_wpi_first_wpilibj_hal_HAL_isNewControlData(JNIEnv *, jclass) {
+Java_edu_wpi_first_wpilibj_hal_HAL_isNewControlData(JNIEnv*, jclass) {
   return static_cast<jboolean>(HAL_IsNewControlData());
 }
 
 /*
- * Class: edu_wpi_first_wpilibj_hal_HAL
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
  * Method:    waitForDSData
  * Signature: ()V
  */
@@ -301,7 +334,7 @@ Java_edu_wpi_first_wpilibj_hal_HAL_waitForDSData(JNIEnv* env, jclass) {
 }
 
 /*
- * Class: edu_wpi_first_wpilibj_hal_HAL
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
  * Method:    releaseDSMutex
  * Signature: ()V
  */
@@ -316,14 +349,14 @@ Java_edu_wpi_first_wpilibj_hal_HAL_releaseDSMutex(JNIEnv* env, jclass) {
  * Signature: (D)Z
  */
 JNIEXPORT jboolean JNICALL
-Java_edu_wpi_first_wpilibj_hal_HAL_waitForDSDataTimeout(JNIEnv *, jclass,
+Java_edu_wpi_first_wpilibj_hal_HAL_waitForDSDataTimeout(JNIEnv*, jclass,
                                                         jdouble timeout) {
   return static_cast<jboolean>(HAL_WaitForDSDataTimeout(timeout));
 }
 
 /*
- * Class: edu_wpi_first_wpilibj_hal_HAL
- * Method:    HAL_GetMatchTime
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    getMatchTime
  * Signature: ()D
  */
 JNIEXPORT jdouble JNICALL
@@ -333,8 +366,8 @@ Java_edu_wpi_first_wpilibj_hal_HAL_getMatchTime(JNIEnv* env, jclass) {
 }
 
 /*
- * Class: edu_wpi_first_wpilibj_hal_HAL
- * Method:    HAL_GetSystemActive
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    getSystemActive
  * Signature: ()Z
  */
 JNIEXPORT jboolean JNICALL
@@ -346,8 +379,8 @@ Java_edu_wpi_first_wpilibj_hal_HAL_getSystemActive(JNIEnv* env, jclass) {
 }
 
 /*
- * Class: edu_wpi_first_wpilibj_hal_HAL
- * Method:    HAL_GetBrownedOut
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    getBrownedOut
  * Signature: ()Z
  */
 JNIEXPORT jboolean JNICALL
@@ -363,9 +396,18 @@ Java_edu_wpi_first_wpilibj_hal_HAL_getBrownedOut(JNIEnv* env, jclass) {
  * Method:    getMatchInfo
  * Signature: (Ledu/wpi/first/wpilibj/hal/MatchInfoData;)I
  */
-JNIEXPORT jint JNICALL
-Java_edu_wpi_first_wpilibj_hal_HAL_getMatchInfo
-(JNIEnv * env, jclass, jobject info) {
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    getMatchInfo
+ * Signature: (Ljava/lang/Object;)I
+ */
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    getMatchInfo
+ * Signature: (Ljava/lang/Object;)I
+ */
+JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_HAL_getMatchInfo(
+    JNIEnv* env, jclass, jobject info) {
   HAL_MatchInfo matchInfo;
   auto status = HAL_GetMatchInfo(&matchInfo);
   if (status == 0) {
@@ -380,13 +422,19 @@ Java_edu_wpi_first_wpilibj_hal_HAL_getMatchInfo
  * Method:    HAL_SendError
  * Signature: (ZIZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)I
  */
-JNIEXPORT jint JNICALL
-Java_edu_wpi_first_wpilibj_hal_HAL_sendError(JNIEnv* env, jclass,
-                                             jboolean isError, jint errorCode,
-                                             jboolean isLVCode, jstring details,
-                                             jstring location,
-                                             jstring callStack,
-                                             jboolean printMsg) {
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    sendError
+ * Signature: (ZIZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)I
+ */
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_HAL
+ * Method:    sendError
+ * Signature: (ZIZLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)I
+ */
+JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_HAL_sendError(
+    JNIEnv* env, jclass, jboolean isError, jint errorCode, jboolean isLVCode,
+    jstring details, jstring location, jstring callStack, jboolean printMsg) {
   JStringRef detailsStr{env, details};
   JStringRef locationStr{env, location};
   JStringRef callStackStr{env, callStack};
@@ -394,8 +442,9 @@ Java_edu_wpi_first_wpilibj_hal_HAL_sendError(JNIEnv* env, jclass,
   NETCOMM_LOG(logDEBUG) << "Send Error: " << detailsStr.c_str();
   NETCOMM_LOG(logDEBUG) << "Location: " << locationStr.c_str();
   NETCOMM_LOG(logDEBUG) << "Call Stack: " << callStackStr.c_str();
-  jint returnValue = HAL_SendError(isError, errorCode, isLVCode, detailsStr.c_str(),
-                                  locationStr.c_str(), callStackStr.c_str(), printMsg);
+  jint returnValue =
+      HAL_SendError(isError, errorCode, isLVCode, detailsStr.c_str(),
+                    locationStr.c_str(), callStackStr.c_str(), printMsg);
   return returnValue;
 }
 
@@ -404,8 +453,7 @@ Java_edu_wpi_first_wpilibj_hal_HAL_sendError(JNIEnv* env, jclass,
  * Method:    getPortWithModule
  * Signature: (BB)I
  */
-JNIEXPORT jint JNICALL
-Java_edu_wpi_first_wpilibj_hal_HAL_getPortWithModule(
+JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_HAL_getPortWithModule(
     JNIEnv* env, jclass, jbyte module, jbyte channel) {
   // FILE_LOG(logDEBUG) << "Calling HAL getPortWithModlue";
   // FILE_LOG(logDEBUG) << "Module = " << (jint)module;
@@ -420,8 +468,8 @@ Java_edu_wpi_first_wpilibj_hal_HAL_getPortWithModule(
  * Method:    getPort
  * Signature: (B)I
  */
-JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_HAL_getPort(
-    JNIEnv* env, jclass, jbyte channel) {
+JNIEXPORT jint JNICALL
+Java_edu_wpi_first_wpilibj_hal_HAL_getPort(JNIEnv* env, jclass, jbyte channel) {
   // FILE_LOG(logDEBUG) << "Calling HAL getPortWithModlue";
   // FILE_LOG(logDEBUG) << "Module = " << (jint)module;
   // FILE_LOG(logDEBUG) << "Channel = " << (jint)channel;

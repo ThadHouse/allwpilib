@@ -1,20 +1,22 @@
 /*----------------------------------------------------------------------------*/
-/* Copyright (c) FIRST 2016. All Rights Reserved.                             */
+/* Copyright (c) 2016-2018 FIRST. All Rights Reserved.                        */
 /* Open Source Software - may be modified and shared by FRC teams. The code   */
 /* must be accompanied by the FIRST BSD license file in the root directory of */
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-#include <assert.h>
 #include <jni.h>
 
-#include "HAL/cpp/Log.h"
+#include <cassert>
+
+#include <llvm/SmallString.h>
+#include <llvm/raw_ostream.h>
+#include <support/jni_util.h>
+
 #include "HAL/CAN.h"
+#include "HAL/cpp/Log.h"
 #include "HALUtil.h"
 #include "edu_wpi_first_wpilibj_can_CANJNI.h"
-#include "llvm/SmallString.h"
-#include "llvm/raw_ostream.h"
-#include "support/jni_util.h"
 
 using namespace frc;
 using namespace wpi::java;
@@ -27,7 +29,7 @@ TLogLevel canJNILogLevel = logERROR;
   if (level > canJNILogLevel) \
     ;                         \
   else                        \
-  Log().Get(level)
+    Log().Get(level)
 
 extern "C" {
 
@@ -36,16 +38,25 @@ extern "C" {
  * Method:    FRCNetCommCANSessionMuxSendMessage
  * Signature: (I[BI)V
  */
+/*
+ * Class:     edu_wpi_first_wpilibj_can_CANJNI
+ * Method:    FRCNetCommCANSessionMuxSendMessage
+ * Signature: (I?I)V
+ */
+/*
+ * Class:     edu_wpi_first_wpilibj_can_CANJNI
+ * Method:    FRCNetCommCANSessionMuxSendMessage
+ * Signature: (I?I)V
+ */
 JNIEXPORT void JNICALL
 Java_edu_wpi_first_wpilibj_can_CANJNI_FRCNetCommCANSessionMuxSendMessage(
-    JNIEnv *env, jclass, jint messageID, jbyteArray data, jint periodMs) {
-
-  CANJNI_LOG(logDEBUG)
-      << "Calling CANJNI FRCNetCommCANSessionMuxSendMessage";
+    JNIEnv* env, jclass, jint messageID, jbyteArray data, jint periodMs) {
+  CANJNI_LOG(logDEBUG) << "Calling CANJNI FRCNetCommCANSessionMuxSendMessage";
 
   JByteArrayRef dataArray{env, data};
 
-  const uint8_t *dataBuffer = reinterpret_cast<const uint8_t*>(dataArray.array().data());
+  const uint8_t* dataBuffer =
+      reinterpret_cast<const uint8_t*>(dataArray.array().data());
   uint8_t dataSize = dataArray.array().size();
 
   CANJNI_LOG(logDEBUG) << "Message ID ";
@@ -68,8 +79,7 @@ Java_edu_wpi_first_wpilibj_can_CANJNI_FRCNetCommCANSessionMuxSendMessage(
   CANJNI_LOG(logDEBUG) << "Period: " << periodMs;
 
   int32_t status = 0;
-  HAL_CAN_SendMessage(
-      messageID, dataBuffer, dataSize, periodMs, &status);
+  HAL_CAN_SendMessage(messageID, dataBuffer, dataSize, periodMs, &status);
 
   CANJNI_LOG(logDEBUG) << "Status: " << status;
   CheckCANStatus(env, status, messageID);
@@ -80,23 +90,32 @@ Java_edu_wpi_first_wpilibj_can_CANJNI_FRCNetCommCANSessionMuxSendMessage(
  * Method:    FRCNetCommCANSessionMuxReceiveMessage
  * Signature: (Ljava/nio/IntBuffer;ILjava/nio/ByteBuffer;)[B
  */
+/*
+ * Class:     edu_wpi_first_wpilibj_can_CANJNI
+ * Method:    FRCNetCommCANSessionMuxReceiveMessage
+ * Signature: (Ljava/lang/Object;ILjava/lang/Object;)?
+ */
+/*
+ * Class:     edu_wpi_first_wpilibj_can_CANJNI
+ * Method:    FRCNetCommCANSessionMuxReceiveMessage
+ * Signature: (Ljava/lang/Object;ILjava/lang/Object;)?
+ */
 JNIEXPORT jbyteArray JNICALL
 Java_edu_wpi_first_wpilibj_can_CANJNI_FRCNetCommCANSessionMuxReceiveMessage(
-    JNIEnv *env, jclass, jobject messageID, jint messageIDMask,
+    JNIEnv* env, jclass, jobject messageID, jint messageIDMask,
     jobject timeStamp) {
-
   CANJNI_LOG(logDEBUG)
       << "Calling CANJNI FRCNetCommCANSessionMuxReceiveMessage";
 
-  uint32_t *messageIDPtr = (uint32_t *)env->GetDirectBufferAddress(messageID);
-  uint32_t *timeStampPtr = (uint32_t *)env->GetDirectBufferAddress(timeStamp);
+  uint32_t* messageIDPtr = (uint32_t*)env->GetDirectBufferAddress(messageID);
+  uint32_t* timeStampPtr = (uint32_t*)env->GetDirectBufferAddress(timeStamp);
 
   uint8_t dataSize = 0;
   uint8_t buffer[8];
 
   int32_t status = 0;
-  HAL_CAN_ReceiveMessage(
-      messageIDPtr, messageIDMask, buffer, &dataSize, timeStampPtr, &status);
+  HAL_CAN_ReceiveMessage(messageIDPtr, messageIDMask, buffer, &dataSize,
+                         timeStampPtr, &status);
 
   CANJNI_LOG(logDEBUG) << "Message ID ";
   CANJNI_LOG(logDEBUG).write_hex(*messageIDPtr);
@@ -121,8 +140,9 @@ Java_edu_wpi_first_wpilibj_can_CANJNI_FRCNetCommCANSessionMuxReceiveMessage(
   CANJNI_LOG(logDEBUG) << "Status: " << status;
 
   if (!CheckCANStatus(env, status, *messageIDPtr)) return nullptr;
-  return MakeJByteArray(env, llvm::StringRef{reinterpret_cast<const char*>(buffer), 
-                        static_cast<size_t>(dataSize)});
+  return MakeJByteArray(env,
+                        llvm::StringRef{reinterpret_cast<const char*>(buffer),
+                                        static_cast<size_t>(dataSize)});
 }
 
 /*
@@ -130,10 +150,19 @@ Java_edu_wpi_first_wpilibj_can_CANJNI_FRCNetCommCANSessionMuxReceiveMessage(
  * Method:    GetCANStatus
  * Signature: (Ledu/wpi/first/wpilibj/can/CANStatus;)V
  */
-JNIEXPORT void JNICALL Java_edu_wpi_first_wpilibj_can_CANJNI_GetCANStatus
-(JNIEnv *env, jclass, jobject canStatus) {
-  CANJNI_LOG(logDEBUG)
-  << "Calling CANJNI HAL_CAN_GetCANStatus";
+/*
+ * Class:     edu_wpi_first_wpilibj_can_CANJNI
+ * Method:    GetCANStatus
+ * Signature: (Ljava/lang/Object;)V
+ */
+/*
+ * Class:     edu_wpi_first_wpilibj_can_CANJNI
+ * Method:    GetCANStatus
+ * Signature: (Ljava/lang/Object;)V
+ */
+JNIEXPORT void JNICALL Java_edu_wpi_first_wpilibj_can_CANJNI_GetCANStatus(
+    JNIEnv* env, jclass, jobject canStatus) {
+  CANJNI_LOG(logDEBUG) << "Calling CANJNI HAL_CAN_GetCANStatus";
 
   float percentBusUtilization = 0;
   uint32_t busOffCount = 0;
@@ -143,7 +172,7 @@ JNIEXPORT void JNICALL Java_edu_wpi_first_wpilibj_can_CANJNI_GetCANStatus
   int32_t status = 0;
   HAL_CAN_GetCANStatus(&percentBusUtilization, &busOffCount, &txFullCount,
                        &receiveErrorCount, &transmitErrorCount, &status);
-  
+
   if (!CheckStatus(env, status)) return;
 
   SetCanStatusObject(env, canStatus, percentBusUtilization, busOffCount,

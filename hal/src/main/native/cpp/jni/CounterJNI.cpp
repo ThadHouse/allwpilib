@@ -1,19 +1,19 @@
 /*----------------------------------------------------------------------------*/
-/* Copyright (c) FIRST 2016. All Rights Reserved.                             */
+/* Copyright (c) 2016-2018 FIRST. All Rights Reserved.                        */
 /* Open Source Software - may be modified and shared by FRC teams. The code   */
 /* must be accompanied by the FIRST BSD license file in the root directory of */
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-#include <assert.h>
 #include <jni.h>
-#include "HAL/cpp/Log.h"
 
-#include "edu_wpi_first_wpilibj_hal_CounterJNI.h"
+#include <cassert>
 
 #include "HAL/Counter.h"
 #include "HAL/Errors.h"
+#include "HAL/cpp/Log.h"
 #include "HALUtil.h"
+#include "edu_wpi_first_wpilibj_hal_CounterJNI.h"
 
 using namespace frc;
 
@@ -24,7 +24,7 @@ TLogLevel counterJNILogLevel = logWARNING;
   if (level > counterJNILogLevel) \
     ;                             \
   else                            \
-  Log().Get(level)
+    Log().Get(level)
 
 extern "C" {
 
@@ -33,15 +33,27 @@ extern "C" {
  * Method:    initializeCounter
  * Signature: (ILjava/nio/IntBuffer;)I
  */
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_CounterJNI
+ * Method:    initializeCounter
+ * Signature: (ILjava/lang/Object;)I
+ */
+/*
+ * Class:     edu_wpi_first_wpilibj_hal_CounterJNI
+ * Method:    initializeCounter
+ * Signature: (ILjava/lang/Object;)I
+ */
 JNIEXPORT jint JNICALL
-Java_edu_wpi_first_wpilibj_hal_CounterJNI_initializeCounter(
-    JNIEnv* env, jclass, jint mode, jobject index) {
+Java_edu_wpi_first_wpilibj_hal_CounterJNI_initializeCounter(JNIEnv* env, jclass,
+                                                            jint mode,
+                                                            jobject index) {
   COUNTERJNI_LOG(logDEBUG) << "Calling COUNTERJNI initializeCounter";
   COUNTERJNI_LOG(logDEBUG) << "Mode = " << mode;
   jint* indexPtr = (jint*)env->GetDirectBufferAddress(index);
   COUNTERJNI_LOG(logDEBUG) << "Index Ptr = " << (int32_t*)indexPtr;
   int32_t status = 0;
-  auto counter = HAL_InitializeCounter((HAL_Counter_Mode)mode, (int32_t*)indexPtr, &status);
+  auto counter = HAL_InitializeCounter((HAL_Counter_Mode)mode,
+                                       (int32_t*)indexPtr, &status);
   COUNTERJNI_LOG(logDEBUG) << "Index = " << *indexPtr;
   COUNTERJNI_LOG(logDEBUG) << "Status = " << status;
   COUNTERJNI_LOG(logDEBUG) << "COUNTER Handle = " << counter;
@@ -70,8 +82,9 @@ JNIEXPORT void JNICALL Java_edu_wpi_first_wpilibj_hal_CounterJNI_freeCounter(
  * Signature: (II)V
  */
 JNIEXPORT void JNICALL
-Java_edu_wpi_first_wpilibj_hal_CounterJNI_setCounterAverageSize(
-    JNIEnv* env, jclass, jint id, jint value) {
+Java_edu_wpi_first_wpilibj_hal_CounterJNI_setCounterAverageSize(JNIEnv* env,
+                                                                jclass, jint id,
+                                                                jint value) {
   COUNTERJNI_LOG(logDEBUG) << "Calling COUNTERJNI setCounterAverageSize";
   COUNTERJNI_LOG(logDEBUG) << "Counter Handle = " << (HAL_CounterHandle)id;
   COUNTERJNI_LOG(logDEBUG) << "AverageSize = " << value;
@@ -95,8 +108,8 @@ Java_edu_wpi_first_wpilibj_hal_CounterJNI_setCounterUpSource(
   COUNTERJNI_LOG(logDEBUG) << "digitalSourceHandle = " << digitalSourceHandle;
   COUNTERJNI_LOG(logDEBUG) << "analogTriggerType = " << analogTriggerType;
   int32_t status = 0;
-  HAL_SetCounterUpSource((HAL_CounterHandle)id, (HAL_Handle)digitalSourceHandle, 
-                     (HAL_AnalogTriggerType)analogTriggerType, &status);
+  HAL_SetCounterUpSource((HAL_CounterHandle)id, (HAL_Handle)digitalSourceHandle,
+                         (HAL_AnalogTriggerType)analogTriggerType, &status);
   COUNTERJNI_LOG(logDEBUG) << "Status = " << status;
   CheckStatus(env, status);
 }
@@ -114,7 +127,8 @@ Java_edu_wpi_first_wpilibj_hal_CounterJNI_setCounterUpSourceEdge(
   COUNTERJNI_LOG(logDEBUG) << "Rise = " << (jint)valueRise;
   COUNTERJNI_LOG(logDEBUG) << "Fall = " << (jint)valueFall;
   int32_t status = 0;
-  HAL_SetCounterUpSourceEdge((HAL_CounterHandle)id, valueRise, valueFall, &status);
+  HAL_SetCounterUpSourceEdge((HAL_CounterHandle)id, valueRise, valueFall,
+                             &status);
   COUNTERJNI_LOG(logDEBUG) << "Status = " << status;
   CheckStatus(env, status);
 }
@@ -125,8 +139,9 @@ Java_edu_wpi_first_wpilibj_hal_CounterJNI_setCounterUpSourceEdge(
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL
-Java_edu_wpi_first_wpilibj_hal_CounterJNI_clearCounterUpSource(
-    JNIEnv* env, jclass, jint id) {
+Java_edu_wpi_first_wpilibj_hal_CounterJNI_clearCounterUpSource(JNIEnv* env,
+                                                               jclass,
+                                                               jint id) {
   COUNTERJNI_LOG(logDEBUG) << "Calling COUNTERJNI clearCounterUpSource";
   COUNTERJNI_LOG(logDEBUG) << "Counter Handle = " << (HAL_CounterHandle)id;
   int32_t status = 0;
@@ -138,7 +153,7 @@ Java_edu_wpi_first_wpilibj_hal_CounterJNI_clearCounterUpSource(
 /*
  * Class:     edu_wpi_first_wpilibj_hal_CounterJNI
  * Method:    setCounterDownSource
- * Signature: (IIZ)V
+ * Signature: (III)V
  */
 JNIEXPORT void JNICALL
 Java_edu_wpi_first_wpilibj_hal_CounterJNI_setCounterDownSource(
@@ -149,8 +164,9 @@ Java_edu_wpi_first_wpilibj_hal_CounterJNI_setCounterDownSource(
   COUNTERJNI_LOG(logDEBUG) << "digitalSourceHandle = " << digitalSourceHandle;
   COUNTERJNI_LOG(logDEBUG) << "analogTriggerType = " << analogTriggerType;
   int32_t status = 0;
-  HAL_SetCounterDownSource((HAL_CounterHandle)id, (HAL_Handle)digitalSourceHandle, 
-                       (HAL_AnalogTriggerType)analogTriggerType, &status);
+  HAL_SetCounterDownSource((HAL_CounterHandle)id,
+                           (HAL_Handle)digitalSourceHandle,
+                           (HAL_AnalogTriggerType)analogTriggerType, &status);
   COUNTERJNI_LOG(logDEBUG) << "Status = " << status;
   if (status == PARAMETER_OUT_OF_RANGE) {
     ThrowIllegalArgumentException(env,
@@ -174,7 +190,8 @@ Java_edu_wpi_first_wpilibj_hal_CounterJNI_setCounterDownSourceEdge(
   COUNTERJNI_LOG(logDEBUG) << "Rise = " << (jint)valueRise;
   COUNTERJNI_LOG(logDEBUG) << "Fall = " << (jint)valueFall;
   int32_t status = 0;
-  HAL_SetCounterDownSourceEdge((HAL_CounterHandle)id, valueRise, valueFall, &status);
+  HAL_SetCounterDownSourceEdge((HAL_CounterHandle)id, valueRise, valueFall,
+                               &status);
   COUNTERJNI_LOG(logDEBUG) << "Status = " << status;
   CheckStatus(env, status);
 }
@@ -185,8 +202,9 @@ Java_edu_wpi_first_wpilibj_hal_CounterJNI_setCounterDownSourceEdge(
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL
-Java_edu_wpi_first_wpilibj_hal_CounterJNI_clearCounterDownSource(
-    JNIEnv* env, jclass, jint id) {
+Java_edu_wpi_first_wpilibj_hal_CounterJNI_clearCounterDownSource(JNIEnv* env,
+                                                                 jclass,
+                                                                 jint id) {
   COUNTERJNI_LOG(logDEBUG) << "Calling COUNTERJNI clearCounterDownSource";
   COUNTERJNI_LOG(logDEBUG) << "Counter Handle = " << (HAL_CounterHandle)id;
   int32_t status = 0;
@@ -201,8 +219,9 @@ Java_edu_wpi_first_wpilibj_hal_CounterJNI_clearCounterDownSource(
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL
-Java_edu_wpi_first_wpilibj_hal_CounterJNI_setCounterUpDownMode(
-    JNIEnv* env, jclass, jint id) {
+Java_edu_wpi_first_wpilibj_hal_CounterJNI_setCounterUpDownMode(JNIEnv* env,
+                                                               jclass,
+                                                               jint id) {
   COUNTERJNI_LOG(logDEBUG) << "Calling COUNTERJNI setCounterUpDownMode";
   COUNTERJNI_LOG(logDEBUG) << "Counter Handle = " << (HAL_CounterHandle)id;
   int32_t status = 0;
@@ -273,7 +292,8 @@ Java_edu_wpi_first_wpilibj_hal_CounterJNI_getCounterSamplesToAverage(
   COUNTERJNI_LOG(logDEBUG) << "Calling COUNTERJNI getCounterSamplesToAverage";
   COUNTERJNI_LOG(logDEBUG) << "Counter Handle = " << (HAL_CounterHandle)id;
   int32_t status = 0;
-  jint returnValue = HAL_GetCounterSamplesToAverage((HAL_CounterHandle)id, &status);
+  jint returnValue =
+      HAL_GetCounterSamplesToAverage((HAL_CounterHandle)id, &status);
   COUNTERJNI_LOG(logDEBUG) << "Status = " << status;
   COUNTERJNI_LOG(logDEBUG) << "getCounterSamplesToAverageResult = "
                            << returnValue;
@@ -340,8 +360,8 @@ JNIEXPORT jint JNICALL Java_edu_wpi_first_wpilibj_hal_CounterJNI_getCounter(
  * Signature: (I)D
  */
 JNIEXPORT jdouble JNICALL
-Java_edu_wpi_first_wpilibj_hal_CounterJNI_getCounterPeriod(
-    JNIEnv* env, jclass, jint id) {
+Java_edu_wpi_first_wpilibj_hal_CounterJNI_getCounterPeriod(JNIEnv* env, jclass,
+                                                           jint id) {
   COUNTERJNI_LOG(logDEBUG) << "Calling COUNTERJNI getCounterPeriod";
   COUNTERJNI_LOG(logDEBUG) << "Counter Handle = " << (HAL_CounterHandle)id;
   int32_t status = 0;
@@ -358,8 +378,9 @@ Java_edu_wpi_first_wpilibj_hal_CounterJNI_getCounterPeriod(
  * Signature: (ID)V
  */
 JNIEXPORT void JNICALL
-Java_edu_wpi_first_wpilibj_hal_CounterJNI_setCounterMaxPeriod(
-    JNIEnv* env, jclass, jint id, jdouble value) {
+Java_edu_wpi_first_wpilibj_hal_CounterJNI_setCounterMaxPeriod(JNIEnv* env,
+                                                              jclass, jint id,
+                                                              jdouble value) {
   COUNTERJNI_LOG(logDEBUG) << "Calling COUNTERJNI setCounterMaxPeriod";
   COUNTERJNI_LOG(logDEBUG) << "Counter Handle = " << (HAL_CounterHandle)id;
   COUNTERJNI_LOG(logDEBUG) << "MaxPeriod = " << value;
@@ -392,8 +413,8 @@ Java_edu_wpi_first_wpilibj_hal_CounterJNI_setCounterUpdateWhenEmpty(
  * Signature: (I)Z
  */
 JNIEXPORT jboolean JNICALL
-Java_edu_wpi_first_wpilibj_hal_CounterJNI_getCounterStopped(
-    JNIEnv* env, jclass, jint id) {
+Java_edu_wpi_first_wpilibj_hal_CounterJNI_getCounterStopped(JNIEnv* env, jclass,
+                                                            jint id) {
   COUNTERJNI_LOG(logDEBUG) << "Calling COUNTERJNI getCounterStopped";
   COUNTERJNI_LOG(logDEBUG) << "Counter Handle = " << (HAL_CounterHandle)id;
   int32_t status = 0;
@@ -410,12 +431,13 @@ Java_edu_wpi_first_wpilibj_hal_CounterJNI_getCounterStopped(
  * Signature: (I)Z
  */
 JNIEXPORT jboolean JNICALL
-Java_edu_wpi_first_wpilibj_hal_CounterJNI_getCounterDirection(
-    JNIEnv* env, jclass, jint id) {
+Java_edu_wpi_first_wpilibj_hal_CounterJNI_getCounterDirection(JNIEnv* env,
+                                                              jclass, jint id) {
   COUNTERJNI_LOG(logDEBUG) << "Calling COUNTERJNI getCounterDirection";
   COUNTERJNI_LOG(logDEBUG) << "Counter Handle = " << (HAL_CounterHandle)id;
   int32_t status = 0;
-  jboolean returnValue = HAL_GetCounterDirection((HAL_CounterHandle)id, &status);
+  jboolean returnValue =
+      HAL_GetCounterDirection((HAL_CounterHandle)id, &status);
   COUNTERJNI_LOG(logDEBUG) << "Status = " << status;
   COUNTERJNI_LOG(logDEBUG) << "getCounterDirectionResult = "
                            << (jint)returnValue;
