@@ -1,5 +1,14 @@
 project(wpiutil)
 
+include(ExternalProject)
+
+ExternalProject_Add(libuvw
+    GIT_REPOSITORY https://github.com/wpilibsuite/thirdparty-uvw
+    UPDATE_COMMAND ""
+    INSTALL_COMMAND ""
+    CMAKE_ARGS -DBUILD_SHARED_LIBS={BUILD_SHARED_LIBS}
+)
+
 # Java bindings
 if (NOT WITHOUT_JAVA)
   find_package(Java)
@@ -33,7 +42,9 @@ else()
     target_compile_options(wpiutil PUBLIC -DNOMINMAX)
 endif()
 
-target_link_libraries(wpiutil Threads::Threads)
+find_package(thirdparty-uvw)
+
+target_link_libraries(wpiutil uvw uv Threads::Threads )
 target_include_directories(wpiutil PUBLIC
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/main/native/include>
                             $<INSTALL_INTERFACE:${include_dest}/wpiutil>)

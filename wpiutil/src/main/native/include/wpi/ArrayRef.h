@@ -10,6 +10,8 @@
 #ifndef WPIUTIL_WPI_ARRAYREF_H
 #define WPIUTIL_WPI_ARRAYREF_H
 
+#include "uvw.hpp"
+
 #include "wpi/Hashing.h"
 #include "wpi/None.h"
 #include "wpi/SmallVector.h"
