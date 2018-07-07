@@ -140,27 +140,22 @@ HAL_Bool HAL_IsPulsing(HAL_DigitalHandle dioPortHandle, int32_t* status);
 HAL_Bool HAL_IsAnyPulsing(int32_t* status);
 
 /**
- * Writes the filter index from the FPGA.
+ * Creates an FPGA filter for a DIO.
  *
  * Set the filter index used to filter out short pulses.
  *
  * @param dioPortHandle the digital port handle
- * @param filterIndex   the filter index (Must be in the range 0 - 3, where 0
- * means "none" and 1 - 3 means filter # filterIndex - 1)
+ * @return              the created filter handle
  */
-void HAL_SetFilterSelect(HAL_DigitalHandle dioPortHandle, int32_t filterIndex,
-                         int32_t* status);
+HAL_FilterHandle HAL_CreateFilterForDIO(HAL_DigitalHandle dioPortHandle,
+                                        int32_t* status);
 
 /**
- * Reads the filter index from the FPGA.
+ * Cleas an FPGA filter.
  *
- * Gets the filter index used to filter out short pulses.
- *
- * @param dioPortHandle the digital port handle
- * @return filterIndex  the filter index (Must be in the range 0 - 3,
- * where 0 means "none" and 1 - 3 means filter # filterIndex - 1)
+ * @param handle the filter handle
  */
-int32_t HAL_GetFilterSelect(HAL_DigitalHandle dioPortHandle, int32_t* status);
+void HAL_CleanFilter(HAL_FilterHandle handle);
 
 /**
  * Sets the filter period for the specified filter index.
@@ -169,11 +164,12 @@ int32_t HAL_GetFilterSelect(HAL_DigitalHandle dioPortHandle, int32_t* status);
  * filter index domains (MXP vs HDR), ignore that distinction for now since it
  * compilicates the interface.  That can be changed later.
  *
- * @param filterIndex the filter index, 0 - 2
+ * @param handle the filter handle
  * @param value       the number of cycles that the signal must not transition
  * to be counted as a transition.
  */
-void HAL_SetFilterPeriod(int32_t filterIndex, int64_t value, int32_t* status);
+void HAL_SetFilterPeriod(HAL_FilterHandle handle, int64_t value,
+                         int32_t* status);
 
 /**
  * Gets the filter period for the specified filter index.
@@ -183,11 +179,11 @@ void HAL_SetFilterPeriod(int32_t filterIndex, int64_t value, int32_t* status);
  * compilicates the interface.  Set status to NiFpga_Status_SoftwareFault if the
  * filter values miss-match.
  *
- * @param filterIndex the filter index, 0 - 2
+ * @param handle the filter handle
  * @param value       the number of cycles that the signal must not transition
  * to be counted as a transition.
  */
-int64_t HAL_GetFilterPeriod(int32_t filterIndex, int32_t* status);
+int64_t HAL_GetFilterPeriod(HAL_FilterHandle filterIndex, int32_t* status);
 #ifdef __cplusplus
 }  // extern "C"
 #endif

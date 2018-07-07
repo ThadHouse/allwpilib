@@ -21,12 +21,23 @@
 
 using namespace hal;
 
+namespace {
+struct FilterData {
+  HAL_DigitalHandle dioHandle;
+  uint8_t filterIndex;
+};
+}  // namespace
+
 // Create a mutex to protect changes to the DO PWM config
 static wpi::mutex digitalPwmMutex;
 
 static LimitedHandleResource<HAL_DigitalPWMHandle, uint8_t,
                              kNumDigitalPWMOutputs, HAL_HandleEnum::DigitalPWM>*
     digitalPWMHandles;
+
+static LimitedHandleResource<HAL_FilterHandle, FilterData, 3,
+                             HAL_HandleEnum::DigitalFilter>*
+    digitalFilterHandles;
 
 namespace hal {
 namespace init {
@@ -36,6 +47,10 @@ void InitializeDIO() {
                                HAL_HandleEnum::DigitalPWM>
       dpH;
   digitalPWMHandles = &dpH;
+  static LimitedHandleResource<HAL_FilterHandle, FilterData, 3,
+                               HAL_HandleEnum::DigitalFilter>
+      dfH;
+  digitalFilterHandles = &dfH;
 }
 }  // namespace init
 }  // namespace hal
@@ -413,9 +428,78 @@ HAL_Bool HAL_IsAnyPulsing(int32_t* status) {
          pulseRegister.SPIPort != 0;
 }
 
-void HAL_SetFilterSelect(HAL_DigitalHandle dioPortHandle, int32_t filterIndex,
-                         int32_t* status) {
+HAL_FilterHandle HAL_CreateFilterForDIO(HAL_DigitalHandle dioPortHandle,
+                                        int32_t* status) {
   auto port = digitalChannelHandles->Get(dioPortHandle, HAL_HandleEnum::DIO);
+  if (port == nullptr) {
+    *status = HAL_HANDLE_ERROR;
+    return HAL_kInvalidHandle;
+  }
+
+  auto filterHandle = digitalFilterHandles->Allocate();
+  if (filterHandle == HAL_kInvalidHandle) {
+    *status = NO_AVAILABLE_RESOURCES;
+    return HAL_kInvalidHandle;
+  }
+
+  auto filter = digitalFilterHandles->Get(filterHandle);
+  if (filter == nullptr) {  // would only occur on thread issue.
+    *status = HAL_HANDLE_ERROR;
+    return HAL_kInvalidHandle;
+  }
+  filter->filterIndex = static_cast<uint8_t>(getHandleIndex(filterHandle));
+  filter->dioHandle = dioPortHandle;
+
+  std::lock_guard<wpi::mutex> lock(digitalDIOMutex);
+  if (port->channel >= kNumDigitalHeaders + kNumDigitalMXPChannels) {
+    // Channels 10-15 are SPI channels, so subtract our MXP channels
+    digitalSystem->writeFilterSelectHdr(port->channel - kNumDigitalMXPChannels,
+                                        filter->filterIndex, status);
+  } else if (port->channel < kNumDigitalHeaders) {
+    digitalSystem->writeFilterSelectHdr(port->channel, filter->filterIndex,
+                                        status);
+  } else {
+    digitalSystem->writeFilterSelectMXP(remapMXPChannel(port->channel),
+                                        filter->filterIndex, status);
+  }
+}
+
+void HAL_CleanFilter(HAL_FilterHandle handle) {
+  auto filter = digitalFilterHandles->Get(handle);
+  if (filter == nullptr) {
+    return;
+  }
+
+  auto port =
+      digitalChannelHandles->Get(filter->dioHandle, HAL_HandleEnum::DIO);
+  if (port == nullptr) {
+    return;
+  }
+
+  int32_t status = 0;
+
+  std::lock_guard<wpi::mutex> lock(digitalDIOMutex);
+  if (port->channel >= kNumDigitalHeaders + kNumDigitalMXPChannels) {
+    // Channels 10-15 are SPI channels, so subtract our MXP channels
+    digitalSystem->writeFilterSelectHdr(port->channel - kNumDigitalMXPChannels,
+                                        0, &status);
+  } else if (port->channel < kNumDigitalHeaders) {
+    digitalSystem->writeFilterSelectHdr(port->channel, 0, &status);
+  } else {
+    digitalSystem->writeFilterSelectMXP(remapMXPChannel(port->channel), 0,
+                                        &status);
+  }
+}
+
+void HAL_SetFilterPeriod(HAL_FilterHandle handle, int64_t value,
+                         int32_t* status) {
+  auto filter = digitalFilterHandles->Get(handle);
+  if (filter == nullptr) {
+    *status = HAL_HANDLE_ERROR;
+    return;
+  }
+  auto port =
+      digitalChannelHandles->Get(filter->dioHandle, HAL_HandleEnum::DIO);
   if (port == nullptr) {
     *status = HAL_HANDLE_ERROR;
     return;
@@ -424,63 +508,36 @@ void HAL_SetFilterSelect(HAL_DigitalHandle dioPortHandle, int32_t filterIndex,
   std::lock_guard<wpi::mutex> lock(digitalDIOMutex);
   if (port->channel >= kNumDigitalHeaders + kNumDigitalMXPChannels) {
     // Channels 10-15 are SPI channels, so subtract our MXP channels
-    digitalSystem->writeFilterSelectHdr(port->channel - kNumDigitalMXPChannels,
-                                        filterIndex, status);
+    digitalSystem->writeFilterPeriodHdr(filter->filterIndex, value, status);
   } else if (port->channel < kNumDigitalHeaders) {
-    digitalSystem->writeFilterSelectHdr(port->channel, filterIndex, status);
+    digitalSystem->writeFilterPeriodHdr(filter->filterIndex, value, status);
   } else {
-    digitalSystem->writeFilterSelectMXP(remapMXPChannel(port->channel),
-                                        filterIndex, status);
+    digitalSystem->writeFilterPeriodMXP(filter->filterIndex, value, status);
   }
 }
 
-int32_t HAL_GetFilterSelect(HAL_DigitalHandle dioPortHandle, int32_t* status) {
-  auto port = digitalChannelHandles->Get(dioPortHandle, HAL_HandleEnum::DIO);
+int64_t HAL_GetFilterPeriod(HAL_FilterHandle handle, int32_t* status) {
+  auto filter = digitalFilterHandles->Get(handle);
+  if (filter == nullptr) {
+    *status = HAL_HANDLE_ERROR;
+    return;
+  }
+  auto port =
+      digitalChannelHandles->Get(filter->dioHandle, HAL_HandleEnum::DIO);
   if (port == nullptr) {
     *status = HAL_HANDLE_ERROR;
-    return 0;
+    return;
   }
 
   std::lock_guard<wpi::mutex> lock(digitalDIOMutex);
   if (port->channel >= kNumDigitalHeaders + kNumDigitalMXPChannels) {
     // Channels 10-15 are SPI channels, so subtract our MXP channels
-    return digitalSystem->readFilterSelectHdr(
-        port->channel - kNumDigitalMXPChannels, status);
+    return digitalSystem->readFilterPeriodHdr(filter->filterIndex, status);
   } else if (port->channel < kNumDigitalHeaders) {
-    return digitalSystem->readFilterSelectHdr(port->channel, status);
+    return digitalSystem->readFilterPeriodHdr(filter->filterIndex, status);
   } else {
-    return digitalSystem->readFilterSelectMXP(remapMXPChannel(port->channel),
-                                              status);
+    return digitalSystem->readFilterPeriodMXP(filter->filterIndex, status);
   }
-}
-
-void HAL_SetFilterPeriod(int32_t filterIndex, int64_t value, int32_t* status) {
-  initializeDigital(status);
-  if (*status != 0) return;
-  std::lock_guard<wpi::mutex> lock(digitalDIOMutex);
-  digitalSystem->writeFilterPeriodHdr(filterIndex, value, status);
-  if (*status == 0) {
-    digitalSystem->writeFilterPeriodMXP(filterIndex, value, status);
-  }
-}
-
-int64_t HAL_GetFilterPeriod(int32_t filterIndex, int32_t* status) {
-  initializeDigital(status);
-  if (*status != 0) return 0;
-  uint32_t hdrPeriod = 0;
-  uint32_t mxpPeriod = 0;
-  {
-    std::lock_guard<wpi::mutex> lock(digitalDIOMutex);
-    hdrPeriod = digitalSystem->readFilterPeriodHdr(filterIndex, status);
-    if (*status == 0) {
-      mxpPeriod = digitalSystem->readFilterPeriodMXP(filterIndex, status);
-    }
-  }
-  if (hdrPeriod != mxpPeriod) {
-    *status = NiFpga_Status_SoftwareFault;
-    return -1;
-  }
-  return hdrPeriod;
 }
 
 }  // extern "C"

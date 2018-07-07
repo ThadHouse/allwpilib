@@ -43,29 +43,9 @@ public class DigitalGlitchFilter extends SendableBase {
   @Override
   public void close() {
     super.close();
-    if (m_channelIndex >= 0) {
-      synchronized (m_mutex) {
-        m_filterAllocated[m_channelIndex] = false;
-      }
-      m_channelIndex = -1;
-    }
   }
 
-  private static void setFilter(DigitalSource input, int channelIndex) {
-    if (input != null) { // Counter might have just one input
-      // analog triggers are not supported for DigitalGlitchFilters
-      if (input.isAnalogTrigger()) {
-        throw new IllegalStateException("Analog Triggers not supported for DigitalGlitchFilters");
-      }
-      DigitalGlitchFilterJNI.setFilterSelect(input.getPortHandleForRouting(), channelIndex);
 
-      int selected = DigitalGlitchFilterJNI.getFilterSelect(input.getPortHandleForRouting());
-      if (selected != channelIndex) {
-        throw new IllegalStateException("DigitalGlitchFilterJNI.setFilterSelect("
-            + channelIndex + ") failed -> " + selected);
-      }
-    }
-  }
 
   /**
    * Assigns the DigitalSource to this glitch filter.
@@ -73,7 +53,13 @@ public class DigitalGlitchFilter extends SendableBase {
    * @param input The DigitalSource to add.
    */
   public void add(DigitalSource input) {
-    setFilter(input, m_channelIndex + 1);
+    if (input != null) { // Counter might have just one input
+      // analog triggers are not supported for DigitalGlitchFilters
+      if (input.isAnalogTrigger()) {
+        throw new IllegalStateException("Analog Triggers not supported for DigitalGlitchFilters");
+      }
+      m_handle = DigitalGlitchFilterJNI.createFilterForDIO(input.getPortHandleForRouting());
+    }
   }
 
   /**
@@ -102,7 +88,7 @@ public class DigitalGlitchFilter extends SendableBase {
    * @param input The DigitalSource to stop filtering.
    */
   public void remove(DigitalSource input) {
-    setFilter(input, 0);
+    DigitalGlitchFilterJNI.cleanFilter(m_handle);
   }
 
   /**
@@ -132,7 +118,7 @@ public class DigitalGlitchFilter extends SendableBase {
    * @param fpgaCycles The number of FPGA cycles.
    */
   public void setPeriodCycles(int fpgaCycles) {
-    DigitalGlitchFilterJNI.setFilterPeriod(m_channelIndex, fpgaCycles);
+    DigitalGlitchFilterJNI.setFilterPeriod(m_handle, fpgaCycles);
   }
 
   /**
@@ -154,7 +140,7 @@ public class DigitalGlitchFilter extends SendableBase {
    * @return The number of cycles.
    */
   public int getPeriodCycles() {
-    return DigitalGlitchFilterJNI.getFilterPeriod(m_channelIndex);
+    return DigitalGlitchFilterJNI.getFilterPeriod(m_handle);
   }
 
   /**
@@ -175,7 +161,5 @@ public class DigitalGlitchFilter extends SendableBase {
   public void initSendable(SendableBuilder builder) {
   }
 
-  private int m_channelIndex = -1;
-  private static final Lock m_mutex = new ReentrantLock(true);
-  private static final boolean[] m_filterAllocated = new boolean[3];
+  private int m_handle = -1;
 }

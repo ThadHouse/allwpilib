@@ -216,32 +216,22 @@ HAL_Bool HAL_IsAnyPulsing(int32_t* status) {
   return false;  // TODO(Thad) Figure this out
 }
 
-void HAL_SetFilterSelect(HAL_DigitalHandle dioPortHandle, int32_t filterIndex,
-                         int32_t* status) {
-  auto port = digitalChannelHandles->Get(dioPortHandle, HAL_HandleEnum::DIO);
-  if (port == nullptr) {
-    *status = HAL_HANDLE_ERROR;
-    return;
-  }
-
-  // TODO(Thad) Figure this out
+HAL_FilterHandle HAL_CreateFilterForDIO(HAL_DigitalHandle dioPortHandle,
+                                        int32_t* status) {
+  // TODO(Thad) figure this out
+  return HAL_kInvalidHandle;
 }
 
-int32_t HAL_GetFilterSelect(HAL_DigitalHandle dioPortHandle, int32_t* status) {
-  auto port = digitalChannelHandles->Get(dioPortHandle, HAL_HandleEnum::DIO);
-  if (port == nullptr) {
-    *status = HAL_HANDLE_ERROR;
-    return 0;
-  }
-  return 0;
-  // TODO(Thad) Figure this out
-}
-
-void HAL_SetFilterPeriod(int32_t filterIndex, int64_t value, int32_t* status) {
+void HAL_CleanFilter(HAL_FilterHandle handle) {
   // TODO(Thad) figure this out
 }
 
-int64_t HAL_GetFilterPeriod(int32_t filterIndex, int32_t* status) {
+void HAL_SetFilterPeriod(HAL_FilterHandle handle, int64_t value,
+                         int32_t* status) {
+  // TODO(Thad) figure this out
+}
+
+int64_t HAL_GetFilterPeriod(HAL_FilterHandle handle, int32_t* status) {
   return 0;  // TODO(Thad) figure this out
 }
 }  // extern "C"

@@ -15,36 +15,28 @@ using namespace frc;
 
 /*
  * Class:     edu_wpi_first_wpilibj_hal_DigitalGlitchFilterJNI
- * Method:    setFilterSelect
- * Signature: (II)V
+ * Method:    createFilterForDIO
+ * Signature: (I)I
  */
-JNIEXPORT void JNICALL
-Java_edu_wpi_first_wpilibj_hal_DigitalGlitchFilterJNI_setFilterSelect
-  (JNIEnv* env, jclass, jint id, jint filter_index)
+JNIEXPORT jint JNICALL
+Java_edu_wpi_first_wpilibj_hal_DigitalGlitchFilterJNI_createFilterForDIO
+  (JNIEnv* env, jclass, jint handle)
 {
   int32_t status = 0;
 
-  HAL_SetFilterSelect(static_cast<HAL_DigitalHandle>(id), filter_index,
-                      &status);
+  HAL_CreateFilterForDIO(static_cast<HAL_DigitalHandle>(handle), &status);
   CheckStatus(env, status);
 }
 
 /*
  * Class:     edu_wpi_first_wpilibj_hal_DigitalGlitchFilterJNI
- * Method:    getFilterSelect
- * Signature: (I)I
+ * Method:    cleanFilter
+ * Signature: (I)V
  */
-JNIEXPORT jint JNICALL
-Java_edu_wpi_first_wpilibj_hal_DigitalGlitchFilterJNI_getFilterSelect
-  (JNIEnv* env, jclass, jint id)
-{
-  int32_t status = 0;
-
-  jint result =
-      HAL_GetFilterSelect(static_cast<HAL_DigitalHandle>(id), &status);
-  CheckStatus(env, status);
-  return result;
-}
+JNIEXPORT void JNICALL
+Java_edu_wpi_first_wpilibj_hal_DigitalGlitchFilterJNI_cleanFilter
+  (JNIEnv* env, jclass, jint handle)
+{HAL_CleanFilter(handle)}
 
 /*
  * Class:     edu_wpi_first_wpilibj_hal_DigitalGlitchFilterJNI
@@ -53,11 +45,11 @@ Java_edu_wpi_first_wpilibj_hal_DigitalGlitchFilterJNI_getFilterSelect
  */
 JNIEXPORT void JNICALL
 Java_edu_wpi_first_wpilibj_hal_DigitalGlitchFilterJNI_setFilterPeriod
-  (JNIEnv* env, jclass, jint filter_index, jint fpga_cycles)
+  (JNIEnv* env, jclass, jint filter_handle, jint fpga_cycles)
 {
   int32_t status = 0;
 
-  HAL_SetFilterPeriod(filter_index, fpga_cycles, &status);
+  HAL_SetFilterPeriod(filter_handle, fpga_cycles, &status);
   CheckStatus(env, status);
 }
 
@@ -68,11 +60,11 @@ Java_edu_wpi_first_wpilibj_hal_DigitalGlitchFilterJNI_setFilterPeriod
  */
 JNIEXPORT jint JNICALL
 Java_edu_wpi_first_wpilibj_hal_DigitalGlitchFilterJNI_getFilterPeriod
-  (JNIEnv* env, jclass, jint filter_index)
+  (JNIEnv* env, jclass, jint filter_handle)
 {
   int32_t status = 0;
 
-  jint result = HAL_GetFilterPeriod(filter_index, &status);
+  jint result = HAL_GetFilterPeriod(filter_handle, &status);
   CheckStatus(env, status);
   return result;
 }
