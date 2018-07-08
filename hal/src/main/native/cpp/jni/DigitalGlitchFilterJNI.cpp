@@ -16,11 +16,11 @@ using namespace frc;
 /*
  * Class:     edu_wpi_first_wpilibj_hal_DigitalGlitchFilterJNI
  * Method:    createFilterForDIO
- * Signature: (I)I
+ * Signature: ()I
  */
 JNIEXPORT jint JNICALL
 Java_edu_wpi_first_wpilibj_hal_DigitalGlitchFilterJNI_createFilterForDIO
-  (JNIEnv* env, jclass, jint handle)
+  (JNIEnv*, jclass)
 {
   int32_t status = 0;
 
@@ -35,8 +35,10 @@ Java_edu_wpi_first_wpilibj_hal_DigitalGlitchFilterJNI_createFilterForDIO
  */
 JNIEXPORT void JNICALL
 Java_edu_wpi_first_wpilibj_hal_DigitalGlitchFilterJNI_cleanFilter
-  (JNIEnv* env, jclass, jint handle)
-{HAL_CleanFilter(handle)}
+  (JNIEnv*, jclass, jint handle)
+{
+  HAL_CleanFilter(handle);
+}
 
 /*
  * Class:     edu_wpi_first_wpilibj_hal_DigitalGlitchFilterJNI
