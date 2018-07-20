@@ -1,7 +1,7 @@
 def athenaSimJniOutputDir = file("$buildDir/generated/cpp")
 def athenaSimJniOutputFile = file("$athenaSimJniOutputDir/simjni.cpp")
 
-task generateAthenaSimFiles() {
+tasks.register('generateAthenaSimFiles') {
     Set dirs = [];
 
     def createdTask = it

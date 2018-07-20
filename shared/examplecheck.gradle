@@ -24,24 +24,26 @@ def fileCheck = { file, folder ->
     }
 }
 
-task checkTemplates(type: Task) {
+def checkTemplatesTask = tasks.register('checkTemplates') {
     doLast {
         fileCheck(templateFile, templateDirectory)
     }
 }
 
-task checkExamples(type: Task) {
+def checkExamplesTask = tasks.register('checkExamples') {
     doLast {
         fileCheck(exampleFile, exampleDirectory)
     }
 }
 
-task checkCommands(type: Task) {
+def checkCommandsTask = tasks.register('checkCommands') {
     doLast {
         fileCheck(commandFile, commandDirectory)
     }
 }
 
-check.dependsOn checkTemplates
-check.dependsOn checkExamples
-check.dependsOn checkCommands
+tasks.named('check').configure {
+    dependsOn checkTemplatesTask
+    dependsOn checkExamplesTask
+    dependsOn checkCommandsTask
+}

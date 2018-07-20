@@ -37,7 +37,7 @@ def outputsFolder = file("$project.buildDir/outputs")
 
 def niLibBaseName = '_GROUP_edu_wpi_first_ni-libraries_ID_ni-libraries_CLS'
 
-task libZip(type: Zip) {
+def libTask = tasks.register('libZip', Zip) {
     destinationDir = outputsFolder
     baseName = niLibBaseName
     classifier = "linuxathena"
@@ -47,7 +47,7 @@ task libZip(type: Zip) {
     }
 }
 
-task headersZip(type: Zip) {
+def headersTask = tasks.register('headersZip', Zip) {
     destinationDir = outputsFolder
     baseName = niLibBaseName
     classifier = "headers"
@@ -57,17 +57,19 @@ task headersZip(type: Zip) {
     }
 }
 
-task build() {}
+tasks.register('build') {
+    dependsOn headersTask
+    dependsOn libTask
+}
 
-build.dependsOn headersZip
-build.dependsOn libZip
 
-addTaskToCopyAllOutputs(headersZip)
-addTaskToCopyAllOutputs(libZip)
+
+addTaskToCopyAllOutputs(headersTask)
+addTaskToCopyAllOutputs(libTask)
 
 apply from: 'publish.gradle'
 
-task patchNiLibraries() {
+tasks.register('patchNiLibraries') {
     doLast {
         // Patch ChipObject headers to be self contained
         FileTree chipTree = fileTree(dir: "$rootDir/ni-libraries/include/FRC_FPGA_ChipObject/nRoboRIO_FPGANamespace")

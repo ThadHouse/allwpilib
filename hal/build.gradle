@@ -48,7 +48,7 @@ cppSourcesZip {
         into '/athena/jni'
     }
 
-    dependsOn generateAthenaSimFiles
+    dependsOn tasks.named('generateAthenaSimFiles')
 }
 
 model {

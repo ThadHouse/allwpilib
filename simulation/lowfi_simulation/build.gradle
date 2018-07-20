@@ -163,7 +163,7 @@ model {
     }
     tasks {
         def c = $.components
-        project.tasks.create('runCpp', Exec) {
+        project.tasks.register('runCpp', Exec) {
             def found = false
             c.each {
                 if (it in NativeExecutableSpec && it.name == "${nativeName}Dev") {
@@ -183,7 +183,7 @@ model {
     }
 }
 
-tasks.withType(RunTestExecutable) {
+tasks.withType(RunTestExecutable).configureEach {
     args "--gtest_output=xml:test_detail.xml"
     outputs.dir outputDir
 }
