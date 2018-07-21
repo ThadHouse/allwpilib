@@ -35,11 +35,9 @@ dependencies {
     compile 'org.apache.ant:ant-junit:1.9.4'
 }
 
-build.dependsOn shadowJar
-
 def testOutputFolder = file("${project(':').buildDir}/integrationTestFiles")
 
-task copyWpilibJIntegrationTestJarToOutput(type: Copy) {
+tasks.register('copyWpilibJIntegrationTestJarToOutput', Copy) {
     destinationDir testOutputFolder
     dependsOn shadowJar
     inputs.file shadowJar.archivePath
@@ -48,4 +46,9 @@ task copyWpilibJIntegrationTestJarToOutput(type: Copy) {
     }
 }
 
-build.dependsOn copyWpilibJIntegrationTestJarToOutput
+def buildTask = tasks.named('build')
+
+buildTask.configure {
+    dependsOn shadowJar
+    dependsOn copyWpilibJIntegrationTestJarToOutput
+}

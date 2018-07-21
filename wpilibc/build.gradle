@@ -15,7 +15,7 @@ apply from: "${rootDir}/shared/config.gradle"
 def wpilibVersionFileInput = file("src/generate/WPILibVersion.cpp.in")
 def wpilibVersionFileOutput = file("$buildDir/generated/cpp/WPILibVersion.cpp")
 
-task generateCppVersion() {
+def generateVersionTask = tasks.register('generateCppVersion') {
     description = 'Generates the wpilib version class'
     group = 'WPILib'
 
@@ -188,8 +188,8 @@ model {
     }
     binaries {
         all {
-            tasks.withType(CppCompile) {
-                dependsOn generateCppVersion
+            tasks.withType(CppCompile).configureEach {
+                dependsOn generateVersionTask
             }
         }
         withType(GoogleTestTestSuiteBinarySpec) {
@@ -208,7 +208,7 @@ model {
     }
     tasks {
         def c = $.components
-        project.tasks.create('runCpp', Exec) {
+        project.tasks.register('runCpp', Exec) {
             def found = false
             c.each {
                 if (it in NativeExecutableSpec && it.name == "${nativeName}Dev") {
@@ -228,7 +228,7 @@ model {
     }
 }
 
-tasks.withType(RunTestExecutable) {
+tasks.withType(RunTestExecutable).configureEach {
     args "--gtest_output=xml:test_detail.xml"
     outputs.dir outputDir
 }
@@ -237,6 +237,6 @@ apply from: 'publish.gradle'
 
 def oldWpilibVersionFile = file('src/main/native/cpp/WPILibVersion.cpp')
 
-clean {
+clean.configure {
     delete oldWpilibVersionFile
 }

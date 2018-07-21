@@ -14,7 +14,7 @@ def artifactGroupId = 'edu.wpi.first.wpilibj'
 
 def outputsFolder = file("$project.buildDir/outputs")
 
-task javaExamplesZip(type: Zip) {
+def javaExamplesZipTask = tasks.register('javaExamplesZip', Zip) {
     destinationDir = outputsFolder
     baseName = 'wpilibj-examples'
 
@@ -27,7 +27,7 @@ task javaExamplesZip(type: Zip) {
     }
 }
 
-task javaTemplatesZip(type: Zip) {
+def javaTemplatesZipTask = tasks.register('javaTemplatesZip', Zip) {
     destinationDir = outputsFolder
     baseName = 'wpilibj-templates'
 
@@ -40,7 +40,7 @@ task javaTemplatesZip(type: Zip) {
     }
 }
 
-task javaCommandsZip(type: Zip) {
+def javaCommandsZipTask = tasks.register('javaCommandsZip', Zip) {
     destinationDir = outputsFolder
     baseName = 'wpilibj-commands'
 
@@ -53,9 +53,12 @@ task javaCommandsZip(type: Zip) {
     }
 }
 
-build.dependsOn javaTemplatesZip
-build.dependsOn javaExamplesZip
-build.dependsOn javaCommandsZip
+tasks.named('build').configure {
+    dependsOn javaTemplatesZipTask
+    dependsOn javaExamplesZipTask
+    dependsOn javaCommandsZipTask
+}
+
 
 publishing {
     publications {

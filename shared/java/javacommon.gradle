@@ -15,53 +15,53 @@ def javaBaseName = "_GROUP_edu_wpi_first_${project.baseId}_ID_${project.baseId}-
 
 def outputsFolder = file("$project.buildDir/outputs")
 
-task sourcesJar(type: Jar, dependsOn: classes) {
+def sourcesJarTask = tasks.register('sourcesJar', Jar) {
+    dependsOn tasks.named('classes')
     classifier = 'sources'
     from sourceSets.main.allSource
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
+def javadocJarTask = tasks.register('javadocJar', Jar) {
+    dependsOn tasks.named('javadoc')
     classifier = 'javadoc'
     from javadoc.destinationDir
 }
 
-task outputJar(type: Jar, dependsOn: classes) {
+def outputJarTask = tasks.register('outputJar', Jar) {// outputJar(type: Jar, dependsOn: classes) {
     baseName javaBaseName
     destinationDir outputsFolder
     from sourceSets.main.output
 }
 
-task outputSourcesJar(type: Jar, dependsOn: classes) {
+def outputSourcesJarTask = tasks.register('outputSourcesJar', Jar) {// outputSourcesJar(type: Jar, dependsOn: classes) {
+    tasks.named('classes')
     baseName javaBaseName
     destinationDir outputsFolder
     classifier = 'sources'
     from sourceSets.main.allSource
 }
 
-task outputJavadocJar(type: Jar, dependsOn: javadoc) {
+def outputJavadocJarTask = tasks.register('outputJavadocJar', Jar) {// outputJavadocJar(type: Jar, dependsOn: javadoc) {
+    dependsOn tasks.named('javadoc')
     baseName javaBaseName
     destinationDir outputsFolder
     classifier = 'javadoc'
     from javadoc.destinationDir
 }
 
-artifacts {
-    archives sourcesJar
-    archives javadocJar
-    archives outputJar
-    archives outputSourcesJar
-    archives outputJavadocJar
+addTaskToCopyAllOutputs(outputSourcesJarTask)
+addTaskToCopyAllOutputs(outputJavadocJarTask)
+addTaskToCopyAllOutputs(outputJarTask)
+
+tasks.named('build').configure {
+    dependsOn outputSourcesJarTask
+    dependsOn outputJavadocJarTask
+    dependsOn outputJarTask
 }
 
-addTaskToCopyAllOutputs(outputSourcesJar)
-addTaskToCopyAllOutputs(outputJavadocJar)
-addTaskToCopyAllOutputs(outputJar)
-
-build.dependsOn outputSourcesJar
-build.dependsOn outputJavadocJar
-build.dependsOn outputJar
-
-project(':').libraryBuild.dependsOn build
+project(':').tasks.named('libraryBuild').configure {
+    dependsOn tasks.named('build')
+}
 
 publishing {
     publications {
@@ -103,7 +103,7 @@ sourceSets {
     dev
 }
 
-compileJava {
+compileJava.configure {
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 }
@@ -116,10 +116,12 @@ dependencies {
     devCompile sourceSets.main.output
 }
 
-task run(type: JavaExec) {
+tasks.register('run', JavaExec) {
     classpath = sourceSets.dev.runtimeClasspath
 
     main = project.devMain
 }
 
-build.dependsOn devClasses
+tasks.named('build').configure {
+    dependsOn devClasses
+}

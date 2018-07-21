@@ -14,7 +14,7 @@ def artifactGroupId = 'edu.wpi.first.wpilibc'
 
 def outputsFolder = file("$project.buildDir/outputs")
 
-task cppExamplesZip(type: Zip) {
+def cppExamplesZipTask = tasks.register('cppExamplesZip', Zip) {
     destinationDir = outputsFolder
     baseName = 'wpilibc-examples'
 
@@ -27,7 +27,7 @@ task cppExamplesZip(type: Zip) {
     }
 }
 
-task cppTemplatesZip(type: Zip) {
+def cppTemplatesZipTask = tasks.register('cppTemplatesZip', Zip) {
     destinationDir = outputsFolder
     baseName = 'wpilibc-templates'
 
@@ -40,7 +40,7 @@ task cppTemplatesZip(type: Zip) {
     }
 }
 
-task cppCommandsZip(type: Zip) {
+def cppCommandsZipTask = tasks.register('cppCommandsZip', Zip) {
     destinationDir = outputsFolder
     baseName = 'wpilibc-commands'
 
@@ -53,9 +53,11 @@ task cppCommandsZip(type: Zip) {
     }
 }
 
-build.dependsOn cppTemplatesZip
-build.dependsOn cppExamplesZip
-build.dependsOn cppCommandsZip
+tasks.named('build').configure {
+    dependsOn cppTemplatesZipTask
+    dependsOn cppExamplesZipTask
+    dependsOn cppCommandsZipTask
+}
 
 publishing {
     publications {
