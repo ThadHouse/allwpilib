@@ -212,11 +212,15 @@ static void SetupTcp(wpi::uv::Loop& loop) {
   tcp->SetData(recStore);
 
   tcp->data.connect([t = tcp.get()](Buffer& buf, size_t len){
+    wpi::outs() << "Received Data\n";
+    wpi::outs().flush();
       HandleTcpDataStream(buf, len, *t->GetData<DataStore>());
       // Data is here
     });
 
   tcp->error.connect([t = tcpWaitTimer.get(), s = tcp.get()](Error err){
+        wpi::outs() << err.str() << "\n";
+        wpi::outs().flush();
     if (err.code() == UV_ECONNREFUSED) {
       t->Start(Timer::Time{1000});
       return;
@@ -228,6 +232,8 @@ static void SetupTcp(wpi::uv::Loop& loop) {
   tcpWaitTimer->timeout.connect([s = tcp, t = tcpWaitTimer.get()]{
     t->Stop();
     s->Connect("127.0.0.1", 1740, [si = s.get()]{
+          wpi::outs() << "Connected\n";
+    wpi::outs().flush();
       si->StartRead();
     });
   });
@@ -238,6 +244,8 @@ static void SetupTcp(wpi::uv::Loop& loop) {
     });
   });
   tcp->Connect("127.0.0.1", 1740, [t = tcp.get()]{
+        wpi::outs() << "Connected\n";
+    wpi::outs().flush();
     t->StartRead();
   });
 
@@ -262,24 +270,24 @@ static void SetupReplyPacket(halsim::DSCommPacket* ds) {
   data[7] = 0;   // Request
 }
 
+static std::unique_ptr<Buffer> singleByte;
+
 static void SetupUdp(wpi::uv::Loop& loop) {
   auto udp = wpi::uv::Udp::Create(loop);
   udp->Bind("0.0.0.0", 1110);
+
 
   // Simulation mode packet
   auto simLoopTimer = Timer::Create(loop);
   struct sockaddr_in simAddr;
   NameToAddr("127.0.0.1", 1135, &simAddr);
-  Buffer singleByte("0");
-  simLoopTimer->timeout.connect([udpLocal = udp.get(), simAddr, singleByte]{
-    udpLocal->Send(simAddr, singleByte, [](auto& buf, Error err){
-      if (err) {
-        wpi::outs() << err.str() << "\n";
-        wpi::outs().flush();
-      }
+
+  simLoopTimer->timeout.connect([udpLocal = udp.get(), simAddr]{
+    udpLocal->Send(simAddr, wpi::ArrayRef<Buffer>{singleByte.get(), 1}, [](auto& buf, Error err){
     });
   });
   simLoopTimer->Start(Timer::Time{100}, Timer::Time{100});
+
 
   // UDP Receive then send
   udp->received.connect([udpLocal = udp.get()](Buffer& buf, size_t len, const sockaddr& recSock, unsigned int port){
@@ -287,31 +295,13 @@ static void SetupUdp(wpi::uv::Loop& loop) {
     ds->DecodeUDP(reinterpret_cast<uint8_t*>(buf.base), len);
     SetupReplyPacket(ds.get());
 
-    wpi::outs() << "Received Packet ";
-    for (int i = 0; i < 8; i++) {
-      wpi::outs() << (int)buf.base[i] << " ";
-    }
-    wpi::outs() << "\n";
-    wpi::outs().flush();
-
     struct sockaddr_in outAddr;
-    NameToAddr("127.0.0.1", 1150, &outAddr);
-    /*
+    //NameToAddr("127.0.0.1", 1150, &outAddr);
+
     std::memcpy(&outAddr, &recSock, sizeof(sockaddr_in));
     outAddr.sin_family = PF_INET;
     outAddr.sin_port = htons(1150);
-    */
     udpLocal->Send(outAddr, wpi::ArrayRef<Buffer>{&ds->GetSendBuffer(), 1}, [](auto& buf, Error err){
-          wpi::outs() << "Sent Packet     ";
-              for (int i = 0; i < 8; i++) {
-      wpi::outs() << (int)buf[0].base[i] << " ";
-    }
-    wpi::outs() << "\n";
-    wpi::outs().flush();
-      if (err) {
-        wpi::outs() << err.str() << "\n";
-        wpi::outs().flush();
-      }
     });
     ds->SendUDPToHALSim();
 
@@ -348,12 +338,7 @@ __declspec(dllexport)
   }
   once = true;
 
-    #ifdef _WIN32
-  WSAData wsaData;
-  WORD wVersionRequested = MAKEWORD(2, 2);
-  WSAStartup(wVersionRequested, &wsaData);
-#endif
-
+  singleByte = std::make_unique<Buffer>("0");
 
   std::cout << "DriverStationSocket Initializing." << std::endl;
 
