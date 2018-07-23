@@ -272,7 +272,11 @@ static void SetupUdp(wpi::uv::Loop& loop) {
   NameToAddr("127.0.0.1", 1135, &simAddr);
   Buffer singleByte("0");
   simLoopTimer->timeout.connect([udpLocal = udp.get(), simAddr, singleByte]{
-    udpLocal->Send(simAddr, singleByte, [](auto& buf, auto err){
+    udpLocal->Send(simAddr, singleByte, [](auto& buf, Error err){
+      if (err) {
+        wpi::outs() << err.str() << "\n";
+        wpi::outs().flush();
+      }
     });
   });
   simLoopTimer->Start(Timer::Time{100}, Timer::Time{100});
@@ -283,6 +287,13 @@ static void SetupUdp(wpi::uv::Loop& loop) {
     ds->DecodeUDP(reinterpret_cast<uint8_t*>(buf.base), len);
     SetupReplyPacket(ds.get());
 
+    wpi::outs() << "Received Packet ";
+    for (int i = 0; i < 8; i++) {
+      wpi::outs() << (int)buf.base[i] << " ";
+    }
+    wpi::outs() << "\n";
+    wpi::outs().flush();
+
     struct sockaddr_in outAddr;
     NameToAddr("127.0.0.1", 1150, &outAddr);
     /*
@@ -290,8 +301,17 @@ static void SetupUdp(wpi::uv::Loop& loop) {
     outAddr.sin_family = PF_INET;
     outAddr.sin_port = htons(1150);
     */
-    udpLocal->Send(outAddr, wpi::ArrayRef<Buffer>{&ds->GetSendBuffer(), 1}, [](auto& buf, auto err){
-
+    udpLocal->Send(outAddr, wpi::ArrayRef<Buffer>{&ds->GetSendBuffer(), 1}, [](auto& buf, Error err){
+          wpi::outs() << "Sent Packet     ";
+              for (int i = 0; i < 8; i++) {
+      wpi::outs() << (int)buf[0].base[i] << " ";
+    }
+    wpi::outs() << "\n";
+    wpi::outs().flush();
+      if (err) {
+        wpi::outs() << err.str() << "\n";
+        wpi::outs().flush();
+      }
     });
     ds->SendUDPToHALSim();
 
@@ -304,7 +324,7 @@ static void SetupEventLoop(wpi::uv::Loop& loop) {
   auto loopData = std::make_shared<halsim::DSCommPacket>();
   loop.SetData(loopData);
   SetupUdp(loop);
-  //SetupTcp(loop);
+  SetupTcp(loop);
 }
 
 static std::unique_ptr<wpi::EventLoopRunner> eventLoopRunner;
@@ -320,12 +340,20 @@ __declspec(dllexport)
     int HALSIM_InitExtension(void) {
   static bool once = false;
 
+
   if (once) {
     std::cerr << "Error: cannot invoke HALSIM_InitExtension twice."
               << std::endl;
     return -1;
   }
   once = true;
+
+    #ifdef _WIN32
+  WSAData wsaData;
+  WORD wVersionRequested = MAKEWORD(2, 2);
+  WSAStartup(wVersionRequested, &wsaData);
+#endif
+
 
   std::cout << "DriverStationSocket Initializing." << std::endl;
 
