@@ -8,9 +8,13 @@
 #pragma once
 #include <vector>
 
+namespace halsim {
+
 typedef struct {
   std::vector<int16_t> axes;
   uint8_t button_count;
   uint32_t buttons;
   std::vector<int16_t> povs;
 } DSCommJoystickPacket;
+
+}
