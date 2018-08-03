@@ -19,14 +19,14 @@
 namespace hal {
 class PCMData {
  public:
-  int32_t RegisterSolenoidInitializedCallback(int32_t channel,
+  int32_t RegisterInitializedCallback(
                                               HAL_NotifyCallback callback,
                                               void* param,
                                               HAL_Bool initialNotify);
-  void CancelSolenoidInitializedCallback(int32_t channel, int32_t uid);
-  void InvokeSolenoidInitializedCallback(int32_t channel, HAL_Value value);
-  HAL_Bool GetSolenoidInitialized(int32_t channel);
-  void SetSolenoidInitialized(int32_t channel, HAL_Bool solenoidInitialized);
+  void CancelInitializedCallback(int32_t uid);
+  void InvokeInitializedCallback(HAL_Value value);
+  HAL_Bool GetInitialized();
+  void SetInitialized(HAL_Bool initialized);
 
   int32_t RegisterSolenoidOutputCallback(int32_t channel,
                                          HAL_NotifyCallback callback,
@@ -36,13 +36,8 @@ class PCMData {
   HAL_Bool GetSolenoidOutput(int32_t channel);
   void SetSolenoidOutput(int32_t channel, HAL_Bool solenoidOutput);
 
-  int32_t RegisterCompressorInitializedCallback(HAL_NotifyCallback callback,
-                                                void* param,
-                                                HAL_Bool initialNotify);
-  void CancelCompressorInitializedCallback(int32_t uid);
-  void InvokeCompressorInitializedCallback(HAL_Value value);
-  HAL_Bool GetCompressorInitialized();
-  void SetCompressorInitialized(HAL_Bool compressorInitialized);
+  int32_t GetAllSolenoidOutputs();
+  void SetAllSolenoidOutputs(int32_t values);
 
   int32_t RegisterCompressorOnCallback(HAL_NotifyCallback callback, void* param,
                                        HAL_Bool initialNotify);
@@ -78,15 +73,12 @@ class PCMData {
 
  private:
   wpi::mutex m_registerMutex;
-  std::atomic<HAL_Bool> m_solenoidInitialized[kNumSolenoidChannels];
+  std::atomic<HAL_Bool> m_initialized{false};
   std::shared_ptr<NotifyListenerVector>
-      m_solenoidInitializedCallbacks[kNumSolenoidChannels];
+      m_initializedCallbacks = nullptr;
   std::atomic<HAL_Bool> m_solenoidOutput[kNumSolenoidChannels];
   std::shared_ptr<NotifyListenerVector>
       m_solenoidOutputCallbacks[kNumSolenoidChannels];
-  std::atomic<HAL_Bool> m_compressorInitialized{false};
-  std::shared_ptr<NotifyListenerVector> m_compressorInitializedCallbacks =
-      nullptr;
   std::atomic<HAL_Bool> m_compressorOn{false};
   std::shared_ptr<NotifyListenerVector> m_compressorOnCallbacks = nullptr;
   std::atomic<HAL_Bool> m_closedLoopEnabled{true};

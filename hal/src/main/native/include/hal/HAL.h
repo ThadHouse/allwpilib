@@ -18,7 +18,6 @@
 #include "hal/AnalogOutput.h"
 #include "hal/AnalogTrigger.h"
 #include "hal/CAN.h"
-#include "hal/Compressor.h"
 #include "hal/Constants.h"
 #include "hal/Counter.h"
 #include "hal/DIO.h"
@@ -34,7 +33,6 @@
 #include "hal/Relay.h"
 #include "hal/SPI.h"
 #include "hal/SerialPort.h"
-#include "hal/Solenoid.h"
 
 #endif  // HAL_USE_LABVIEW
 

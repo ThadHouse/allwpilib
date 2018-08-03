@@ -21,20 +21,20 @@ class PCMSim {
  public:
   explicit PCMSim(int index) { m_index = index; }
 
-  std::unique_ptr<CallbackStore> RegisterSolenoidInitializedCallback(
-      int channel, NotifyCallback callback, bool initialNotify) {
+  std::unique_ptr<CallbackStore> RegisterInitializedCallback(
+      NotifyCallback callback, bool initialNotify) {
     auto store = std::make_unique<CallbackStore>(
-        m_index, channel, -1, callback,
-        &HALSIM_CancelPCMSolenoidInitializedCallback);
-    store->SetUid(HALSIM_RegisterPCMSolenoidInitializedCallback(
-        m_index, channel, &CallbackStoreThunk, store.get(), initialNotify));
+        m_index, -1, callback,
+        &HALSIM_CancelPCMInitializedCallback);
+    store->SetUid(HALSIM_RegisterPCMInitializedCallback(
+        m_index, &CallbackStoreThunk, store.get(), initialNotify));
     return store;
   }
-  bool GetSolenoidInitialized(int channel) {
-    return HALSIM_GetPCMSolenoidInitialized(m_index, channel);
+  bool GetInitialized() {
+    return HALSIM_GetPCMInitialized(m_index);
   }
-  void SetSolenoidInitialized(int channel, bool solenoidInitialized) {
-    HALSIM_SetPCMSolenoidInitialized(m_index, channel, solenoidInitialized);
+  void SetInitialized( bool initialized) {
+    HALSIM_SetPCMInitialized(m_index, initialized);
   }
 
   std::unique_ptr<CallbackStore> RegisterSolenoidOutputCallback(
@@ -53,20 +53,13 @@ class PCMSim {
     HALSIM_SetPCMSolenoidOutput(m_index, channel, solenoidOutput);
   }
 
-  std::unique_ptr<CallbackStore> RegisterCompressorInitializedCallback(
-      NotifyCallback callback, bool initialNotify) {
-    auto store = std::make_unique<CallbackStore>(
-        m_index, -1, callback, &HALSIM_CancelPCMCompressorInitializedCallback);
-    store->SetUid(HALSIM_RegisterPCMCompressorInitializedCallback(
-        m_index, &CallbackStoreThunk, store.get(), initialNotify));
-    return store;
+  int32_t GetAllSolenoidOutputs() {
+    return HALSIM_GetPCMAllSolenoidOutputs(m_index);
   }
-  bool GetCompressorInitialized() {
-    return HALSIM_GetPCMCompressorInitialized(m_index);
+  void SetAllSolenoidOutputs(int32_t solenoidOutputs) {
+    HALSIM_SetPCMAllSolenoidOutputs(m_index, solenoidOutputs);
   }
-  void SetCompressorInitialized(bool compressorInitialized) {
-    HALSIM_SetPCMCompressorInitialized(m_index, compressorInitialized);
-  }
+
 
   std::unique_ptr<CallbackStore> RegisterCompressorOnCallback(
       NotifyCallback callback, bool initialNotify) {

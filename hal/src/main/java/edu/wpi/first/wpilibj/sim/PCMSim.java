@@ -16,15 +16,15 @@ public class PCMSim {
     m_index = index;
   }
 
-  public CallbackStore registerSolenoidInitializedCallback(int channel, NotifyCallback callback, boolean initialNotify) {
-    int uid = PCMDataJNI.registerSolenoidInitializedCallback(m_index, channel, callback, initialNotify);
-    return new CallbackStore(m_index, channel, uid, PCMDataJNI::cancelSolenoidInitializedCallback);
+  public CallbackStore registerInitializedCallback(NotifyCallback callback, boolean initialNotify) {
+    int uid = PCMDataJNI.registerInitializedCallback(m_index, callback, initialNotify);
+    return new CallbackStore(m_index, uid, PCMDataJNI::cancelInitializedCallback);
   }
-  public boolean getSolenoidInitialized(int channel) {
-    return PCMDataJNI.getSolenoidInitialized(m_index, channel);
+  public boolean getInitialized() {
+    return PCMDataJNI.getInitialized(m_index);
   }
-  public void setSolenoidInitialized(int channel, boolean solenoidInitialized) {
-    PCMDataJNI.setSolenoidInitialized(m_index, channel, solenoidInitialized);
+  public void setInitialized(boolean solenoidInitialized) {
+    PCMDataJNI.setInitialized(m_index, solenoidInitialized);
   }
 
   public CallbackStore registerSolenoidOutputCallback(int channel, NotifyCallback callback, boolean initialNotify) {
@@ -38,15 +38,11 @@ public class PCMSim {
     PCMDataJNI.setSolenoidOutput(m_index, channel, solenoidOutput);
   }
 
-  public CallbackStore registerCompressorInitializedCallback(NotifyCallback callback, boolean initialNotify) {
-    int uid = PCMDataJNI.registerCompressorInitializedCallback(m_index, callback, initialNotify);
-    return new CallbackStore(m_index, uid, PCMDataJNI::cancelCompressorInitializedCallback);
+  public int getAllSolenoidOutputs() {
+    return PCMDataJNI.getAllSolenoidOutputs(m_index);
   }
-  public boolean getCompressorInitialized() {
-    return PCMDataJNI.getCompressorInitialized(m_index);
-  }
-  public void setCompressorInitialized(boolean compressorInitialized) {
-    PCMDataJNI.setCompressorInitialized(m_index, compressorInitialized);
+  public void setAllSolenoidOutputs(int values) {
+    PCMDataJNI.setAllSolenoidOutputs(m_index, values);
   }
 
   public CallbackStore registerCompressorOnCallback(NotifyCallback callback, boolean initialNotify) {

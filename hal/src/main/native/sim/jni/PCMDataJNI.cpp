@@ -15,54 +15,54 @@ extern "C" {
 
 /*
  * Class:     edu_wpi_first_hal_sim_mockdata_PCMDataJNI
- * Method:    registerSolenoidInitializedCallback
- * Signature: (IILjava/lang/Object;Z)I
+ * Method:    registerInitializedCallback
+ * Signature: (ILedu/wpi/first/wpilibj/sim/NotifyCallback;Z)I
  */
 JNIEXPORT jint JNICALL
-Java_edu_wpi_first_hal_sim_mockdata_PCMDataJNI_registerSolenoidInitializedCallback
-  (JNIEnv* env, jclass, jint index, jint channel, jobject callback,
+Java_edu_wpi_first_hal_sim_mockdata_PCMDataJNI_registerInitializedCallback
+  (JNIEnv* env, jclass, jint index, jobject callback,
    jboolean initialNotify)
 {
-  return sim::AllocateChannelCallback(
-      env, index, channel, callback, initialNotify,
-      &HALSIM_RegisterPCMSolenoidInitializedCallback);
+  return sim::AllocateCallback(
+      env, index, callback, initialNotify,
+      &HALSIM_RegisterPCMInitializedCallback);
 }
 
 /*
  * Class:     edu_wpi_first_hal_sim_mockdata_PCMDataJNI
- * Method:    cancelSolenoidInitializedCallback
- * Signature: (III)V
+ * Method:    cancelInitializedCallback
+ * Signature: (II)V
  */
 JNIEXPORT void JNICALL
-Java_edu_wpi_first_hal_sim_mockdata_PCMDataJNI_cancelSolenoidInitializedCallback
-  (JNIEnv* env, jclass, jint index, jint channel, jint handle)
+Java_edu_wpi_first_hal_sim_mockdata_PCMDataJNI_cancelInitializedCallback
+  (JNIEnv* env, jclass, jint index, jint handle)
 {
-  return sim::FreeChannelCallback(env, handle, index, channel,
-                                  &HALSIM_CancelPCMSolenoidInitializedCallback);
+  return sim::FreeCallback(env, handle, index,
+                                  &HALSIM_CancelPCMInitializedCallback);
 }
 
 /*
  * Class:     edu_wpi_first_hal_sim_mockdata_PCMDataJNI
- * Method:    getSolenoidInitialized
- * Signature: (II)Z
+ * Method:    getInitialized
+ * Signature: (I)Z
  */
 JNIEXPORT jboolean JNICALL
-Java_edu_wpi_first_hal_sim_mockdata_PCMDataJNI_getSolenoidInitialized
-  (JNIEnv*, jclass, jint index, jint channel)
+Java_edu_wpi_first_hal_sim_mockdata_PCMDataJNI_getInitialized
+  (JNIEnv*, jclass, jint index)
 {
-  return HALSIM_GetPCMSolenoidInitialized(index, channel);
+  return HALSIM_GetPCMInitialized(index);
 }
 
 /*
  * Class:     edu_wpi_first_hal_sim_mockdata_PCMDataJNI
- * Method:    setSolenoidInitialized
- * Signature: (IIZ)V
+ * Method:    setInitialized
+ * Signature: (IZ)V
  */
 JNIEXPORT void JNICALL
-Java_edu_wpi_first_hal_sim_mockdata_PCMDataJNI_setSolenoidInitialized
-  (JNIEnv*, jclass, jint index, jint channel, jboolean value)
+Java_edu_wpi_first_hal_sim_mockdata_PCMDataJNI_setInitialized
+  (JNIEnv*, jclass, jint index, jboolean value)
 {
-  HALSIM_SetPCMSolenoidInitialized(index, channel, value);
+  HALSIM_SetPCMInitialized(index, value);
 }
 
 /*
@@ -119,54 +119,23 @@ Java_edu_wpi_first_hal_sim_mockdata_PCMDataJNI_setSolenoidOutput
 
 /*
  * Class:     edu_wpi_first_hal_sim_mockdata_PCMDataJNI
- * Method:    registerCompressorInitializedCallback
- * Signature: (ILjava/lang/Object;Z)I
+ * Method:    getAllSolenoidOutputs
+ * Signature: (I)I
  */
-JNIEXPORT jint JNICALL
-Java_edu_wpi_first_hal_sim_mockdata_PCMDataJNI_registerCompressorInitializedCallback
-  (JNIEnv* env, jclass, jint index, jobject callback, jboolean initialNotify)
-{
-  return sim::AllocateCallback(
-      env, index, callback, initialNotify,
-      &HALSIM_RegisterPCMCompressorInitializedCallback);
-}
+JNIEXPORT jint JNICALL Java_edu_wpi_first_hal_sim_mockdata_PCMDataJNI_getAllSolenoidOutputs
+  (JNIEnv *, jclass, jint index) {
+    return HALSIM_GetPCMAllSolenoidOutputs(index);
+  }
 
 /*
  * Class:     edu_wpi_first_hal_sim_mockdata_PCMDataJNI
- * Method:    cancelCompressorInitializedCallback
+ * Method:    setAllSolenoidOutputs
  * Signature: (II)V
  */
-JNIEXPORT void JNICALL
-Java_edu_wpi_first_hal_sim_mockdata_PCMDataJNI_cancelCompressorInitializedCallback
-  (JNIEnv* env, jclass, jint index, jint handle)
-{
-  return sim::FreeCallback(env, handle, index,
-                           &HALSIM_CancelPCMCompressorInitializedCallback);
-}
-
-/*
- * Class:     edu_wpi_first_hal_sim_mockdata_PCMDataJNI
- * Method:    getCompressorInitialized
- * Signature: (I)Z
- */
-JNIEXPORT jboolean JNICALL
-Java_edu_wpi_first_hal_sim_mockdata_PCMDataJNI_getCompressorInitialized
-  (JNIEnv*, jclass, jint index)
-{
-  return HALSIM_GetPCMCompressorInitialized(index);
-}
-
-/*
- * Class:     edu_wpi_first_hal_sim_mockdata_PCMDataJNI
- * Method:    setCompressorInitialized
- * Signature: (IZ)V
- */
-JNIEXPORT void JNICALL
-Java_edu_wpi_first_hal_sim_mockdata_PCMDataJNI_setCompressorInitialized
-  (JNIEnv*, jclass, jint index, jboolean value)
-{
-  HALSIM_SetPCMCompressorInitialized(index, value);
-}
+JNIEXPORT void JNICALL Java_edu_wpi_first_hal_sim_mockdata_PCMDataJNI_setAllSolenoidOutputs
+  (JNIEnv *, jclass, jint index, jint values) {
+    HALSIM_SetPCMAllSolenoidOutputs(index, values);
+  }
 
 /*
  * Class:     edu_wpi_first_hal_sim_mockdata_PCMDataJNI

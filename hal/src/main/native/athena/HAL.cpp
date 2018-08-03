@@ -63,6 +63,7 @@ void InitializeHAL() {
   InitializeNotifier();
   InitializePCMInternal();
   InitializePDP();
+  InitializePCM();
   InitializePorts();
   InitializePower();
   InitializePWM();

@@ -11,6 +11,7 @@
 
 #include <array>
 #include <memory>
+#include <utility>
 
 #include <wpi/mutex.h>
 
@@ -42,6 +43,8 @@ class IndexedHandleResource : public HandleBase {
   IndexedHandleResource(const IndexedHandleResource&) = delete;
   IndexedHandleResource& operator=(const IndexedHandleResource&) = delete;
 
+  std::pair<THandle, std::shared_ptr<TStruct>> GetOrAllocate(int16_t index,
+                                                             int32_t* status);
   THandle Allocate(int16_t index, int32_t* status);
   std::shared_ptr<TStruct> Get(THandle handle);
   void Free(THandle handle);
@@ -69,6 +72,28 @@ THandle IndexedHandleResource<THandle, TStruct, size, enumValue>::Allocate(
   }
   m_structures[index] = std::make_shared<TStruct>();
   return static_cast<THandle>(hal::createHandle(index, enumValue, m_version));
+}
+
+template <typename THandle, typename TStruct, int16_t size,
+          HAL_HandleEnum enumValue>
+std::pair<THandle, std::shared_ptr<TStruct>>
+IndexedHandleResource<THandle, TStruct, size, enumValue>::GetOrAllocate(
+    int16_t index, int32_t* status) {
+  // don't aquire the lock if we can fail early.
+  if (index < 0 || index >= size) {
+    *status = RESOURCE_OUT_OF_RANGE;
+    return std::make_pair(HAL_kInvalidHandle, nullptr);
+  }
+  std::lock_guard<wpi::mutex> lock(m_handleMutexes[index]);
+  // check for allocation, otherwise allocate and return a valid handle
+  if (m_structures[index] != nullptr) {
+    *status = RESOURCE_IS_ALLOCATED;
+    return std::make_pair(HAL_kInvalidHandle, nullptr);
+  }
+  m_structures[index] = std::make_shared<TStruct>();
+  return std::make_pair(
+      static_cast<THandle>(hal::createHandle(index, enumValue, m_version)),
+      m_structures[index]);
 }
 
 template <typename THandle, typename TStruct, int16_t size,

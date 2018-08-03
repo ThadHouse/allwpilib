@@ -9,7 +9,6 @@
 
 #include "gtest/gtest.h"
 #include "hal/HAL.h"
-#include "hal/Solenoid.h"
 #include "mockdata/DriverStationData.h"
 
 namespace hal {

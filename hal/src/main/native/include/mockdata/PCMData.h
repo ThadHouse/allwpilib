@@ -17,13 +17,13 @@ extern "C" {
 #endif
 
 void HALSIM_ResetPCMData(int32_t index);
-int32_t HALSIM_RegisterPCMSolenoidInitializedCallback(
-    int32_t index, int32_t channel, HAL_NotifyCallback callback, void* param,
+int32_t HALSIM_RegisterPCMInitializedCallback(
+    int32_t index, HAL_NotifyCallback callback, void* param,
     HAL_Bool initialNotify);
-void HALSIM_CancelPCMSolenoidInitializedCallback(int32_t index, int32_t channel,
+void HALSIM_CancelPCMInitializedCallback(int32_t index,
                                                  int32_t uid);
-HAL_Bool HALSIM_GetPCMSolenoidInitialized(int32_t index, int32_t channel);
-void HALSIM_SetPCMSolenoidInitialized(int32_t index, int32_t channel,
+HAL_Bool HALSIM_GetPCMInitialized(int32_t index);
+void HALSIM_SetPCMInitialized(int32_t index,
                                       HAL_Bool solenoidInitialized);
 
 int32_t HALSIM_RegisterPCMSolenoidOutputCallback(int32_t index, int32_t channel,
@@ -36,13 +36,8 @@ HAL_Bool HALSIM_GetPCMSolenoidOutput(int32_t index, int32_t channel);
 void HALSIM_SetPCMSolenoidOutput(int32_t index, int32_t channel,
                                  HAL_Bool solenoidOutput);
 
-int32_t HALSIM_RegisterPCMCompressorInitializedCallback(
-    int32_t index, HAL_NotifyCallback callback, void* param,
-    HAL_Bool initialNotify);
-void HALSIM_CancelPCMCompressorInitializedCallback(int32_t index, int32_t uid);
-HAL_Bool HALSIM_GetPCMCompressorInitialized(int32_t index);
-void HALSIM_SetPCMCompressorInitialized(int32_t index,
-                                        HAL_Bool compressorInitialized);
+int32_t HALSIM_GetPCMAllSolenoidOutputs(int32_t index);
+void HALSIM_SetPCMAllSolenoidOutputs(int32_t index, int32_t values);
 
 int32_t HALSIM_RegisterPCMCompressorOnCallback(int32_t index,
                                                HAL_NotifyCallback callback,
