@@ -10,11 +10,11 @@ package edu.wpi.first.wpilibj;
 import edu.wpi.first.wpilibj.hal.AnalogJNI;
 import edu.wpi.first.wpilibj.hal.ConstantsJNI;
 import edu.wpi.first.wpilibj.hal.DIOJNI;
+import edu.wpi.first.wpilibj.hal.PCMJNI;
 import edu.wpi.first.wpilibj.hal.PDPJNI;
 import edu.wpi.first.wpilibj.hal.PWMJNI;
 import edu.wpi.first.wpilibj.hal.PortsJNI;
 import edu.wpi.first.wpilibj.hal.RelayJNI;
-import edu.wpi.first.wpilibj.hal.SolenoidJNI;
 
 /**
  * Stores most recent status information as well as containing utility functions for checking
@@ -78,7 +78,7 @@ public final class SensorUtil {
    * @param moduleNumber The solenoid module module number to check.
    */
   public static void checkSolenoidModule(final int moduleNumber) {
-    if (!SolenoidJNI.checkSolenoidModule(moduleNumber)) {
+    if (!PCMJNI.checkPCMModule(moduleNumber)) {
       StringBuilder buf = new StringBuilder();
       buf.append("Requested solenoid module is out of range. Minimum: 0, Maximum: ")
         .append(kPCMModules)
@@ -179,7 +179,7 @@ public final class SensorUtil {
    * @param channel The channel number to check.
    */
   public static void checkSolenoidChannel(final int channel) {
-    if (!SolenoidJNI.checkSolenoidChannel(channel)) {
+    if (!PCMJNI.checkPCMChannel(channel)) {
       StringBuilder buf = new StringBuilder();
       buf.append("Requested solenoid channel is out of range. Minimum: 0, Maximum: ")
         .append(kSolenoidChannels)
