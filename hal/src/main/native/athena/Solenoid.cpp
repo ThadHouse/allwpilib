@@ -10,19 +10,18 @@
 #include <FRC_NetworkCommunication/LoadOut.h>
 
 #include "HALInitializer.h"
-#include "PCMInternal.h"
 #include "PortsInternal.h"
-#include "ctre/PCM.h"
 #include "hal/ChipObject.h"
 #include "hal/Errors.h"
 #include "hal/Ports.h"
+#include "hal/PCM.h"
 #include "hal/handles/HandlesInternal.h"
 #include "hal/handles/IndexedHandleResource.h"
 
 namespace {
 
 struct Solenoid {
-  uint8_t module;
+  HAL_PCMHandle pcmHandle;
   uint8_t channel;
 };
 
@@ -31,14 +30,14 @@ struct Solenoid {
 using namespace hal;
 
 static IndexedHandleResource<HAL_SolenoidHandle, Solenoid,
-                             kNumPCMModules * kNumSolenoidChannels,
+                             kNumSolenoidChannels * kNumPCMModules,
                              HAL_HandleEnum::Solenoid>* solenoidHandles;
 
 namespace hal {
 namespace init {
 void InitializeSolenoid() {
   static IndexedHandleResource<HAL_SolenoidHandle, Solenoid,
-                               kNumPCMModules * kNumSolenoidChannels,
+                               kNumSolenoidChannels * kNumPCMModules,
                                HAL_HandleEnum::Solenoid>
       sH;
   solenoidHandles = &sH;
@@ -64,29 +63,64 @@ HAL_SolenoidHandle HAL_InitializeSolenoidPort(HAL_PortHandle portHandle,
     return HAL_kInvalidHandle;
   }
 
-  initializePCM(module, status);
+  auto pcm = HAL_InitializePCM(module, status);
   if (*status != 0) {
     return HAL_kInvalidHandle;
   }
 
-  auto handle = solenoidHandles->Allocate(
-      module * kNumSolenoidChannels + channel, status);
-  if (*status != 0) {
+  auto handle = solenoidHandles->Allocate(module * kNumSolenoidChannels + channel, status);
+
+  if(*status != 0) {
+    HAL_CleanPCM(pcm);
     return HAL_kInvalidHandle;
   }
-  auto solenoidPort = solenoidHandles->Get(handle);
-  if (solenoidPort == nullptr) {  // would only occur on thread issues
+
+  auto data = solenoidHandles->Get(handle);
+  if (data == nullptr) {
     *status = HAL_HANDLE_ERROR;
+    HAL_CleanPCM(pcm);
     return HAL_kInvalidHandle;
   }
-  solenoidPort->module = static_cast<uint8_t>(module);
-  solenoidPort->channel = static_cast<uint8_t>(channel);
 
-  return handle;
+  data->channel = channel;
+  data->pcmHandle = pcm;
+}
+
+HAL_SolenoidHandle HAL_InitializeSolenoidPortFromPCM(HAL_PCMHandle pcm, int32_t port,
+                                              int32_t* status) {
+  if (!HAL_CheckSolenoidChannel(port)) {
+    *status = RESOURCE_OUT_OF_RANGE;
+    return HAL_kInvalidHandle;
+  }
+
+  auto module = HAL_IncremementPCMRefCountAndGetModuleNumber(pcm, status);
+  if (*status != 0) {
+    return HAL_kInvalidHandle;
+  }
+
+  auto handle = solenoidHandles->Allocate(module * kNumSolenoidChannels + port, status);
+
+  if(*status != 0) {
+    HAL_CleanPCM(pcm);
+    return HAL_kInvalidHandle;
+  }
+
+  auto data = solenoidHandles->Get(handle);
+  if (data == nullptr) {
+    *status = HAL_HANDLE_ERROR;
+    HAL_CleanPCM(pcm);
+    return HAL_kInvalidHandle;
+  }
+
+  data->channel = port;
+  data->pcmHandle = pcm;
 }
 
 void HAL_FreeSolenoidPort(HAL_SolenoidHandle solenoidPortHandle) {
+  auto data = solenoidHandles->Get(solenoidPortHandle);
+  if (data == nullptr) return;
   solenoidHandles->Free(solenoidPortHandle);
+  HAL_CleanPCM(data->pcmHandle);
 }
 
 HAL_Bool HAL_CheckSolenoidModule(int32_t module) {
@@ -104,20 +138,8 @@ HAL_Bool HAL_GetSolenoid(HAL_SolenoidHandle solenoidPortHandle,
     *status = HAL_HANDLE_ERROR;
     return false;
   }
-  bool value;
 
-  *status = PCM_modules[port->module]->GetSolenoid(port->channel, value);
-
-  return value;
-}
-
-int32_t HAL_GetAllSolenoids(int32_t module, int32_t* status) {
-  if (!checkPCMInit(module, status)) return 0;
-  uint8_t value;
-
-  *status = PCM_modules[module]->GetAllSolenoids(value);
-
-  return value;
+  return HAL_GetPCMSolenoid(port->pcmHandle, port->channel, status);
 }
 
 void HAL_SetSolenoid(HAL_SolenoidHandle solenoidPortHandle, HAL_Bool value,
@@ -128,43 +150,7 @@ void HAL_SetSolenoid(HAL_SolenoidHandle solenoidPortHandle, HAL_Bool value,
     return;
   }
 
-  *status = PCM_modules[port->module]->SetSolenoid(port->channel, value);
-}
-
-void HAL_SetAllSolenoids(int32_t module, int32_t state, int32_t* status) {
-  if (!checkPCMInit(module, status)) return;
-
-  *status = PCM_modules[module]->SetAllSolenoids(state);
-}
-
-int32_t HAL_GetPCMSolenoidBlackList(int32_t module, int32_t* status) {
-  if (!checkPCMInit(module, status)) return 0;
-  uint8_t value;
-
-  *status = PCM_modules[module]->GetSolenoidBlackList(value);
-
-  return value;
-}
-HAL_Bool HAL_GetPCMSolenoidVoltageStickyFault(int32_t module, int32_t* status) {
-  if (!checkPCMInit(module, status)) return 0;
-  bool value;
-
-  *status = PCM_modules[module]->GetSolenoidStickyFault(value);
-
-  return value;
-}
-HAL_Bool HAL_GetPCMSolenoidVoltageFault(int32_t module, int32_t* status) {
-  if (!checkPCMInit(module, status)) return false;
-  bool value;
-
-  *status = PCM_modules[module]->GetSolenoidFault(value);
-
-  return value;
-}
-void HAL_ClearAllPCMStickyFaults(int32_t module, int32_t* status) {
-  if (!checkPCMInit(module, status)) return;
-
-  *status = PCM_modules[module]->ClearStickyFaults();
+  HAL_SetPCMSolenoid(port->pcmHandle, port->channel, value, status);
 }
 
 void HAL_SetOneShotDuration(HAL_SolenoidHandle solenoidPortHandle,
@@ -175,8 +161,7 @@ void HAL_SetOneShotDuration(HAL_SolenoidHandle solenoidPortHandle,
     return;
   }
 
-  *status =
-      PCM_modules[port->module]->SetOneShotDurationMs(port->channel, durMS);
+  HAL_SetPCMOneShotDuration(port->pcmHandle, port->channel, durMS, status);
 }
 
 void HAL_FireOneShot(HAL_SolenoidHandle solenoidPortHandle, int32_t* status) {
@@ -186,6 +171,6 @@ void HAL_FireOneShot(HAL_SolenoidHandle solenoidPortHandle, int32_t* status) {
     return;
   }
 
-  *status = PCM_modules[port->module]->FireOneShotSolenoid(port->channel);
+  HAL_FirePCMOneShotSolenoid(port->pcmHandle, port->channel, status);
 }
 }  // extern "C"

@@ -29,6 +29,10 @@ extern "C" {
  */
 HAL_CompressorHandle HAL_InitializeCompressor(int32_t module, int32_t* status);
 
+HAL_CompressorHandle HAL_InitializeCompressorFromPCM(HAL_PCMHandle handle, int32_t* status);
+
+void HAL_CleanCompressor(HAL_CompressorHandle handle);
+
 /**
  * Gets if a compressor module is valid.
  *
@@ -43,7 +47,7 @@ HAL_Bool HAL_CheckCompressorModule(int32_t module);
  * @param compressorHandle the compressor handle
  * @return                 true if the compressor is on, otherwise false
  */
-HAL_Bool HAL_GetCompressor(HAL_CompressorHandle compressorHandle,
+HAL_Bool HAL_GetCompressorEnabled(HAL_CompressorHandle compressorHandle,
                            int32_t* status);
 
 /**
@@ -72,7 +76,7 @@ HAL_Bool HAL_GetCompressorClosedLoopControl(
  * @return                 true if the pressure switch is triggered, otherwise
  * false
  */
-HAL_Bool HAL_GetCompressorPressureSwitch(HAL_CompressorHandle compressorHandle,
+HAL_Bool HAL_GetCompressorAtPressure(HAL_CompressorHandle compressorHandle,
                                          int32_t* status);
 
 /**

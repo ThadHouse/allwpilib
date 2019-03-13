@@ -125,8 +125,6 @@ struct PCM {
   HAL_CANHandle canHandle;
   int32_t moduleIndex;
   int32_t refCount;
-  HAL_CompressorHandle compressorHandle;
-  IndexedHandleResource<HAL_SolenoidHandle, uint8_t, kNumSolenoidChannels, HAL_HandleEnum::Solenoid> solenoidHandles;
 };
 }
 
@@ -199,6 +197,29 @@ HAL_PCMHandle HAL_InitializePCM(int32_t module, int32_t* status) {
   return handle;
 }
 
+int32_t HAL_IncremementPCMRefCountAndGetModuleNumber(HAL_PCMHandle handle, int32_t* status) {
+    std::lock_guard<wpi::mutex> lock(pcmHandleMutex);
+
+  auto data = pcmHandles->Get(handle);
+  if (data == nullptr) {
+    *status = HAL_HANDLE_ERROR;
+    return;
+  }
+
+  data->refCount++;
+  return data->moduleIndex;
+}
+
+int32_t HAL_GetPCMModuleNumber(HAL_PCMHandle handle, int32_t* status) {
+  auto data = pcmHandles->Get(handle);
+  if (data == nullptr) {
+    *status = HAL_HANDLE_ERROR;
+    return -1;
+  }
+
+  return data->moduleIndex;
+}
+
 HAL_Bool HAL_CleanPCM(HAL_PCMHandle handle) {
   std::lock_guard<wpi::mutex> lock(pcmHandleMutex);
 
@@ -227,5 +248,7 @@ HAL_Bool HAL_CheckPCMChannel(int32_t channel) {
 HAL_Bool HAL_CheckPCMModule(int32_t module) {
   return module < kNumPCMModules && module >= 0;
 }
+
+
 
 }

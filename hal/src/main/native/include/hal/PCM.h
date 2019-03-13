@@ -20,6 +20,8 @@ extern "C" {
  */
 HAL_PCMHandle HAL_InitializePCM(int32_t module, int32_t* status);
 
+int32_t HAL_IncremementPCMRefCountAndGetModuleNumber(HAL_PCMHandle handle, int32_t* status);
+
 /**
  * The ret val is if was the final reference or not
  */
@@ -49,11 +51,11 @@ int32_t HAL_GetAllPCMSolenoids(HAL_PCMHandle handle, int32_t* status);
 
 HAL_Bool HAL_GetPCMSolenoid(HAL_PCMHandle handle, int32_t port, int32_t* status);
 
-void HAL_SetPCMClosedLoopControl(HAL_PCMHandle handle, HAL_Bool closedLoop, int32_t* status);
+void HAL_SetPCMCompressorClosedLoopControl(HAL_PCMHandle handle, HAL_Bool closedLoop, int32_t* status);
 
 void HAL_ClearPCMStickyFaults(HAL_PCMHandle handle, int32_t* status);
 
-HAL_Bool HAL_GetPCMAtPressure(HAL_PCMHandle handle, int32_t* status);
+HAL_Bool HAL_GetPCMCompressorAtPressure(HAL_PCMHandle handle, int32_t* status);
 
 HAL_Bool HAL_GetPCMCompressorEnabled(HAL_PCMHandle handle, int32_t* status);
 

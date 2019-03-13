@@ -41,6 +41,7 @@ extern void InitialzeInterrupts();
 extern void InitializeNotifier();
 extern void InitializePCMInternal();
 extern void InitializePDP();
+extern void InitializePCM();
 extern void InitializePorts();
 extern void InitializePower();
 extern void InitializePWM();

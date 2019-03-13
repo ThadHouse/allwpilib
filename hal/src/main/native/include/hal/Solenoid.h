@@ -31,6 +31,15 @@ HAL_SolenoidHandle HAL_InitializeSolenoidPort(HAL_PortHandle portHandle,
                                               int32_t* status);
 
 /**
+ * Initializes a solenoid port.
+ *
+ * @param portHandle the port handle of the module and channel to initialize
+ * @return           the created solenoid handle
+ */
+HAL_SolenoidHandle HAL_InitializeSolenoidPortFromPCM(HAL_PCMHandle pcm, int32_t port,
+                                              int32_t* status);
+
+/**
  * Frees a solenoid port.
  *
  * @param solenoidPortHandle the solenoid handle
@@ -63,14 +72,6 @@ HAL_Bool HAL_GetSolenoid(HAL_SolenoidHandle solenoidPortHandle,
                          int32_t* status);
 
 /**
- * Gets the status of all solenoids on a specific module.
- *
- * @param module the module to check
- * @return       bitmask of the channels, 1 for on 0 for off
- */
-int32_t HAL_GetAllSolenoids(int32_t module, int32_t* status);
-
-/**
  * Sets a solenoid output value.
  *
  * @param solenoidPortHandle the solenoid handle
@@ -78,45 +79,6 @@ int32_t HAL_GetAllSolenoids(int32_t module, int32_t* status);
  */
 void HAL_SetSolenoid(HAL_SolenoidHandle solenoidPortHandle, HAL_Bool value,
                      int32_t* status);
-
-/**
- * Sets all channels on a specific module.
- *
- * @param module the module to set the channels on
- * @param state  bitmask of the channels to set, 1 for on 0 for off
- */
-void HAL_SetAllSolenoids(int32_t module, int32_t state, int32_t* status);
-
-/**
- * Gets the channels blacklisted from being enabled on a module.
- *
- * @param module the module to check
- * @retur        bitmask of the blacklisted channels, 1 for true 0 for false
- */
-int32_t HAL_GetPCMSolenoidBlackList(int32_t module, int32_t* status);
-
-/**
- * Gets if a specific module has an over or under voltage sticky fault.
- *
- * @param module the module to check
- * @return       true if a stick fault is set, otherwise false
- */
-HAL_Bool HAL_GetPCMSolenoidVoltageStickyFault(int32_t module, int32_t* status);
-
-/**
- * Gets if a specific module has an over or under voltage fault.
- *
- * @param module the module to check
- * @return       true if faulted, otherwise false
- */
-HAL_Bool HAL_GetPCMSolenoidVoltageFault(int32_t module, int32_t* status);
-
-/**
- * Clears all faults on a module.
- *
- * @param module the module to clear
- */
-void HAL_ClearAllPCMStickyFaults(int32_t module, int32_t* status);
 
 /**
  * Sets the one shot duration on a solenoid channel.

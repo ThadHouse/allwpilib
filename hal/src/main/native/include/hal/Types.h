@@ -27,7 +27,7 @@ typedef HAL_Handle HAL_AnalogOutputHandle;
 
 typedef HAL_Handle HAL_AnalogTriggerHandle;
 
-typedef HAL_Handle HAL_CompressorHandle;
+typedef HAL_PCMHandle HAL_CompressorHandle;
 
 typedef HAL_Handle HAL_CounterHandle;
 
