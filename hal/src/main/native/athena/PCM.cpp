@@ -220,4 +220,12 @@ HAL_Bool HAL_CleanPCM(HAL_PCMHandle handle) {
   return false;
 }
 
+HAL_Bool HAL_CheckPCMChannel(int32_t channel) {
+  return channel < kNumSolenoidChannels && channel >= 0;
+}
+
+HAL_Bool HAL_CheckPCMModule(int32_t module) {
+  return module < kNumPCMModules && module >= 0;
+}
+
 }
