@@ -65,6 +65,7 @@ ext {
             if (it in SharedLibraryBinarySpec) {
                 it.cppCompiler.define 'BUILDING_UV_SHARED'
             }
+            it.cppCompiler.define '_CRT_SECURE_NO_WARNINGS'
             it.sources {
                 libuvWindowsCpp(CppSourceSet) {
                     source {

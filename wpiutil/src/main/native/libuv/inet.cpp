@@ -162,7 +162,7 @@ int uv_inet_pton(int af, const char* src, void* dst) {
   case AF_INET:
     return (inet_pton4(src, (unsigned char*)dst));
   case AF_INET6: {
-    int len;
+    size_t len;
     char tmp[UV__INET6_ADDRSTRLEN], *s;
     const char *p;
     s = (char*) src;
@@ -292,8 +292,8 @@ static int inet_pton6(const char *src, unsigned char *dst) {
      * Since some memmove()'s erroneously fail to handle
      * overlapping regions, we'll do the shift by hand.
      */
-    const int n = tp - colonp;
-    int i;
+    const size_t n = tp - colonp;
+    size_t i;
 
     if (tp == endp)
       return UV_EINVAL;

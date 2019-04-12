@@ -71,7 +71,7 @@ char** CS_GetEnumPropertyChoices(CS_Property property, int* count,
   auto choices = cs::GetEnumPropertyChoices(property, status);
   char** out =
       static_cast<char**>(wpi::CheckedMalloc(choices.size() * sizeof(char*)));
-  *count = choices.size();
+  *count = static_cast<int>(choices.size());
   for (size_t i = 0; i < choices.size(); ++i)
     out[i] = cs::ConvertToC(choices[i]);
   return out;
@@ -124,7 +124,7 @@ CS_Property* CS_EnumerateSourceProperties(CS_Source source, int* count,
   auto vec = cs::EnumerateSourceProperties(source, buf, status);
   CS_Property* out = static_cast<CS_Property*>(
       wpi::CheckedMalloc(vec.size() * sizeof(CS_Property)));
-  *count = vec.size();
+  *count = static_cast<int>(vec.size());
   std::copy(vec.begin(), vec.end(), out);
   return out;
 }
@@ -184,7 +184,7 @@ CS_VideoMode* CS_EnumerateSourceVideoModes(CS_Source source, int* count,
   auto vec = cs::EnumerateSourceVideoModes(source, status);
   CS_VideoMode* out = static_cast<CS_VideoMode*>(
       wpi::CheckedMalloc(vec.size() * sizeof(CS_VideoMode)));
-  *count = vec.size();
+  *count = static_cast<int>(vec.size());
   std::copy(vec.begin(), vec.end(), out);
   return out;
 }
@@ -195,7 +195,7 @@ CS_Sink* CS_EnumerateSourceSinks(CS_Source source, int* count,
   auto handles = cs::EnumerateSourceSinks(source, buf, status);
   CS_Sink* sinks = static_cast<CS_Sink*>(
       wpi::CheckedMalloc(handles.size() * sizeof(CS_Sink)));
-  *count = handles.size();
+  *count = static_cast<int>(handles.size());
   std::copy(handles.begin(), handles.end(), sinks);
   return sinks;
 }
@@ -272,7 +272,7 @@ CS_Property* CS_EnumerateSinkProperties(CS_Sink sink, int* count,
   auto vec = cs::EnumerateSinkProperties(sink, buf, status);
   CS_Property* out = static_cast<CS_Property*>(
       wpi::CheckedMalloc(vec.size() * sizeof(CS_Property)));
-  *count = vec.size();
+  *count = static_cast<int>(vec.size());
   std::copy(vec.begin(), vec.end(), out);
   return out;
 }
@@ -373,7 +373,7 @@ CS_Source* CS_EnumerateSources(int* count, CS_Status* status) {
   auto handles = cs::EnumerateSourceHandles(buf, status);
   CS_Source* sources = static_cast<CS_Source*>(
       wpi::CheckedMalloc(handles.size() * sizeof(CS_Source)));
-  *count = handles.size();
+  *count = static_cast<int>(handles.size());
   std::copy(handles.begin(), handles.end(), sources);
   return sources;
 }
@@ -392,7 +392,7 @@ CS_Sink* CS_EnumerateSinks(int* count, CS_Status* status) {
   auto handles = cs::EnumerateSinkHandles(buf, status);
   CS_Sink* sinks = static_cast<CS_Sink*>(
       wpi::CheckedMalloc(handles.size() * sizeof(CS_Sink)));
-  *count = handles.size();
+  *count = static_cast<int>(handles.size());
   std::copy(handles.begin(), handles.end(), sinks);
   return sinks;
 }
@@ -428,7 +428,7 @@ char** CS_GetNetworkInterfaces(int* count) {
   auto interfaces = cs::GetNetworkInterfaces();
   char** out = static_cast<char**>(
       wpi::CheckedMalloc(interfaces.size() * sizeof(char*)));
-  *count = interfaces.size();
+  *count = static_cast<int>(interfaces.size());
   for (size_t i = 0; i < interfaces.size(); ++i)
     out[i] = cs::ConvertToC(interfaces[i]);
   return out;

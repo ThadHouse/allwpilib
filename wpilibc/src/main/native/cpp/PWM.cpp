@@ -216,5 +216,5 @@ void PWM::InitSendable(SendableBuilder& builder) {
   builder.SetActuator(true);
   builder.SetSafeState([=]() { SetDisabled(); });
   builder.AddDoubleProperty("Value", [=]() { return GetRaw(); },
-                            [=](double value) { SetRaw(value); });
+                            [=](double value) { SetRaw(static_cast<uint16_t>(value)); });
 }

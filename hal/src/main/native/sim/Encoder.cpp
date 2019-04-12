@@ -85,7 +85,7 @@ HAL_EncoderHandle HAL_InitializeEncoder(
   SimEncoderData[index].initialized = true;
   SimEncoderData[index].reverseDirection = reverseDirection;
   // TODO: Add encoding type to Sim data
-  encoder->index = index;
+  encoder->index = static_cast<uint8_t>(index);
   encoder->nativeHandle = nativeHandle;
   encoder->encodingType = encodingType;
   encoder->distancePerPulse = 1.0;
@@ -146,8 +146,8 @@ int32_t HAL_GetEncoderRaw(HAL_EncoderHandle encoderHandle, int32_t* status) {
     return 0;
   }
 
-  return SimEncoderData[encoder->index].count /
-         DecodingScaleFactor(encoder.get());
+  return static_cast<int32_t>(SimEncoderData[encoder->index].count /
+         DecodingScaleFactor(encoder.get()));
 }
 int32_t HAL_GetEncoderEncodingScale(HAL_EncoderHandle encoderHandle,
                                     int32_t* status) {

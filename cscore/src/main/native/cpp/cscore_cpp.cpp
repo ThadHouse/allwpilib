@@ -98,28 +98,28 @@ void SetProperty(CS_Property property, int value, CS_Status* status) {
 int GetPropertyMin(CS_Property property, CS_Status* status) {
   int propertyIndex;
   auto container = GetPropertyContainer(property, &propertyIndex, status);
-  if (!container) return 0.0;
+  if (!container) return 0;
   return container->GetPropertyMin(propertyIndex, status);
 }
 
 int GetPropertyMax(CS_Property property, CS_Status* status) {
   int propertyIndex;
   auto container = GetPropertyContainer(property, &propertyIndex, status);
-  if (!container) return 0.0;
+  if (!container) return 0;
   return container->GetPropertyMax(propertyIndex, status);
 }
 
 int GetPropertyStep(CS_Property property, CS_Status* status) {
   int propertyIndex;
   auto container = GetPropertyContainer(property, &propertyIndex, status);
-  if (!container) return 0.0;
+  if (!container) return 0;
   return container->GetPropertyStep(propertyIndex, status);
 }
 
 int GetPropertyDefault(CS_Property property, CS_Status* status) {
   int propertyIndex;
   auto container = GetPropertyContainer(property, &propertyIndex, status);
-  if (!container) return 0.0;
+  if (!container) return 0;
   return container->GetPropertyDefault(propertyIndex, status);
 }
 

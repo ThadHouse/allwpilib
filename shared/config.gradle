@@ -1,8 +1,8 @@
 import edu.wpi.first.nativeutils.*
 import org.gradle.internal.os.OperatingSystem
 
-def windowsCompilerArgs = ['/EHsc', '/DNOMINMAX', '/Zi', '/FS', '/Zc:inline', '/MP4']
-def windowsCCompilerArgs = ['/Zi', '/FS', '/Zc:inline']
+def windowsCompilerArgs = ['/EHsc', '/DNOMINMAX', '/Zi', '/FS', '/Zc:inline', '/MP4', '/W3', '/WX', '/permissive-', '/std:c++17']
+def windowsCCompilerArgs = ['/Zi', '/FS', '/Zc:inline', '/W3', '/WX']
 def windowsReleaseCompilerArgs = ['/O2', '/MD']
 def windowsDebugCompilerArgs = ['/Od', '/MDd']
 def windowsLinkerArgs = ['/DEBUG:FULL']

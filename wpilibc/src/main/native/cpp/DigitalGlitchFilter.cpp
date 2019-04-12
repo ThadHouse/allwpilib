@@ -133,7 +133,7 @@ void DigitalGlitchFilter::SetPeriodCycles(int fpgaCycles) {
 
 void DigitalGlitchFilter::SetPeriodNanoSeconds(uint64_t nanoseconds) {
   int32_t status = 0;
-  int fpgaCycles =
+  uint64_t fpgaCycles =
       nanoseconds * HAL_GetSystemClockTicksPerMicrosecond() / 4 / 1000;
   HAL_SetFilterPeriod(m_channelIndex, fpgaCycles, &status);
 
@@ -142,16 +142,16 @@ void DigitalGlitchFilter::SetPeriodNanoSeconds(uint64_t nanoseconds) {
 
 int DigitalGlitchFilter::GetPeriodCycles() {
   int32_t status = 0;
-  int fpgaCycles = HAL_GetFilterPeriod(m_channelIndex, &status);
+  uint64_t fpgaCycles = HAL_GetFilterPeriod(m_channelIndex, &status);
 
   wpi_setErrorWithContext(status, HAL_GetErrorMessage(status));
 
-  return fpgaCycles;
+  return static_cast<int>(fpgaCycles);
 }
 
 uint64_t DigitalGlitchFilter::GetPeriodNanoSeconds() {
   int32_t status = 0;
-  int fpgaCycles = HAL_GetFilterPeriod(m_channelIndex, &status);
+  uint64_t fpgaCycles = HAL_GetFilterPeriod(m_channelIndex, &status);
 
   wpi_setErrorWithContext(status, HAL_GetErrorMessage(status));
 

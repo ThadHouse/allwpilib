@@ -46,8 +46,10 @@ static bool NewlineBuffer(std::string& rem, uv::Buffer& buf, size_t len,
   wpi::StringRef toCopy = str.slice(0, idx + 1);
   if (tcp) {
     // Header is 2 byte len, 1 byte type, 4 byte timestamp, 2 byte sequence num
-    uint32_t ts = wpi::FloatToBits((wpi::Now() - startTime) * 1.0e-6);
-    uint16_t len = rem.size() + toCopy.size() + 1 + 4 + 2;
+    uint32_t ts =
+        wpi::FloatToBits(static_cast<float>((wpi::Now() - startTime) * 1.0e-6));
+    uint16_t len =
+        static_cast<uint16_t>(rem.size() + toCopy.size() + 1 + 4 + 2);
     out << wpi::ArrayRef<uint8_t>({static_cast<uint8_t>((len >> 8) & 0xff),
                                    static_cast<uint8_t>(len & 0xff), 12,
                                    static_cast<uint8_t>((ts >> 24) & 0xff),
@@ -230,7 +232,7 @@ int main(int argc, char* argv[]) {
     wpi::errs() << "could not start subprocess\n";
     return EXIT_FAILURE;
   }
-  proc->exited.connect([](int64_t status, int) { std::exit(status); });
+  proc->exited.connect([](int64_t status, int) { std::exit(static_cast<int>(status)); });
 
   // start reading
   if (stdinTty) stdinTty->StartRead();

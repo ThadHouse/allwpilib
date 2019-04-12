@@ -77,9 +77,9 @@ void GenericHID::SetRumble(RumbleType type, double value) {
   else if (value > 1)
     value = 1;
   if (type == kLeftRumble) {
-    m_leftRumble = value * 65535;
+    m_leftRumble = static_cast<uint16_t>(value * 65535);
   } else {
-    m_rightRumble = value * 65535;
+    m_rightRumble = static_cast<uint16_t>(value * 65535);
   }
   HAL_SetJoystickOutputs(m_port, m_outputs, m_leftRumble, m_rightRumble);
 }

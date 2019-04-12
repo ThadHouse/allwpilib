@@ -27,7 +27,7 @@ static int format_to_buffer(T Value, char (&Buffer)[N]) {
     *--CurPtr = '0' + char(Value % 10);
     Value /= 10;
   } while (Value);
-  return EndPtr - CurPtr;
+  return static_cast<int>(EndPtr - CurPtr);
 }
 
 static void writeWithCommas(raw_ostream &S, ArrayRef<char> Buffer) {
@@ -147,7 +147,7 @@ void wpi::write_hex(raw_ostream &S, uint64_t N, HexPrintStyle Style,
 
   size_t W = std::min(kMaxWidth, Width.value_or(0u));
 
-  unsigned Nibbles = (64 - countLeadingZeros(N) + 3) / 4;
+  unsigned Nibbles = static_cast<unsigned>((64 - countLeadingZeros(N) + 3) / 4);
   bool Prefix = (Style == HexPrintStyle::PrefixLower ||
                  Style == HexPrintStyle::PrefixUpper);
   bool Upper =

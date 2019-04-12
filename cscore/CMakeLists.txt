@@ -21,8 +21,6 @@ if(NOT MSVC)
     endif()
 else()
     target_sources(cscore PRIVATE ${cscore_windows_src})
-    target_compile_options(cscore PUBLIC -DNOMINMAX)
-    target_compile_options(cscore PRIVATE -D_CRT_SECURE_NO_WARNINGS)
 endif()
 
 target_include_directories(cscore PUBLIC

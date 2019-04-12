@@ -6,6 +6,7 @@
 /*----------------------------------------------------------------------------*/
 
 #define _WINSOCKAPI_
+#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 #include "UsbCameraImpl.h"
 
 #include <ks.h>
@@ -366,7 +367,7 @@ LRESULT UsbCameraImpl::PumpMain(HWND hwnd, UINT uiMsg, WPARAM wParam,
         // and check
         CS_Status status = 0;
         auto devices = cs::EnumerateUsbCameras(&status);
-        if (devices.size() > m_deviceId) {
+        if (devices.size() > static_cast<size_t>(m_deviceId)) {
           // If has device ID, use the device ID from the event
           // because of windows bug
           auto&& device = devices[m_deviceId];
@@ -562,14 +563,14 @@ void UsbCameraImpl::DeviceCacheProperties() {
 
 int UsbCameraImpl::RawToPercentage(const UsbCameraProperty& rawProp,
                                    int rawValue) {
-  return 100.0 * (rawValue - rawProp.minimum) /
-         (rawProp.maximum - rawProp.minimum);
+  return static_cast<int>(100.0 * (rawValue - rawProp.minimum) /
+         (rawProp.maximum - rawProp.minimum));
 }
 
 int UsbCameraImpl::PercentageToRaw(const UsbCameraProperty& rawProp,
                                    int percentValue) {
-  return rawProp.minimum +
-         (rawProp.maximum - rawProp.minimum) * (percentValue / 100.0);
+  return static_cast<int>(rawProp.minimum +
+         (rawProp.maximum - rawProp.minimum) * (percentValue / 100.0));
 }
 
 void UsbCameraImpl::DeviceCacheProperty(
@@ -645,7 +646,7 @@ void UsbCameraImpl::DeviceCacheProperty(
 
   if (newRaw) {
     // create a new index
-    *rawIndex = m_propertyData.size() + 1;
+    *rawIndex = static_cast<int>(m_propertyData.size() + 1);
     m_propertyData.emplace_back(std::move(rawProp));
   } else {
     // update
@@ -660,7 +661,7 @@ void UsbCameraImpl::DeviceCacheProperty(
 
     if (newPer) {
       // create a new index
-      *perIndex = m_propertyData.size() + 1;
+      *perIndex = static_cast<int>(m_propertyData.size() + 1);
       m_propertyData.emplace_back(std::move(perProp));
     } else if (perIndex) {
       // update
@@ -936,7 +937,7 @@ void UsbCameraImpl::DeviceCacheVideoModes() {
     int fps = 30;
 
     if (dom != 0) {
-      fps = std::ceil(num / static_cast<double>(dom));
+      fps = static_cast<int>(std::ceil(num / static_cast<double>(dom)));
     }
 
     VideoMode newMode = {format, static_cast<int>(width),
@@ -1019,7 +1020,7 @@ CS_Source CreateUsbCameraDev(const wpi::Twine& name, int dev,
                              CS_Status* status) {
   // First check if device exists
   auto devices = cs::EnumerateUsbCameras(status);
-  if (devices.size() > dev) {
+  if (devices.size() > static_cast<size_t>(dev)) {
     return CreateUsbCameraPath(name, devices[dev].path, status);
   }
   auto& inst = Instance::GetInstance();

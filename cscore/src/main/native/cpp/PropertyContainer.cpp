@@ -23,7 +23,7 @@ int PropertyContainer::GetPropertyIndex(const wpi::Twine& name) const {
   int& ndx = m_properties[name.toStringRef(nameBuf)];
   if (ndx == 0) {
     // create a new index
-    ndx = m_propertyData.size() + 1;
+    ndx = static_cast<int>(m_propertyData.size() + 1);
     m_propertyData.emplace_back(CreateEmptyProperty(name));
   }
   return ndx;

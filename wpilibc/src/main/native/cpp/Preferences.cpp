@@ -41,7 +41,7 @@ double Preferences::GetDouble(wpi::StringRef key, double defaultValue) {
 }
 
 float Preferences::GetFloat(wpi::StringRef key, float defaultValue) {
-  return m_table->GetNumber(key, defaultValue);
+  return static_cast<float>(m_table->GetNumber(key, defaultValue));
 }
 
 bool Preferences::GetBoolean(wpi::StringRef key, bool defaultValue) {
@@ -49,7 +49,7 @@ bool Preferences::GetBoolean(wpi::StringRef key, bool defaultValue) {
 }
 
 int64_t Preferences::GetLong(wpi::StringRef key, int64_t defaultValue) {
-  return static_cast<int64_t>(m_table->GetNumber(key, defaultValue));
+  return static_cast<int64_t>(m_table->GetNumber(key, static_cast<double>(defaultValue)));
 }
 
 void Preferences::PutString(wpi::StringRef key, wpi::StringRef value) {
@@ -84,7 +84,7 @@ void Preferences::PutBoolean(wpi::StringRef key, bool value) {
 
 void Preferences::PutLong(wpi::StringRef key, int64_t value) {
   auto entry = m_table->GetEntry(key);
-  entry.SetDouble(value);
+  entry.SetDouble(static_cast<double>(value));
   entry.SetPersistent();
 }
 

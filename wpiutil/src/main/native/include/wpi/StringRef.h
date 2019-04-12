@@ -491,7 +491,7 @@ namespace wpi {
       if (getAsUnsignedInteger(*this, Radix, ULLVal) ||
           static_cast<unsigned long long>(static_cast<T>(ULLVal)) != ULLVal)
         return true;
-      Result = ULLVal;
+      Result = static_cast<T>(ULLVal);
       return false;
     }
 

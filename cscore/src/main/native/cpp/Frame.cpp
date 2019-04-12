@@ -393,7 +393,7 @@ Image* Frame::ConvertBGRToMJPEG(Image* image, int quality) {
   // the equivalent BGR image.
   auto newImage =
       m_impl->source.AllocImage(VideoMode::kMJPEG, image->width, image->height,
-                                image->width * image->height * 1.5);
+                                static_cast<size_t>(image->width * image->height * 1.5));
 
   // Compress
   if (m_impl->compressionParams.empty()) {
@@ -424,7 +424,7 @@ Image* Frame::ConvertGrayToMJPEG(Image* image, int quality) {
   // the equivalent grayscale image.
   auto newImage =
       m_impl->source.AllocImage(VideoMode::kMJPEG, image->width, image->height,
-                                image->width * image->height * 0.75);
+                                static_cast<size_t>(image->width * image->height * 0.75));
 
   // Compress
   if (m_impl->compressionParams.empty()) {

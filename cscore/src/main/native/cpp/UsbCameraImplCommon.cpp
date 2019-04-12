@@ -18,7 +18,7 @@ static void ConvertToC(CS_UsbCameraInfo* out, const UsbCameraInfo& in) {
   out->name = ConvertToC(in.name);
   out->otherPaths = static_cast<char**>(
       wpi::CheckedMalloc(in.otherPaths.size() * sizeof(char*)));
-  out->otherPathsCount = in.otherPaths.size();
+  out->otherPathsCount = static_cast<int>(in.otherPaths.size());
   for (size_t i = 0; i < in.otherPaths.size(); ++i)
     out->otherPaths[i] = cs::ConvertToC(in.otherPaths[i]);
 }
@@ -59,7 +59,7 @@ CS_UsbCameraInfo* CS_EnumerateUsbCameras(int* count, CS_Status* status) {
   auto cameras = cs::EnumerateUsbCameras(status);
   CS_UsbCameraInfo* out = static_cast<CS_UsbCameraInfo*>(
       wpi::CheckedMalloc(cameras.size() * sizeof(CS_UsbCameraInfo)));
-  *count = cameras.size();
+  *count = static_cast<int>(cameras.size());
   for (size_t i = 0; i < cameras.size(); ++i) ConvertToC(&out[i], cameras[i]);
   return out;
 }

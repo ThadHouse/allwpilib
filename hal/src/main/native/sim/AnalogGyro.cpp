@@ -67,7 +67,7 @@ HAL_GyroHandle HAL_InitializeAnalogGyro(HAL_AnalogInputHandle analogHandle,
   }
 
   gyro->handle = analogHandle;
-  gyro->index = channel;
+  gyro->index = static_cast<uint8_t>(channel);
 
   SimAnalogGyroData[channel].initialized = true;
 

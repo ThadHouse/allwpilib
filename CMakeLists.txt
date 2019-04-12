@@ -8,7 +8,7 @@ endif()
 
 
 project(allwpilib)
-cmake_minimum_required(VERSION 3.3.0)
+cmake_minimum_required(VERSION 3.7.0)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 INCLUDE(CPack)
@@ -74,6 +74,7 @@ endif()
 add_subdirectory(wpiutil)
 add_subdirectory(ntcore)
 add_subdirectory(hal)
+
 set (HAL_DEP_REPLACE "find_dependency(hal)")
 
 if (NOT WITHOUT_CSCORE)
@@ -89,6 +90,24 @@ if (NOT WITHOUT_CSCORE)
         set (WPILIBC_DEP_REPLACE "find_dependency(wpilibc)")
     endif()
 endif()
+
+get_property(subdirs_list
+  DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+  PROPERTY SUBDIRECTORIES)
+
+foreach (subdir ${subdirs_list})
+    get_property(_targets_list
+        DIRECTORY "${subdir}"
+        PROPERTY BUILDSYSTEM_TARGETS )
+    foreach(tgt ${_targets_list})
+        if(MSVC)
+            target_compile_options(${tgt} PRIVATE /WX )
+        else()
+            target_compile_options(${tgt} PRIVATE -Wall -Wextra -Werror -pedantic -Wno-unused-parameter)
+        endif()
+
+    endforeach()
+endforeach()
 
 configure_file(wpilib-config.cmake.in ${CMAKE_BINARY_DIR}/wpilib-config.cmake )
 install(FILES ${CMAKE_BINARY_DIR}/wpilib-config.cmake DESTINATION ${wpilib_config_dir})

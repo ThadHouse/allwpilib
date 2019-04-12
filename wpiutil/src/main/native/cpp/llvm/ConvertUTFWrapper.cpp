@@ -49,7 +49,7 @@ bool convertUTF16ToUTF8String(ArrayRef<UTF16> SrcUTF16,
   std::vector<UTF16> ByteSwapped;
   if (Src[0] == UNI_UTF16_BYTE_ORDER_MARK_SWAPPED) {
     ByteSwapped.insert(ByteSwapped.end(), Src, SrcEnd);
-    for (unsigned I = 0, E = ByteSwapped.size(); I != E; ++I)
+    for (size_t I = 0, E = ByteSwapped.size(); I != E; ++I)
       ByteSwapped[I] = (ByteSwapped[I] << 8) | (ByteSwapped[I] >> 8);
     Src = &ByteSwapped[0];
     SrcEnd = &ByteSwapped[ByteSwapped.size() - 1] + 1;

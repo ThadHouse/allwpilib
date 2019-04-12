@@ -328,7 +328,7 @@ raw_ostream &raw_ostream::operator<<(const FormattedString &FS) {
     this->operator<<(FS.Str);
     break;
   case FormattedString::JustifyCenter: {
-    int PadAmount = Difference / 2;
+    size_t PadAmount = Difference / 2;
     this->indent(PadAmount);
     this->operator<<(FS.Str);
     this->indent(Difference - PadAmount);

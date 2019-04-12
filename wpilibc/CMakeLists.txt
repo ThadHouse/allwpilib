@@ -9,6 +9,7 @@ file(GLOB_RECURSE
 
 add_library(wpilibc ${wpilibc_native_src} ${CMAKE_CURRENT_BINARY_DIR}/WPILibVersion.cpp)
 set_target_properties(wpilibc PROPERTIES DEBUG_POSTFIX "d")
+target_compile_options(wpilibc PRIVATE /D_CRT_SECURE_NO_WARNINGS)
 
 target_include_directories(wpilibc PUBLIC
                 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/main/native/include>

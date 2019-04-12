@@ -68,7 +68,7 @@ THandle UnlimitedHandleResource<THandle, TStruct, enumValue>::Allocate(
   for (i = 0; i < m_structures.size(); i++) {
     if (m_structures[i] == nullptr) {
       m_structures[i] = structure;
-      return static_cast<THandle>(createHandle(i, enumValue, m_version));
+      return static_cast<THandle>(createHandle(static_cast<int16_t>(i), enumValue, m_version));
     }
   }
   if (i >= INT16_MAX) return HAL_kInvalidHandle;
@@ -117,7 +117,8 @@ void UnlimitedHandleResource<THandle, TStruct, enumValue>::ForEach(
   size_t i;
   for (i = 0; i < m_structures.size(); i++) {
     if (m_structures[i] != nullptr) {
-      func(static_cast<THandle>(createHandle(i, enumValue, m_version)),
+      func(static_cast<THandle>(
+               createHandle(static_cast<int16_t>(i), enumValue, m_version)),
            m_structures[i].get());
     }
   }

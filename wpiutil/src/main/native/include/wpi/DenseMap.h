@@ -947,7 +947,7 @@ public:
 
   void grow(unsigned AtLeast) {
     if (AtLeast >= InlineBuckets)
-      AtLeast = std::max<unsigned>(64, NextPowerOf2(AtLeast-1));
+      AtLeast = std::max<unsigned>(64, static_cast<unsigned>(NextPowerOf2(AtLeast-1)));
 
     if (Small) {
       if (AtLeast < InlineBuckets)

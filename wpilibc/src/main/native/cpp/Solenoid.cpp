@@ -87,7 +87,7 @@ bool Solenoid::IsBlackListed() const {
 }
 
 void Solenoid::SetPulseDuration(double durationSeconds) {
-  int32_t durationMS = durationSeconds * 1000;
+  int32_t durationMS = static_cast<int32_t>(durationSeconds * 1000);
   if (StatusIsFatal()) return;
   int32_t status = 0;
   HAL_SetOneShotDuration(m_solenoidHandle, durationMS, &status);

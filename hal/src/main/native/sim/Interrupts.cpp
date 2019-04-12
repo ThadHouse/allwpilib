@@ -98,7 +98,7 @@ HAL_InterruptHandle HAL_InitializeInterrupts(HAL_Bool watcher,
     return HAL_kInvalidHandle;
   }
 
-  anInterrupt->index = getHandleIndex(handle);
+  anInterrupt->index = static_cast<uint8_t>(getHandleIndex(handle));
   anInterrupt->callbackId = -1;
 
   anInterrupt->watcher = watcher;

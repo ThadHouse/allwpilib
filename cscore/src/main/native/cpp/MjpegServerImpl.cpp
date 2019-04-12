@@ -642,7 +642,7 @@ void MjpegServerImpl::ConnThread::SendStream(wpi::raw_socket_ostream& os) {
 
   Frame::Time lastFrameTime = 0;
   Frame::Time timePerFrame = 0;
-  if (m_fps != 0) timePerFrame = 1000000.0 / m_fps;
+  if (m_fps != 0) timePerFrame = static_cast<Frame::Time>(1000000.0 / m_fps);
   Frame::Time averageFrameTime = 0;
   Frame::Time averagePeriod = 1000000;  // 1 second window
   if (averagePeriod < timePerFrame) averagePeriod = timePerFrame * 10;
