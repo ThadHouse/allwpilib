@@ -43,6 +43,7 @@
 #define UV_FS_FREE_PTR           0x0008
 #define UV_FS_CLEANEDUP          0x0010
 
+#pragma warning(disable: 4267 4244)
 
 #define INIT(subtype)                                                         \
   do {                                                                        \

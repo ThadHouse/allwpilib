@@ -57,6 +57,8 @@
 
 #ifdef _WIN32
 #include "Windows/WindowsSupport.h"
+#pragma warning(push)
+#pragma warning(disable : 4267)
 #endif
 
 using namespace wpi;
@@ -791,3 +793,7 @@ void raw_null_ostream::pwrite_impl(const char * /*Ptr*/, size_t /*Size*/,
                                    uint64_t /*Offset*/) {}
 
 void raw_pwrite_stream::anchor() {}
+
+#ifdef _WIN32
+#pragma warning(pop)
+#endif

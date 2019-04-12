@@ -646,9 +646,9 @@ std::string PackRpcDefinition(const RpcDefinition& def) {
   }
 
   // results
-  unsigned int results_size = def.results.size();
+  size_t results_size = def.results.size();
   if (results_size > 0xff) results_size = 0xff;
-  enc.Write8(results_size);
+  enc.Write8(static_cast<unsigned>(results_size));
   for (size_t i = 0; i < results_size; ++i) {
     enc.WriteType(def.results[i].type);
     enc.WriteString(def.results[i].name);

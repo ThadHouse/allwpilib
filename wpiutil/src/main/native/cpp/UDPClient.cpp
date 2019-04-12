@@ -66,7 +66,7 @@ int UDPClient::start(int port) {
   WSAStartup(wVersionRequested, &wsaData);
 #endif
 
-  m_lsd = socket(AF_INET, SOCK_DGRAM, 0);
+  m_lsd = static_cast<int>(socket(AF_INET, SOCK_DGRAM, 0));
 
   if (m_lsd < 0) {
     WPI_ERROR(m_logger, "could not create socket");
@@ -154,7 +154,7 @@ int UDPClient::send(ArrayRef<uint8_t> data, const Twine& server, int port) {
 
   // sendto should not block
   int result =
-      sendto(m_lsd, reinterpret_cast<const char*>(data.data()), data.size(), 0,
+      sendto(m_lsd, reinterpret_cast<const char*>(data.data()), static_cast<int>(data.size()), 0,
              reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
   return result;
 }
@@ -183,7 +183,7 @@ int UDPClient::send(StringRef data, const Twine& server, int port) {
   addr.sin_port = htons(port);
 
   // sendto should not block
-  int result = sendto(m_lsd, data.data(), data.size(), 0,
+  int result = sendto(m_lsd, data.data(), static_cast<int>(data.size()), 0,
                       reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
   return result;
 }
@@ -215,7 +215,7 @@ int UDPClient::receive(uint8_t* data_received, int receive_len,
 #endif
 
   ip[49] = '\0';
-  int addr_len = std::strlen(ip);
+  size_t addr_len = std::strlen(ip);
   addr_received->clear();
   addr_received->append(&ip[0], &ip[addr_len]);
 

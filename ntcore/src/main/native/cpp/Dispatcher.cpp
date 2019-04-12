@@ -242,11 +242,11 @@ bool DispatcherBase::IsConnected() const {
   return false;
 }
 
-unsigned int DispatcherBase::AddListener(
+size_t DispatcherBase::AddListener(
     std::function<void(const ConnectionNotification& event)> callback,
     bool immediate_notify) const {
   std::lock_guard<wpi::mutex> lock(m_user_mutex);
-  unsigned int uid = m_notifier.Add(callback);
+  size_t uid = m_notifier.Add(callback);
   // perform immediate notifications
   if (immediate_notify) {
     for (auto& conn : m_connections) {
@@ -257,10 +257,10 @@ unsigned int DispatcherBase::AddListener(
   return uid;
 }
 
-unsigned int DispatcherBase::AddPolledListener(unsigned int poller_uid,
+size_t DispatcherBase::AddPolledListener(size_t poller_uid,
                                                bool immediate_notify) const {
   std::lock_guard<wpi::mutex> lock(m_user_mutex);
-  unsigned int uid = m_notifier.AddPolled(poller_uid);
+  size_t uid = m_notifier.AddPolled(poller_uid);
   // perform immediate notifications
   if (immediate_notify) {
     for (auto& conn : m_connections) {

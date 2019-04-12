@@ -28,7 +28,7 @@ void raw_uv_ostream::write_impl(const char* data, size_t len) {
     std::memcpy(buf.base + buf.len, data, amt);
     data += amt;
     len -= amt;
-    buf.len += amt;
+    buf.len += static_cast<decltype(buf.len)>(amt);
     m_left -= amt;
   }
 }

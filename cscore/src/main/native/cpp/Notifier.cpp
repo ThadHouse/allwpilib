@@ -38,7 +38,7 @@ class UidVector {
   unsigned int emplace_back(Args&&... args) {
     unsigned int uid;
     if (m_free.empty()) {
-      uid = m_vector.size();
+      uid = static_cast<unsigned>(m_vector.size());
       m_vector.emplace_back(std::forward<Args>(args)...);
     } else {
       uid = m_free.back();

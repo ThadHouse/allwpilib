@@ -96,7 +96,7 @@ void Udp::SetMulticastInterface(const Twine& interfaceAddr) {
 
 void Udp::Send(const sockaddr& addr, ArrayRef<Buffer> bufs,
                const std::shared_ptr<UdpSendReq>& req) {
-  if (Invoke(&uv_udp_send, req->GetRaw(), GetRaw(), bufs.data(), bufs.size(),
+  if (Invoke(&uv_udp_send, req->GetRaw(), GetRaw(), bufs.data(), static_cast<unsigned>(bufs.size()),
              &addr, [](uv_udp_send_t* r, int status) {
                auto& h = *static_cast<UdpSendReq*>(r->data);
                if (status < 0) h.ReportError(status);
@@ -122,7 +122,7 @@ void Udp::StartRecv() {
            if (nread > 0)
              h.received(data, static_cast<size_t>(nread), *addr, flags);
            else if (nread < 0)
-             h.ReportError(nread);
+             h.ReportError(static_cast<int>(nread));
 
            // free the buffer
            h.FreeBuf(data);

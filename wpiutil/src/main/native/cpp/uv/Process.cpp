@@ -111,7 +111,7 @@ std::shared_ptr<Process> Process::SpawnArray(Loop& loop, const Twine& file,
     coptions.env = envBuf.data();
   }
 
-  coptions.stdio_count = stdioBuf.size();
+  coptions.stdio_count = static_cast<int>(stdioBuf.size());
   coptions.stdio = static_cast<uv_stdio_container_t*>(stdioBuf.data());
 
   auto h = std::make_shared<Process>(private_init{});

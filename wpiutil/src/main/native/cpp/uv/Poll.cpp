@@ -63,7 +63,7 @@ void Poll::ReuseSocket(uv_os_sock_t sock, std::function<void()> callback) {
     Poll& h = *static_cast<Poll*>(handle->data);
     if (!h.m_reuseData || !h.m_reuseData->isSocket) return;  // just in case
     auto data = std::move(h.m_reuseData);
-    int err = uv_poll_init(h.GetLoopRef().GetRaw(), h.GetRaw(), data->sock);
+    int err = uv_poll_init(h.GetLoopRef().GetRaw(), h.GetRaw(), static_cast<int>(data->sock));
     if (err < 0) {
       h.ReportError(err);
       return;

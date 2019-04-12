@@ -59,7 +59,7 @@ void wpi::SplitString(StringRef Source,
 }
 
 void wpi::PrintEscapedString(StringRef Name, raw_ostream &Out) {
-  for (unsigned i = 0, e = Name.size(); i != e; ++i) {
+  for (size_t i = 0, e = Name.size(); i != e; ++i) {
     unsigned char C = Name[i];
     if (isprint(C) && C != '\\' && C != '"')
       Out << C;

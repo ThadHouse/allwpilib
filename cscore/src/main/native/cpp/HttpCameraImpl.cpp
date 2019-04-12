@@ -612,7 +612,7 @@ char** CS_GetHttpCameraUrls(CS_Source source, int* count, CS_Status* status) {
   auto urls = cs::GetHttpCameraUrls(source, status);
   char** out =
       static_cast<char**>(wpi::CheckedMalloc(urls.size() * sizeof(char*)));
-  *count = urls.size();
+  *count = static_cast<int>(urls.size());
   for (size_t i = 0; i < urls.size(); ++i) out[i] = cs::ConvertToC(urls[i]);
   return out;
 }

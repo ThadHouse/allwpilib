@@ -33,7 +33,7 @@ void WireEncoder::WriteDouble(double val) {
        static_cast<char>((v >> 8) & 0xff), static_cast<char>(v & 0xff)});
 }
 
-void WireEncoder::WriteUleb128(uint32_t val) { wpi::WriteUleb128(m_data, val); }
+void WireEncoder::WriteUleb128(uint64_t val) { wpi::WriteUleb128(m_data, val); }
 
 void WireEncoder::WriteType(NT_Type type) {
   char ch;
@@ -146,7 +146,7 @@ void WireEncoder::WriteValue(const Value& value) {
       auto v = value.GetBooleanArray();
       size_t size = v.size();
       if (size > 0xff) size = 0xff;  // size is only 1 byte, truncate
-      Write8(size);
+      Write8(static_cast<unsigned>(size));
 
       for (size_t i = 0; i < size; ++i) Write8(v[i] ? 1 : 0);
       break;
@@ -155,7 +155,7 @@ void WireEncoder::WriteValue(const Value& value) {
       auto v = value.GetDoubleArray();
       size_t size = v.size();
       if (size > 0xff) size = 0xff;  // size is only 1 byte, truncate
-      Write8(size);
+      Write8(static_cast<unsigned>(size));
 
       for (size_t i = 0; i < size; ++i) WriteDouble(v[i]);
       break;
@@ -164,7 +164,7 @@ void WireEncoder::WriteValue(const Value& value) {
       auto v = value.GetStringArray();
       size_t size = v.size();
       if (size > 0xff) size = 0xff;  // size is only 1 byte, truncate
-      Write8(size);
+      Write8(static_cast<unsigned>(size));
 
       for (size_t i = 0; i < size; ++i) WriteString(v[i]);
       break;
@@ -189,7 +189,7 @@ void WireEncoder::WriteString(wpi::StringRef str) {
   size_t len = str.size();
   if (m_proto_rev < 0x0300u) {
     if (len > 0xffff) len = 0xffff;  // Limited to 64K length; truncate
-    Write16(len);
+    Write16(static_cast<unsigned>(len));
   } else {
     WriteUleb128(len);
   }

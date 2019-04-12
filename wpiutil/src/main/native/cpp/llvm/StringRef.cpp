@@ -152,7 +152,7 @@ size_t StringRef::find(StringRef Str, size_t From) const noexcept {
 
   // Build the bad char heuristic table, with uint8_t to reduce cache thrashing.
   uint8_t BadCharSkip[256];
-  std::memset(BadCharSkip, N, 256);
+  std::memset(BadCharSkip, static_cast<int>(N), 256);
   for (unsigned i = 0; i != N-1; ++i)
     BadCharSkip[(uint8_t)Str[i]] = static_cast<uint8_t>(N-1-i);
 

@@ -27,6 +27,10 @@
 #include "uv.h"
 #include "uv-common.h"
 
+#ifdef _WIN32
+#pragma warning(disable : 4244)
+#endif
+
 #define UV__INET_ADDRSTRLEN         16
 #define UV__INET6_ADDRSTRLEN        46
 
@@ -292,8 +296,8 @@ static int inet_pton6(const char *src, unsigned char *dst) {
      * Since some memmove()'s erroneously fail to handle
      * overlapping regions, we'll do the shift by hand.
      */
-    const size_t n = tp - colonp;
-    size_t i;
+    const int n = tp - colonp;
+    int i;
 
     if (tp == endp)
       return UV_EINVAL;

@@ -74,7 +74,7 @@ TCPAcceptor::~TCPAcceptor() {
 int TCPAcceptor::start() {
   if (m_listening) return 0;
 
-  m_lsd = socket(PF_INET, SOCK_STREAM, 0);
+  m_lsd = static_cast<int>(socket(PF_INET, SOCK_STREAM, 0));
   if (m_lsd < 0) {
     WPI_ERROR(m_logger, "could not create socket");
     return -1;
@@ -151,7 +151,7 @@ void TCPAcceptor::shutdown() {
     return;
   address.sin_port = htons(m_port);
 
-  int result = -1, sd = socket(AF_INET, SOCK_STREAM, 0);
+  int result = -1, sd = static_cast<int>(socket(AF_INET, SOCK_STREAM, 0));
   if (sd < 0) return;
 
   // Set socket to non-blocking
@@ -184,7 +184,7 @@ std::unique_ptr<NetworkStream> TCPAcceptor::accept() {
   socklen_t len = sizeof(address);
 #endif
   std::memset(&address, 0, sizeof(address));
-  int sd = ::accept(m_lsd, (struct sockaddr*)&address, &len);
+  int sd = static_cast<int>(::accept(m_lsd, (struct sockaddr*)&address, &len));
   if (sd < 0) {
     if (!m_shutdown)
       WPI_ERROR(m_logger, "accept() on port "

@@ -138,7 +138,7 @@ void CallbackThread<Derived, TUserInfo, TListenerData, TNotifierData>::Main() {
           if (!listener) continue;
           if (!static_cast<Derived*>(this)->Matches(listener, item.second))
             continue;
-          static_cast<Derived*>(this)->SetListener(&item.second, i);
+          static_cast<Derived*>(this)->SetListener(&item.second, static_cast<unsigned>(i));
           if (listener.callback) {
             lock.unlock();
             static_cast<Derived*>(this)->DoCallback(listener.callback,
@@ -177,7 +177,7 @@ class CallbackManager {
     thr->m_listeners.erase(listener_uid);
   }
 
-  unsigned int CreatePoller() {
+  size_t CreatePoller() {
     static_cast<Derived*>(this)->Start();
     auto thr = m_owner.GetThread();
     return thr->m_pollers.emplace_back(
@@ -298,7 +298,7 @@ class CallbackManager {
   }
 
   template <typename... Args>
-  unsigned int DoAdd(Args&&... args) {
+  size_t DoAdd(Args&&... args) {
     static_cast<Derived*>(this)->Start();
     auto thr = m_owner.GetThread();
     return thr->m_listeners.emplace_back(std::forward<Args>(args)...);

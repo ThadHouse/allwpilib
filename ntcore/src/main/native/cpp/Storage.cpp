@@ -764,7 +764,7 @@ Storage::Entry* Storage::GetOrNew(const Twine& name) {
   if (!entry) {
     m_localmap.emplace_back(new Entry(nameStr));
     entry = m_localmap.back().get();
-    entry->local_id = m_localmap.size() - 1;
+    entry->local_id = static_cast<unsigned>(m_localmap.size() - 1);
   }
   return entry;
 }

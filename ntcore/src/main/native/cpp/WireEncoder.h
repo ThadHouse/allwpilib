@@ -79,7 +79,7 @@ class WireEncoder {
   void WriteDouble(double val);
 
   /* Writes an ULEB128-encoded unsigned integer. */
-  void WriteUleb128(uint32_t val);
+  void WriteUleb128(uint64_t val);
 
   void WriteType(NT_Type type);
   void WriteValue(const Value& value);

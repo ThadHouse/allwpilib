@@ -13,12 +13,12 @@ ConnectionNotifier::ConnectionNotifier(int inst) : m_inst(inst) {}
 
 void ConnectionNotifier::Start() { DoStart(m_inst); }
 
-unsigned int ConnectionNotifier::Add(
+size_t ConnectionNotifier::Add(
     std::function<void(const ConnectionNotification& event)> callback) {
   return DoAdd(callback);
 }
 
-unsigned int ConnectionNotifier::AddPolled(unsigned int poller_uid) {
+size_t ConnectionNotifier::AddPolled(size_t poller_uid) {
   return DoAdd(poller_uid);
 }
 

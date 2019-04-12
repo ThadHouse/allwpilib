@@ -123,13 +123,13 @@ size_t TCPStream::receive(char* buffer, size_t len, Error* err, int timeout) {
 #endif
   if (timeout <= 0) {
 #ifdef _WIN32
-    rv = recv(m_sd, buffer, len, 0);
+    rv = recv(m_sd, buffer, static_cast<int>(len), 0);
 #else
     rv = read(m_sd, buffer, len);
 #endif
   } else if (WaitForReadEvent(timeout)) {
 #ifdef _WIN32
-    rv = recv(m_sd, buffer, len, 0);
+    rv = recv(m_sd, buffer, static_cast<int>(len), 0);
 #else
     rv = read(m_sd, buffer, len);
 #endif

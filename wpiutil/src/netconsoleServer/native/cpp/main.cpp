@@ -113,7 +113,7 @@ static void CopyTcp(uv::Stream& in, std::shared_ptr<uv::Stream> out) {
 static void CopyStream(uv::Stream& in, std::shared_ptr<uv::Stream> out) {
   in.data.connect([out](uv::Buffer& buf, size_t len) {
     uv::Buffer buf2 = buf.Dup();
-    buf2.len = len;
+	buf2.len = static_cast<decltype(buf2.len)>(len);
     out->Write(buf2, [](auto bufs, uv::Error) {
       for (auto buf : bufs) buf.Deallocate();
     });

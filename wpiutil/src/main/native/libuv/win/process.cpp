@@ -36,6 +36,8 @@
 
 #define SIGKILL         9
 
+#pragma warning(disable : 4244 4267)
+
 
 typedef struct env_var {
   const WCHAR* const wide;

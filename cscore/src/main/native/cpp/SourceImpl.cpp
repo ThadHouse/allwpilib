@@ -391,7 +391,7 @@ std::unique_ptr<Image> SourceImpl::AllocImage(
   {
     std::lock_guard<wpi::mutex> lock{m_poolMutex};
     // find the smallest existing frame that is at least big enough.
-    int found = -1;
+    size_t found = std::numeric_limits<size_t>::max();
     for (size_t i = 0; i < m_imagesAvail.size(); ++i) {
       // is it big enough?
       if (m_imagesAvail[i] && m_imagesAvail[i]->capacity() >= size) {
@@ -405,7 +405,7 @@ std::unique_ptr<Image> SourceImpl::AllocImage(
     }
 
     // if nothing found, allocate a new buffer
-    if (found < 0)
+    if (found == std::numeric_limits<size_t>::max())
       image.reset(new Image{size});
     else
       image = std::move(m_imagesAvail[found]);

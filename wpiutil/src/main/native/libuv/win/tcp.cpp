@@ -28,6 +28,7 @@
 #include "stream-inl.h"
 #include "req-inl.h"
 
+#pragma warning(disable : 4244)
 
 /*
  * Threshold of active tcp streams for which to preallocate tcp read buffers.

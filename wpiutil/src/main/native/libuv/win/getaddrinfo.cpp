@@ -31,6 +31,8 @@
 /* Needed for ConvertInterfaceIndexToLuid and ConvertInterfaceLuidToNameA */
 #include <iphlpapi.h>
 
+#pragma warning(disable : 4267)
+
 int uv__getaddrinfo_translate_error(int sys_err) {
   switch (sys_err) {
     case 0:                       return 0;

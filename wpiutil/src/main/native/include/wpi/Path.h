@@ -16,6 +16,11 @@
 #ifndef WPIUTIL_WPI_PATH_H_
 #define WPIUTIL_WPI_PATH_H_
 
+#ifndef _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
+#define WPIUTIL_PATH_SET_DEPRECATION
+#define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
+#endif
+
 #include "wpi/Twine.h"
 #include "wpi/iterator.h"
 #include <cstdint>
@@ -470,5 +475,9 @@ bool remove_dots(SmallVectorImpl<char> &path, bool remove_dot_dot = false,
 } // end namespace path
 } // end namespace sys
 } // end namespace wpi
+
+#ifdef WPIUTIL_PATH_SET_DEPRECATION
+#undef _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
+#endif
 
 #endif

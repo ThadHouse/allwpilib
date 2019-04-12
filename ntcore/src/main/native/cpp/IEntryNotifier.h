@@ -23,15 +23,15 @@ class IEntryNotifier {
   virtual ~IEntryNotifier() = default;
   virtual bool local_notifiers() const = 0;
 
-  virtual unsigned int Add(
+  virtual size_t Add(
       std::function<void(const EntryNotification& event)> callback,
       wpi::StringRef prefix, unsigned int flags) = 0;
-  virtual unsigned int Add(
+  virtual size_t Add(
       std::function<void(const EntryNotification& event)> callback,
       unsigned int local_id, unsigned int flags) = 0;
-  virtual unsigned int AddPolled(unsigned int poller_uid, wpi::StringRef prefix,
+  virtual size_t AddPolled(unsigned int poller_uid, wpi::StringRef prefix,
                                  unsigned int flags) = 0;
-  virtual unsigned int AddPolled(unsigned int poller_uid, unsigned int local_id,
+  virtual size_t AddPolled(unsigned int poller_uid, unsigned int local_id,
                                  unsigned int flags) = 0;
 
   virtual void NotifyEntry(unsigned int local_id, StringRef name,

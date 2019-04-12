@@ -29,6 +29,9 @@
 #include <shellapi.h>
 #include <shlobj.h>
 
+#pragma warning(push)
+#pragma warning(disable : 4267)
+
 #undef max
 
 #ifdef _MSC_VER
@@ -686,3 +689,5 @@ std::error_code UTF16ToCurCP(const wchar_t *utf16, size_t utf16_len,
 } // end namespace windows
 } // end namespace sys
 } // end namespace wpi
+
+#pragma warning(pop)

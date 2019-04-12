@@ -110,7 +110,7 @@ void raw_fd_istream::read_impl(void* data, size_t len) {
     // not enough data
     if (m_cur == m_end) {
 #ifdef _WIN32
-      int count = ::_read(m_fd, m_buf, m_bufSize);
+      int count = ::_read(m_fd, m_buf, static_cast<int>(m_bufSize));
 #else
       ssize_t count = ::read(m_fd, m_buf, m_bufSize);
 #endif

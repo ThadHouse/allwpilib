@@ -33,7 +33,7 @@ DigitalGlitchFilter::DigitalGlitchFilter() {
       std::find(m_filterAllocated.begin(), m_filterAllocated.end(), false);
   wpi_assert(index != m_filterAllocated.end());
 
-  m_channelIndex = std::distance(m_filterAllocated.begin(), index);
+  m_channelIndex = static_cast<int>(std::distance(m_filterAllocated.begin(), index));
   *index = true;
 
   HAL_Report(HALUsageReporting::kResourceType_DigitalGlitchFilter,

@@ -103,7 +103,7 @@ std::unique_ptr<NetworkStream> TCPConnector::connect(const char* server,
   address.sin_port = htons(port);
 
   if (timeout == 0) {
-    int sd = socket(AF_INET, SOCK_STREAM, 0);
+    int sd = static_cast<int>(socket(AF_INET, SOCK_STREAM, 0));
     if (sd < 0) {
       WPI_ERROR(logger, "could not create socket");
       return nullptr;
@@ -124,7 +124,7 @@ std::unique_ptr<NetworkStream> TCPConnector::connect(const char* server,
   fd_set sdset;
   struct timeval tv;
   socklen_t len;
-  int result = -1, valopt, sd = socket(AF_INET, SOCK_STREAM, 0);
+  int result = -1, valopt, sd = static_cast<int>(socket(AF_INET, SOCK_STREAM, 0));
   if (sd < 0) {
     WPI_ERROR(logger, "could not create socket");
     return nullptr;

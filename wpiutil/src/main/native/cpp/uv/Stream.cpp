@@ -68,7 +68,7 @@ void Stream::StartRead() {
            else if (nread > 0)
              h.data(data, static_cast<size_t>(nread));
            else if (nread < 0)
-             h.ReportError(nread);
+             h.ReportError(static_cast<int>(nread));
 
            // free the buffer
            h.FreeBuf(data);
@@ -77,7 +77,7 @@ void Stream::StartRead() {
 
 void Stream::Write(ArrayRef<Buffer> bufs,
                    const std::shared_ptr<WriteReq>& req) {
-  if (Invoke(&uv_write, req->GetRaw(), GetRawStream(), bufs.data(), bufs.size(),
+  if (Invoke(&uv_write, req->GetRaw(), GetRawStream(), bufs.data(), static_cast<unsigned>(bufs.size()),
              [](uv_write_t* r, int status) {
                auto& h = *static_cast<WriteReq*>(r->data);
                if (status < 0) h.ReportError(status);
@@ -94,7 +94,7 @@ void Stream::Write(
 }
 
 int Stream::TryWrite(ArrayRef<Buffer> bufs) {
-  int val = uv_try_write(GetRawStream(), bufs.data(), bufs.size());
+  int val = uv_try_write(GetRawStream(), bufs.data(), static_cast<unsigned>(bufs.size()));
   if (val < 0) {
     this->ReportError(val);
     return 0;
