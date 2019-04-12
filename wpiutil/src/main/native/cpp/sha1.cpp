@@ -258,7 +258,7 @@ static void finalize(uint32_t digest[], unsigned char* buffer, size_t& buf_size,
   }
 
   /* Append total_bits, split this uint64_t into two uint32_t */
-  block[BLOCK_INTS - 1] = total_bits;
+  block[BLOCK_INTS - 1] = static_cast<uint32_t>(total_bits);
   block[BLOCK_INTS - 2] = (total_bits >> 32);
   do_transform(digest, block, transforms);
 

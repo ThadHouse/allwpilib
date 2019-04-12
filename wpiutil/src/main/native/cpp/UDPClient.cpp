@@ -227,9 +227,10 @@ int UDPClient::receive(uint8_t* data_received, int receive_len,
 int UDPClient::set_timeout(double timeout) {
   if (timeout < 0) return -1;
   struct timeval tv;
-  tv.tv_sec = timeout;             // truncating will give seconds
+  tv.tv_sec = static_cast<decltype(tv.tv_sec)>(timeout); // truncating will give seconds
   timeout -= tv.tv_sec;            // remove seconds portion
-  tv.tv_usec = timeout * 1000000;  // fractions of a second to us
+  tv.tv_usec = static_cast<decltype(tv.tv_usec)>(
+      timeout * 1000000);  // fractions of a second to us
   int ret = setsockopt(m_lsd, SOL_SOCKET, SO_RCVTIMEO,
                        reinterpret_cast<char*>(&tv), sizeof(tv));
   if (ret < 0) WPI_ERROR(m_logger, "set timeout failed");

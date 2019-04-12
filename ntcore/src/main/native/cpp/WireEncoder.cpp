@@ -181,7 +181,7 @@ size_t WireEncoder::GetStringSize(wpi::StringRef str) const {
     if (len > 0xffff) len = 0xffff;  // Limited to 64K length; truncate
     return 2 + len;
   }
-  return wpi::SizeUleb128(str.size()) + str.size();
+  return static_cast<size_t>(wpi::SizeUleb128(str.size()) + str.size());
 }
 
 void WireEncoder::WriteString(wpi::StringRef str) {

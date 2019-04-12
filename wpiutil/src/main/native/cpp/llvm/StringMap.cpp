@@ -28,7 +28,7 @@ static unsigned getMinBucketToReserveForEntries(unsigned NumEntries) {
     return 0;
   // +1 is required because of the strict equality.
   // For example if NumEntries is 48, we need to return 401.
-  return NextPowerOf2(NumEntries * 4 / 3 + 1);
+  return static_cast<unsigned>(NextPowerOf2(NumEntries * 4 / 3 + 1));
 }
 
 StringMapImpl::StringMapImpl(unsigned InitSize, unsigned itemSize) {

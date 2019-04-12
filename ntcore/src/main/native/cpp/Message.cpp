@@ -125,8 +125,8 @@ std::shared_ptr<Message> Message::Read(WireDecoder& decoder,
       uint64_t size;
       if (!decoder.ReadUleb128(&size)) return nullptr;
       const char* params;
-      if (!decoder.Read(&params, size)) return nullptr;
-      msg->m_str = wpi::StringRef(params, size);
+      if (!decoder.Read(&params, static_cast<size_t>(size))) return nullptr;
+      msg->m_str = wpi::StringRef(params, static_cast<size_t>(size));
       break;
     }
     case kRpcResponse: {
@@ -139,8 +139,8 @@ std::shared_ptr<Message> Message::Read(WireDecoder& decoder,
       uint64_t size;
       if (!decoder.ReadUleb128(&size)) return nullptr;
       const char* results;
-      if (!decoder.Read(&results, size)) return nullptr;
-      msg->m_str = wpi::StringRef(results, size);
+      if (!decoder.Read(&results, static_cast<size_t>(size))) return nullptr;
+      msg->m_str = wpi::StringRef(results, static_cast<size_t>(size));
       break;
     }
     default:

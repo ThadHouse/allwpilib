@@ -154,7 +154,7 @@ size_t StringRef::find(StringRef Str, size_t From) const noexcept {
   uint8_t BadCharSkip[256];
   std::memset(BadCharSkip, N, 256);
   for (unsigned i = 0; i != N-1; ++i)
-    BadCharSkip[(uint8_t)Str[i]] = N-1-i;
+    BadCharSkip[(uint8_t)Str[i]] = static_cast<uint8_t>(N-1-i);
 
   do {
     uint8_t Last = Start[N - 1];
@@ -446,6 +446,11 @@ bool wpi::consumeUnsignedInteger(StringRef &Str, unsigned Radix,
   return false;
 }
 
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable : 4146)
+#endif
+
 bool wpi::consumeSignedInteger(StringRef &Str, unsigned Radix,
                                 long long &Result) noexcept {
   unsigned long long ULLVal;
@@ -473,6 +478,10 @@ bool wpi::consumeSignedInteger(StringRef &Str, unsigned Radix,
   Result = -ULLVal;
   return false;
 }
+
+#ifdef _WIN32
+#pragma warning(pop)
+#endif
 
 /// GetAsUnsignedInteger - Workhorse method that converts a integer character
 /// sequence of radix up to 36 to an unsigned long long value.

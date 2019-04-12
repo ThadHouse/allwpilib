@@ -386,7 +386,7 @@ raw_ostream &raw_ostream::operator<<(const FormattedBytes &FB) {
 
   // The width of a block of data including all spaces for group separators.
   unsigned NumByteGroups =
-      alignTo(FB.NumPerLine, FB.ByteGroupSize) / FB.ByteGroupSize;
+      static_cast<unsigned>(alignTo(FB.NumPerLine, FB.ByteGroupSize) / FB.ByteGroupSize);
   unsigned BlockCharWidth = FB.NumPerLine * 2 + NumByteGroups - 1;
 
   while (!Bytes.empty()) {
@@ -394,7 +394,7 @@ raw_ostream &raw_ostream::operator<<(const FormattedBytes &FB) {
 
     if (FB.FirstByteOffset.has_value()) {
       uint64_t Offset = FB.FirstByteOffset.value();
-      wpi::write_hex(*this, Offset + LineIndex, HPS, OffsetWidth);
+      wpi::write_hex(*this, Offset + LineIndex, HPS, static_cast<size_t>(OffsetWidth));
       *this << ": ";
     }
 

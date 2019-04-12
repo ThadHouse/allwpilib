@@ -393,7 +393,7 @@ void WebSocket::HandleIncoming(uv::Buffer& buf, size_t size) {
     }
 
     if (m_frameSize != UINT64_MAX) {
-      size_t need = m_frameStart + m_frameSize - m_payload.size();
+      size_t need = m_frameStart + static_cast<size_t>(m_frameSize) - m_payload.size();
       size_t toCopy = std::min(need, data.size());
       m_payload.append(data.bytes_begin(), data.bytes_begin() + toCopy);
       data = data.drop_front(toCopy);

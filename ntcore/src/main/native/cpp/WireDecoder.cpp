@@ -199,7 +199,7 @@ bool WireDecoder::ReadString(std::string* str) {
   } else {
     uint64_t v;
     if (!ReadUleb128(&v)) return false;
-    len = v;
+    len = static_cast<size_t>(v);
   }
   const char* buf;
   if (!Read(&buf, len)) return false;

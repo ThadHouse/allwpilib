@@ -41,12 +41,12 @@ StringRef UnescapeURI(const Twine& str, SmallVectorImpl<char>& buf,
 
     // replace %xx with the corresponding character
     unsigned val1 = hexDigitValue(*++i);
-    if (val1 == -1U) {
+    if (val1 == std::numeric_limits<unsigned>::max()) {
       *error = true;
       return StringRef{};
     }
     unsigned val2 = hexDigitValue(*++i);
-    if (val2 == -1U) {
+    if (val2 == std::numeric_limits<unsigned>::max()) {
       *error = true;
       return StringRef{};
     }

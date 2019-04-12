@@ -53,11 +53,6 @@
 #include <string>
 #include <utility>
 
-#ifdef _WIN32
-#pragma warning( push )
-#pragma warning(disable : 26495)
-#endif
-
 namespace wpi {
 
 /// An opaque object representing a hash code.
@@ -435,7 +430,7 @@ hash_code hash_combine_range_impl(InputIteratorT first, InputIteratorT last) {
     length += buffer_ptr - buffer;
   };
 
-  return state.finalize(length);
+  return static_cast<size_t>(state.finalize(length));
 }
 
 /// Implement the combining of integral values into a hash_code.
@@ -454,7 +449,7 @@ hash_combine_range_impl(ValueT *first, ValueT *last) {
   const char *s_end = reinterpret_cast<const char *>(last);
   const size_t length = std::distance(s_begin, s_end);
   if (length <= 64)
-    return hash_short(s_begin, length, seed);
+    return static_cast<size_t>(hash_short(s_begin, length, seed));
 
   const char *s_aligned_end = s_begin + (length & ~63);
   hash_state state = state.create(s_begin, seed);
@@ -466,7 +461,7 @@ hash_combine_range_impl(ValueT *first, ValueT *last) {
   if (length & 63)
     state.mix(s_end - 64);
 
-  return state.finalize(length);
+  return static_cast<size_t>(state.finalize(length));
 }
 
 } // namespace detail
@@ -572,7 +567,7 @@ public:
     // Check whether the entire set of values fit in the buffer. If so, we'll
     // use the optimized short hashing routine and skip state entirely.
     if (length == 0)
-      return hash_short(buffer, buffer_ptr - buffer, seed);
+      return static_cast<size_t>(hash_short(buffer, buffer_ptr - buffer, seed));
 
     // Mix the final buffer, rotating it if we did a partial fill in order to
     // simulate doing a mix of the last 64-bytes. That is how the algorithm
@@ -584,7 +579,7 @@ public:
     state.mix(buffer);
     length += buffer_ptr - buffer;
 
-    return state.finalize(length);
+    return static_cast<size_t>(state.finalize(length));
   }
 };
 
@@ -623,7 +618,7 @@ inline hash_code hash_integer_value(uint64_t value) {
   const uint64_t seed = get_execution_seed();
   const char *s = reinterpret_cast<const char *>(&value);
   const uint64_t a = fetch32(s);
-  return hash_16_bytes(seed + (a << 3), fetch32(s + 4));
+  return static_cast<size_t>(hash_16_bytes(seed + (a << 3), fetch32(s + 4)));
 }
 
 } // namespace detail
@@ -660,9 +655,5 @@ hash_code hash_value(const std::basic_string<T> &arg) {
 }
 
 } // namespace wpi
-
-#ifdef _WIN32
-#pragma warning( pop )
-#endif
 
 #endif

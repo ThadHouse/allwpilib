@@ -477,7 +477,7 @@ namespace wpi {
       if (getAsSignedInteger(*this, Radix, LLVal) ||
             static_cast<T>(LLVal) != LLVal)
         return true;
-      Result = LLVal;
+      Result = static_cast<T>(LLVal);
       return false;
     }
 

@@ -97,7 +97,17 @@ static void write_signed(raw_ostream &S, T N, size_t MinDigits,
     return;
   }
 
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable : 4146)
+#endif
+
   UnsignedT UN = -(UnsignedT)N;
+
+#ifdef _WIN32
+#pragma warning(pop)
+#endif
+
   write_unsigned(S, UN, MinDigits, Style, true);
 }
 
