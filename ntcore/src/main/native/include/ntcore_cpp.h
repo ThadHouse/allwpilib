@@ -1030,7 +1030,7 @@ NT_RpcCall CallRpc(NT_Entry entry, StringRef params);
  * @param result      received result (output)
  * @return False on error, true otherwise.
  */
-bool GetRpcResult(NT_Entry entry, NT_RpcCall call, std::string* result);
+bool GetRpcResult(NT_Entry entry, NT_RpcCall call, wpi::SmallVectorImpl<uint8_t>& result);
 
 /**
  * Get the result (return value) of a RPC call.  This function blocks until
@@ -1043,7 +1043,7 @@ bool GetRpcResult(NT_Entry entry, NT_RpcCall call, std::string* result);
  * @param timed_out   true if the timeout period elapsed (output)
  * @return False on error or timeout, true otherwise.
  */
-bool GetRpcResult(NT_Entry entry, NT_RpcCall call, std::string* result,
+bool GetRpcResult(NT_Entry entry, NT_RpcCall call, wpi::SmallVectorImpl<uint8_t>& result,
                   double timeout, bool* timed_out);
 
 /**

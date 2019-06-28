@@ -73,7 +73,7 @@ class RpcCall final {
    * @param result      received result (output)
    * @return False on error, true otherwise.
    */
-  bool GetResult(std::string* result);
+  bool GetResult(wpi::SmallVectorImpl<uint8_t>& result);
 
   /**
    * Get the result (return value).  This function blocks until
@@ -84,7 +84,7 @@ class RpcCall final {
    * @param timed_out   true if the timeout period elapsed (output)
    * @return False on error or timeout, true otherwise.
    */
-  bool GetResult(std::string* result, double timeout, bool* timed_out);
+  bool GetResult(wpi::SmallVectorImpl<uint8_t>& result, double timeout, bool* timed_out);
 
   /**
    * Ignore the result.  This function is non-blocking.

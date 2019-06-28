@@ -1070,13 +1070,13 @@ unsigned int Storage::CallRpc(unsigned int local_id, StringRef params) {
 }
 
 bool Storage::GetRpcResult(unsigned int local_id, unsigned int call_uid,
-                           std::string* result) {
+                           wpi::SmallVectorImpl<uint8_t>& result) {
   bool timed_out = false;
   return GetRpcResult(local_id, call_uid, result, -1, &timed_out);
 }
 
 bool Storage::GetRpcResult(unsigned int local_id, unsigned int call_uid,
-                           std::string* result, double timeout,
+                           wpi::SmallVectorImpl<uint8_t>& result, double timeout,
                            bool* timed_out) {
   std::unique_lock<wpi::mutex> lock(m_mutex);
 
@@ -1115,7 +1115,8 @@ bool Storage::GetRpcResult(unsigned int local_id, unsigned int call_uid,
       }
       continue;
     }
-    result->swap(i->getSecond());
+    result.clear();
+    result.append(i->getSecond().begin(), i->getSecond().end());
     // safe to erase even if id does not exist
     m_rpc_blocking_calls.erase(call_pair);
     m_rpc_results.erase(i);

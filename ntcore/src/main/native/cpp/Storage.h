@@ -150,9 +150,9 @@ class Storage : public IStorage {
   void CreateRpc(unsigned int local_id, StringRef def, unsigned int rpc_uid);
   unsigned int CallRpc(unsigned int local_id, StringRef params);
   bool GetRpcResult(unsigned int local_id, unsigned int call_uid,
-                    std::string* result);
+                    wpi::SmallVectorImpl<uint8_t>& result);
   bool GetRpcResult(unsigned int local_id, unsigned int call_uid,
-                    std::string* result, double timeout, bool* timed_out);
+                    wpi::SmallVectorImpl<uint8_t>& result, double timeout, bool* timed_out);
   void CancelRpcResult(unsigned int local_id, unsigned int call_uid);
 
  private:
@@ -196,7 +196,7 @@ class Storage : public IStorage {
   typedef std::vector<Entry*> IdMap;
   typedef std::vector<std::unique_ptr<Entry>> LocalMap;
   typedef std::pair<unsigned int, unsigned int> RpcIdPair;
-  typedef wpi::DenseMap<RpcIdPair, std::string> RpcResultMap;
+  typedef wpi::DenseMap<RpcIdPair, wpi::SmallVector<uint8_t, 32>> RpcResultMap;
   typedef wpi::SmallSet<RpcIdPair, 12> RpcBlockingCallSet;
 
   mutable wpi::mutex m_mutex;

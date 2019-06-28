@@ -21,7 +21,7 @@ inline RpcCall::~RpcCall() {
   if (m_call != 0) CancelResult();
 }
 
-inline bool RpcCall::GetResult(std::string* result) {
+inline bool RpcCall::GetResult(wpi::SmallVectorImpl<uint8_t>& result) {
   if (GetRpcResult(m_entry, m_call, result)) {
     m_call = 0;
     return true;
@@ -29,7 +29,7 @@ inline bool RpcCall::GetResult(std::string* result) {
   return false;
 }
 
-inline bool RpcCall::GetResult(std::string* result, double timeout,
+inline bool RpcCall::GetResult(wpi::SmallVectorImpl<uint8_t>& result, double timeout,
                                bool* timed_out) {
   if (GetRpcResult(m_entry, m_call, result, timeout, timed_out)) {
     m_call = 0;

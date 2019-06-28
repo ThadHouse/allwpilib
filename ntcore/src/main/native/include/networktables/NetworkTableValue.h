@@ -179,7 +179,7 @@ class Value final {
    *
    * @return The raw value.
    */
-  StringRef GetRaw() const {
+  wpi::ArrayRef<uint8_t> GetRaw() const {
     assert(m_val.type == NT_RAW);
     return m_string;
   }
@@ -338,11 +338,12 @@ class Value final {
    *             time)
    * @return The entry value
    */
-  static std::shared_ptr<Value> MakeRpc(StringRef value, uint64_t time = 0) {
+  static std::shared_ptr<Value> MakeRpc(wpi::ArrayRef<uint8_t> value, uint64_t time = 0) {
     auto val = std::make_shared<Value>(NT_RPC, time, private_init());
-    val->m_string = value;
-    val->m_val.data.v_raw.str = const_cast<char*>(val->m_string.c_str());
-    val->m_val.data.v_raw.len = val->m_string.size();
+    val->m_array = wpi::SmallVector<uint8_t, 32>;
+    val->m_array.append(value.begin(), value.end());
+    val->m_val.data.v_raw.data = const_cast<uint8_t*>(val->m_array.data());
+    val->m_val.data.v_raw.len = val->m_array.size();
     return val;
   }
 
@@ -428,8 +429,11 @@ class Value final {
 
  private:
   NT_Value m_val;
-  std::string m_string;
-  std::vector<std::string> m_string_array;
+  union {
+    std::string m_string;
+    std::vector<std::string> m_string_array;
+    wpi::SmallVector<uint8_t, 32> m_raw;
+  }
 };
 
 bool operator==(const Value& lhs, const Value& rhs);

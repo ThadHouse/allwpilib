@@ -586,7 +586,7 @@ NT_RpcCall CallRpc(NT_Entry entry, StringRef params) {
   return Handle(i, call_uid, Handle::kRpcCall);
 }
 
-bool GetRpcResult(NT_Entry entry, NT_RpcCall call, std::string* result) {
+bool GetRpcResult(NT_Entry entry, NT_RpcCall call, wpi::SmallVectorImpl<uint8_t>& result) {
   Handle handle{entry};
   int id = handle.GetTypedIndex(Handle::kEntry);
   auto ii = InstanceImpl::Get(handle.GetInst());
@@ -600,7 +600,7 @@ bool GetRpcResult(NT_Entry entry, NT_RpcCall call, std::string* result) {
   return ii->storage.GetRpcResult(id, call_uid, result);
 }
 
-bool GetRpcResult(NT_Entry entry, NT_RpcCall call, std::string* result,
+bool GetRpcResult(NT_Entry entry, NT_RpcCall call, wpi::SmallVectorImpl<uint8_t>& result,
                   double timeout, bool* timed_out) {
   *timed_out = false;
   Handle handle{entry};

@@ -1293,8 +1293,8 @@ JNIEXPORT jbyteArray JNICALL
 Java_edu_wpi_first_networktables_NetworkTablesJNI_getRpcResult__II
   (JNIEnv* env, jclass, jint entry, jint call)
 {
-  std::string result;
-  if (!nt::GetRpcResult(entry, call, &result)) return nullptr;
+  wpi::SmallVector<uint8_t, 32> result;
+  if (!nt::GetRpcResult(entry, call, result)) return nullptr;
   return MakeJByteArray(env, result);
 }
 
@@ -1307,9 +1307,9 @@ JNIEXPORT jbyteArray JNICALL
 Java_edu_wpi_first_networktables_NetworkTablesJNI_getRpcResult__IID
   (JNIEnv* env, jclass, jint entry, jint call, jdouble timeout)
 {
-  std::string result;
+  wpi::SmallVector<uint8_t, 32> result;
   bool timed_out = false;
-  if (!nt::GetRpcResult(entry, call, &result, timeout, &timed_out))
+  if (!nt::GetRpcResult(entry, call, result, timeout, &timed_out))
     return nullptr;
   return MakeJByteArray(env, result);
 }

@@ -118,6 +118,21 @@ struct NT_String {
   size_t len;
 };
 
+/** A NetworkTables array. */
+struct NT_Array {
+  /**
+   * Array Contents.
+   * When returned by the library, this is zero-terminated and allocated with
+   * std::malloc()
+   */
+  uint8_t data;
+
+  /**
+   * Length of data in bytes.
+   */
+  size_t len;
+};
+
 /** NetworkTables Entry Value.  Note this is a typed union. */
 struct NT_Value {
   enum NT_Type type;
@@ -126,7 +141,7 @@ struct NT_Value {
     NT_Bool v_boolean;
     double v_double;
     struct NT_String v_string;
-    struct NT_String v_raw;
+    struct NT_Array v_raw;
     struct {
       NT_Bool* arr;
       size_t size;
@@ -214,7 +229,7 @@ struct NT_RpcAnswer {
   NT_Entry entry;
   NT_RpcCall call;
   struct NT_String name;
-  struct NT_String params;
+  struct NT_Array params;
   struct NT_ConnectionInfo conn;
 };
 
@@ -913,7 +928,7 @@ NT_Bool NT_WaitForRpcCallQueue(NT_Inst inst, double timeout);
  * @param result_len  length of result in bytes
  * @return            true if the response was posted, otherwise false
  */
-NT_Bool NT_PostRpcResponse(NT_Entry entry, NT_RpcCall call, const char* result,
+NT_Bool NT_PostRpcResponse(NT_Entry entry, NT_RpcCall call, const uint8_t* result,
                            size_t result_len);
 
 /**
@@ -929,7 +944,7 @@ NT_Bool NT_PostRpcResponse(NT_Entry entry, NT_RpcCall call, const char* result,
  * @return RPC call handle (for use with NT_GetRpcResult() or
  *         NT_CancelRpcResult()).
  */
-NT_RpcCall NT_CallRpc(NT_Entry entry, const char* params, size_t params_len);
+NT_RpcCall NT_CallRpc(NT_Entry entry, const uint8_t* params, size_t params_len);
 
 /**
  * Get the result (return value) of a RPC call.  This function blocks until
@@ -940,7 +955,7 @@ NT_RpcCall NT_CallRpc(NT_Entry entry, const char* params, size_t params_len);
  * @param result_len  length of returned result in bytes
  * @return NULL on error, or result.
  */
-char* NT_GetRpcResult(NT_Entry entry, NT_RpcCall call, size_t* result_len);
+uint8_t* NT_GetRpcResult(NT_Entry entry, NT_RpcCall call, size_t* result_len);
 
 /**
  * Get the result (return value) of a RPC call.  This function blocks until
@@ -953,7 +968,7 @@ char* NT_GetRpcResult(NT_Entry entry, NT_RpcCall call, size_t* result_len);
  * @param timed_out   true if the timeout period elapsed (output)
  * @return NULL on error or timeout, or result.
  */
-char* NT_GetRpcResultTimeout(NT_Entry entry, NT_RpcCall call,
+uint8_t* NT_GetRpcResultTimeout(NT_Entry entry, NT_RpcCall call,
                              size_t* result_len, double timeout,
                              NT_Bool* timed_out);
 
@@ -972,7 +987,7 @@ void NT_CancelRpcResult(NT_Entry entry, NT_RpcCall call);
  * @param packed_len  length of return value in bytes
  * @return Raw packed bytes.  Use C standard library std::free() to release.
  */
-char* NT_PackRpcDefinition(const struct NT_RpcDefinition* def,
+uint8_t* NT_PackRpcDefinition(const struct NT_RpcDefinition* def,
                            size_t* packed_len);
 
 /**
@@ -984,7 +999,7 @@ char* NT_PackRpcDefinition(const struct NT_RpcDefinition* def,
  * @param def         RPC version 1 definition (output)
  * @return True if successfully unpacked, false otherwise.
  */
-NT_Bool NT_UnpackRpcDefinition(const char* packed, size_t packed_len,
+NT_Bool NT_UnpackRpcDefinition(const uint8_t* packed, size_t packed_len,
                                struct NT_RpcDefinition* def);
 
 /**
@@ -995,7 +1010,7 @@ NT_Bool NT_UnpackRpcDefinition(const char* packed, size_t packed_len,
  * @param packed_len  length of return value in bytes
  * @return Raw packed bytes.  Use C standard library std::free() to release.
  */
-char* NT_PackRpcValues(const struct NT_Value** values, size_t values_len,
+uint8_t* NT_PackRpcValues(const struct NT_Value** values, size_t values_len,
                        size_t* packed_len);
 
 /**
@@ -1007,7 +1022,7 @@ char* NT_PackRpcValues(const struct NT_Value** values, size_t values_len,
  * @param types_len   length of types
  * @return Array of NT_Value's.
  */
-struct NT_Value** NT_UnpackRpcValues(const char* packed, size_t packed_len,
+struct NT_Value** NT_UnpackRpcValues(const uint8_t* packed, size_t packed_len,
                                      const enum NT_Type* types,
                                      size_t types_len);
 
@@ -1291,6 +1306,21 @@ void NT_DisposeString(struct NT_String* str);
  * @param str   string to initialize
  */
 void NT_InitString(struct NT_String* str);
+
+/**
+ * Frees array memory.
+ *
+ * @param str   array to free
+ */
+void NT_DisposeArray(struct NT_Array* array);
+
+/**
+ * Initializes a NT_Array.
+ * Sets length to zero and pointer to null.
+ *
+ * @param str   array to initialize
+ */
+void NT_InitArray(struct NT_Array* array);
 
 /**
  * Disposes an entry handle array.
@@ -1588,6 +1618,13 @@ struct NT_String* NT_AllocateStringArray(size_t size);
 void NT_FreeCharArray(char* v_char);
 
 /**
+ * Frees an array of chars.
+ *
+ * @param v_boolean  pointer to the char array to free
+ */
+void NT_FreeUint8Array(uint8_t* v_uint);
+
+/**
  * Frees an array of doubles.
  *
  * @param v_boolean  pointer to the double array to free
@@ -1684,7 +1721,7 @@ char* NT_GetValueString(const struct NT_Value* value, uint64_t* last_change,
  * returned string is a copy of the string in the value, and must be freed
  * separately.
  */
-char* NT_GetValueRaw(const struct NT_Value* value, uint64_t* last_change,
+uint8_t* NT_GetValueRaw(const struct NT_Value* value, uint64_t* last_change,
                      size_t* raw_len);
 
 /**
@@ -2014,7 +2051,7 @@ NT_Bool NT_SetEntryString(NT_Entry entry, uint64_t time, const char* str,
  * @param force     1 to force the entry to get overwritten, otherwise 0
  * @return          0 on error (type mismatch), 1 on success
  */
-NT_Bool NT_SetEntryRaw(NT_Entry entry, uint64_t time, const char* raw,
+NT_Bool NT_SetEntryRaw(NT_Entry entry, uint64_t time, const uint8_t* raw,
                        size_t raw_len, NT_Bool force);
 
 /** Set Entry Boolean Array
