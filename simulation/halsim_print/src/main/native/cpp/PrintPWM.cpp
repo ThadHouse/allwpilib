@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-#include <mockdata/HAL_Value.h>
+#include <hal/Value.h>
 #include <mockdata/NotifyListener.h>
 #include <mockdata/PWMData.h>
 
