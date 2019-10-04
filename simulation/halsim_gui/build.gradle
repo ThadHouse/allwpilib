@@ -1,75 +1,36 @@
-description = "A plugin that creates a simulation gui"
+if (!project.hasProperty('onlylinuxathena') && !project.hasProperty('onlylinuxraspbian') && !project.hasProperty('onlylinuxaarch64bionic')) {
 
-ext {
-    includeWpiutil = true
-    pluginName = 'halsim_gui'
-}
+    description = "A plugin that creates a simulation gui"
 
-apply plugin: 'google-test-test-suite'
-
-
-ext {
-    staticGtestConfigs = [:]
-    skiplinuxathena = true
-    skiplinuxraspbian = true
-    skiplinuxaarch64bionic = true
-}
-
-staticGtestConfigs["${pluginName}Test"] = []
-apply from: "${rootDir}/shared/googletest.gradle"
-
-apply from: "${rootDir}/shared/plugins/setupBuild.gradle"
-
-model {
-    binaries {
-        all {
-            nativeUtils.useRequiredLibrary(it, 'imgui_static')
-            if (it.targetPlatform.operatingSystem.isWindows()) {
-                it.linker.args << 'Gdi32.lib' << 'Shell32.lib'
-            } else if (it.targetPlatform.operatingSystem.isMacOsX()) {
-                it.linker.args << '-framework' << 'Cocoa' << '-framework' << 'IOKit' << '-framework' << 'CoreFoundation' << '-framework' << 'CoreVideo'
-            } else {
-                it.linker.args << '-lX11' << '-lvulkan'
-            }
-        }
+    ext {
+        includeWpiutil = true
+        pluginName = 'halsim_gui'
     }
-}
 
-model {
-    testSuites {
-        def comps = $.components
-        if (!project.hasProperty('onlylinuxathena') && !project.hasProperty('onlylinuxraspbian') && !project.hasProperty('onlylinuxaarch64bionic')) {
-            "${pluginName}Test"(GoogleTestTestSuiteSpec) {
-                for(NativeComponentSpec c : comps) {
-                    if (c.name == pluginName) {
-                        testing c
-                        break
-                    }
-                }
-                sources {
-                    cpp {
-                        source {
-                            srcDirs 'src/test/native/cpp'
-                            include '**/*.cpp'
-                        }
-                        exportedHeaders {
-                            srcDirs 'src/test/native/include', 'src/main/native/cpp'
-                        }
-                    }
+    apply plugin: 'google-test-test-suite'
+
+
+    ext {
+        staticGtestConfigs = [:]
+    }
+
+    staticGtestConfigs["${pluginName}Test"] = []
+    apply from: "${rootDir}/shared/googletest.gradle"
+
+    apply from: "${rootDir}/shared/plugins/setupBuild.gradle"
+
+    model {
+        binaries {
+            all {
+                nativeUtils.useRequiredLibrary(it, 'imgui_static')
+                if (it.targetPlatform.operatingSystem.isWindows()) {
+                    it.linker.args << 'Gdi32.lib' << 'Shell32.lib'
+                } else if (it.targetPlatform.operatingSystem.isMacOsX()) {
+                    it.linker.args << '-framework' << 'Cocoa' << '-framework' << 'IOKit' << '-framework' << 'CoreFoundation' << '-framework' << 'CoreVideo'
+                } else {
+                    it.linker.args << '-lX11' << '-lvulkan'
                 }
             }
         }
     }
-    binaries {
-        withType(GoogleTestTestSuiteBinarySpec) {
-            project(':hal').addHalDependency(it, 'shared')
-            lib project: ':wpiutil', library: 'wpiutil', linkage: 'shared'
-            lib library: pluginName, linkage: 'shared'
-        }
-    }
-}
-
-tasks.withType(RunTestExecutable) {
-    args "--gtest_output=xml:test_detail.xml"
-    outputs.dir outputDir
 }
