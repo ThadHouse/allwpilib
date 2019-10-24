@@ -76,7 +76,7 @@ model {
         }
         myRobotCppStatic(NativeExecutableSpec) {
             targetBuildTypes 'debug'
-            baseName = 'FRCUserProgram'
+            baseName = 'TestUserProgramStatic'
             sources {
                 cpp {
                     source {

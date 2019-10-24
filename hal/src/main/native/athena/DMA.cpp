@@ -10,6 +10,8 @@
 #include <array>
 #include <cstddef>
 #include <memory>
+#include <algorithm>
+#include <iostream>
 
 #include "EncoderInternal.h"
 #include "PortsInternal.h"
@@ -19,6 +21,7 @@
 #include "hal/HALBase.h"
 #include "hal/handles/HandlesInternal.h"
 #include "hal/handles/LimitedHandleResource.h"
+#include "DigitalInternal.h"
 #include "hal/handles/UnlimitedHandleResource.h"
 
 using namespace hal;
@@ -254,15 +257,112 @@ void HAL_AddDMACounter(HAL_DMAHandle handle, HAL_CounterHandle counterHandle,
   }
 }
 void HAL_AddDMADigitalSource(HAL_DMAHandle handle,
-                             HAL_Handle digitalSourceHandle, int32_t* status);
+                             HAL_Handle digitalSourceHandle, int32_t* status) {
+  auto dma = dmaHandles->Get(handle);
+  if (!dma) {
+    *status = HAL_HANDLE_ERROR;
+    return;
+  }
+
+  if (dma->manager) {
+    *status = HAL_INVALID_DMA_ADDITION;
+    return;
+  }
+
+  if (isHandleType(digitalSourceHandle, HAL_HandleEnum::AnalogTrigger)) {
+    dma->aDMA->writeConfig_Enable_AnalogTriggers(true, status);
+  } else if (isHandleType(digitalSourceHandle, HAL_HandleEnum::DIO)) {
+    dma->aDMA->writeConfig_Enable_DI(true, status);
+  } else {
+    *status = NiFpga_Status_InvalidParameter;
+  }
+}
 void HAL_AddDMAAnalogInput(HAL_DMAHandle handle,
-                           HAL_AnalogInputHandle aInHandle, int32_t* status);
+                           HAL_AnalogInputHandle aInHandle, int32_t* status) {
+  auto dma = dmaHandles->Get(handle);
+  if (!dma) {
+    *status = HAL_HANDLE_ERROR;
+    return;
+  }
+
+  if (dma->manager) {
+    *status = HAL_INVALID_DMA_ADDITION;
+    return;
+  }
+
+  if (getHandleType(aInHandle) != HAL_HandleEnum::AnalogInput) {
+    *status = HAL_HANDLE_ERROR;
+    return;
+  }
+
+  int32_t index = getHandleIndex(aInHandle);
+  if (index < 0) {
+    *status = HAL_HANDLE_ERROR;
+    return;
+  }
+
+  if (index < 4) {
+    dma->aDMA->writeConfig_Enable_AI0_Low(true, status);
+  } else if (index < 8) {
+    dma->aDMA->writeConfig_Enable_AI0_High(true, status);
+  } else {
+    *status = NiFpga_Status_InvalidParameter;
+  }
+}
 
 void HAL_SetDMAExternalTrigger(HAL_DMAHandle handle,
                                HAL_Handle digitalSourceHandle,
                                HAL_AnalogTriggerType analogTriggerType,
                                HAL_Bool rising, HAL_Bool falling,
-                               int32_t* status);
+                               int32_t* status) {
+  auto dma = dmaHandles->Get(handle);
+  if (!dma) {
+    *status = HAL_HANDLE_ERROR;
+    return;
+  }
+
+  if (dma->manager) {
+    *status = HAL_INVALID_DMA_ADDITION;
+    return;
+  }
+
+  auto index = std::find(dma->captureStore.trigger_channels.begin(), dma->captureStore.trigger_channels.end(), false);
+  if (index == dma->captureStore.trigger_channels.end()) {
+    *status = NO_AVAILABLE_RESOURCES;
+    return;
+  }
+
+  *index = true;
+
+  auto channelIndex = std::distance(dma->captureStore.trigger_channels.begin(), index);
+
+  auto isExternalClock = dma->aDMA->readConfig_ExternalClock(status);
+  if (*status == 0 && !isExternalClock) {
+    dma->aDMA->writeConfig_ExternalClock(true, status);
+    if (*status != 0) return;
+  } else if (*status != 0) {
+    return;
+  }
+
+  uint8_t pin = 0;
+  uint8_t module = 0;
+  bool analogTrigger = false;
+  bool success = remapDigitalSource(digitalSourceHandle, analogTriggerType, pin, module, analogTrigger);
+
+  if (!success) {
+    *status = PARAMETER_OUT_OF_RANGE;
+    return;
+  }
+
+  tDMA::tExternalTriggers newTrigger;
+  newTrigger.FallingEdge = falling;
+  newTrigger.RisingEdge = rising;
+  newTrigger.ExternalClockSource_AnalogTrigger = analogTrigger;
+  newTrigger.ExternalClockSource_Channel = pin;
+  newTrigger.ExternalClockSource_Module = module;
+
+  dma->aDMA->writeExternalTriggers(channelIndex / 4, channelIndex % 4, newTrigger, status);
+}
 
 void HAL_StartDMA(HAL_DMAHandle handle, int32_t queueDepth, int32_t* status) {
   auto dma = dmaHandles->Get(handle);
@@ -313,11 +413,12 @@ void HAL_StartDMA(HAL_DMAHandle handle, int32_t queueDepth, int32_t* status) {
   }
 
   dma->manager = std::make_unique<tDMAManager>(
-      0, queueDepth * dma->captureStore.capture_size, status);
+      1, queueDepth * dma->captureStore.capture_size, status);
   if (*status != 0) {
     return;
   }
 
+  std::cout << "Starting DMA" << std::endl;
   dma->manager->start(status);
   dma->manager->stop(status);
   dma->manager->start(status);
@@ -359,14 +460,18 @@ enum HAL_DMAReadStatus HAL_ReadDMA(HAL_DMAHandle handle,
     return HAL_DMA_ERROR;
   }
 
+  std::cout << "Triggering DMA Read " << dma->captureStore.capture_size << std::endl;
   dma->manager->read(dmaSample->readBuffer, dma->captureStore.capture_size,
                      timeoutMs, &remainingBytes, status);
+
+  std::cout << "Remaining Bytes " << remainingBytes << std::endl;
 
   *remainingOut = remainingBytes / dma->captureStore.capture_size;
 
   if (*status == 0) {
     uint32_t lower_sample =
         dmaSample->readBuffer[dma->captureStore.capture_size - 1];
+    std::cout << "Lower Sample " << lower_sample << std::endl;
     dmaSample->timeStamp = HAL_ExpandFPGATime(lower_sample, status);
     if (*status != 0) {
       return HAL_DMA_ERROR;
