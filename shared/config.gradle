@@ -21,6 +21,26 @@ nativeUtils.wpi.addWarningsAsErrors()
 
 nativeUtils.setSinglePrintPerPlatform()
 
+nativeUtils.platformConfigs.named(nativeUtils.wpi.platforms.windowsx64) {
+    cppCompiler.debugArgs.remove('/MDd')
+    cppCompiler.releaseArgs.remove('/MD')
+
+    linker.args.add('/appcontainer')
+
+    cppCompiler.debugArgs.add('/MTd')
+    cppCompiler.releaseArgs.add('/MT')
+}
+
+nativeUtils.platformConfigs.named(nativeUtils.wpi.platforms.windowsx86) {
+    cppCompiler.debugArgs.remove('/MDd')
+    cppCompiler.releaseArgs.remove('/MD')
+
+    linker.args.add('/appcontainer')
+
+    cppCompiler.debugArgs.add('/MTd')
+    cppCompiler.releaseArgs.add('/MT')
+}
+
 model {
     components {
         all {
