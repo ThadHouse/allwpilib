@@ -7,18 +7,17 @@
 
 #include <frc/TimedRobot.h>
 
+#include "frc/AnalogInput.h"
+#include "frc/AnalogOutput.h"
 #include "frc/DMA.h"
 #include "frc/DMASample.h"
 #include "frc/DigitalOutput.h"
 #include "frc/DutyCycle.h"
-#include "frc/AnalogInput.h"
-#include "frc/AnalogOutput.h"
-#include "frc/smartdashboard/SmartDashboard.h"
 #include "frc/Encoder.h"
+#include "frc/smartdashboard/SmartDashboard.h"
 #include "frc2/Timer.h"
 
 class MyRobot : public frc::TimedRobot {
-
   frc::DMA dma{};
   frc::DigitalOutput dutyCycleOutput{0};
   frc::DutyCycle dutyCycle{dutyCycleOutput};
@@ -31,9 +30,10 @@ class MyRobot : public frc::TimedRobot {
   frc::DigitalOutput sourceA{2};
   frc::DigitalOutput sourceB{3};
   frc::Encoder encoder{sourceA, sourceB};
-  frc::Counter counter{frc::CounterBase::EncodingType::k2X, &sourceA, &sourceB, false};
-  frc::Encoder encoder2x{sourceA, sourceB, false, frc::Encoder::EncodingType::k1X};
-
+  frc::Counter counter{frc::CounterBase::EncodingType::k2X, &sourceA, &sourceB,
+                       false};
+  frc::Encoder encoder2x{sourceA, sourceB, false,
+                         frc::Encoder::EncodingType::k1X};
 
   void RobotInit() override {
     dma.AddDutyCycle(&dutyCycle);
@@ -42,7 +42,6 @@ class MyRobot : public frc::TimedRobot {
     dma.AddEncoder(&encoder2x);
     dma.AddCounter(&counter);
     dma.AddDigitalSource(&sourceA);
-
 
     dutyCycleOutput.EnablePWM(0.5);
     dutyCycleOutput.SetPWMRate(250);
@@ -65,7 +64,6 @@ class MyRobot : public frc::TimedRobot {
     sourceB.Set(false);
     sourceA.Set(true);
     sourceB.Set(true);
-
   }
 
   void RobotPeriodic() override {
@@ -79,29 +77,38 @@ class MyRobot : public frc::TimedRobot {
     triggerOutput.Set(true);
 
     if (dmaStatus == HAL_DMAReadStatus::HAL_DMA_OK) {
-      frc::SmartDashboard::PutNumber("DMA Analog Input", sample.GetAnalogInputVoltage(&analogInput, &status));
-      frc::SmartDashboard::PutNumber("DMA Duty Cycle", sample.GetDutyCycleOutput(&dutyCycle, &status));
-      frc::SmartDashboard::PutNumber("DMA Counter", sample.GetCounter(&counter, &status));
-      frc::SmartDashboard::PutNumber("DMA Encoder", sample.GetEncoderDistance(&encoder, &status));
-      frc::SmartDashboard::PutNumber("DMA Encoder 2x", sample.GetEncoderDistance(&encoder2x, &status));
-      frc::SmartDashboard::PutBoolean("DMA Input", sample.GetDigitalSource(&sourceA, &status));
+      frc::SmartDashboard::PutNumber(
+          "DMA Analog Input",
+          sample.GetAnalogInputVoltage(&analogInput, &status));
+      frc::SmartDashboard::PutNumber(
+          "DMA Duty Cycle", sample.GetDutyCycleOutput(&dutyCycle, &status));
+      frc::SmartDashboard::PutNumber("DMA Counter",
+                                     sample.GetCounter(&counter, &status));
+      frc::SmartDashboard::PutNumber(
+          "DMA Encoder", sample.GetEncoderDistance(&encoder, &status));
+      frc::SmartDashboard::PutNumber(
+          "DMA Encoder 2x", sample.GetEncoderDistance(&encoder2x, &status));
+      frc::SmartDashboard::PutBoolean(
+          "DMA Input", sample.GetDigitalSource(&sourceA, &status));
     }
 
-      frc::SmartDashboard::PutNumber("Analog Input", analogInput.GetVoltage());
-      frc::SmartDashboard::PutNumber("Duty Cycle", dutyCycle.GetOutput());
-      frc::SmartDashboard::PutNumber("Counter", counter.Get());
-      frc::SmartDashboard::PutNumber("Encoder", encoder.GetDistance());
-      frc::SmartDashboard::PutNumber("Encoder 2x", encoder2x.GetDistance());
-      frc::SmartDashboard::PutBoolean("Input", sourceA.Get());
+    frc::SmartDashboard::PutNumber("Analog Input", analogInput.GetVoltage());
+    frc::SmartDashboard::PutNumber("Duty Cycle", dutyCycle.GetOutput());
+    frc::SmartDashboard::PutNumber("Counter", counter.Get());
+    frc::SmartDashboard::PutNumber("Encoder", encoder.GetDistance());
+    frc::SmartDashboard::PutNumber("Encoder 2x", encoder2x.GetDistance());
+    frc::SmartDashboard::PutBoolean("Input", sourceA.Get());
 
     frc::SmartDashboard::PutNumber("Status", status);
-    frc::SmartDashboard::PutNumber("DMA Status", (int)dmaStatus);
+    frc::SmartDashboard::PutNumber("DMA Status", static_cast<int>(dmaStatus));
     frc::SmartDashboard::PutNumber("DMA Remaining", remaining);
-    frc::SmartDashboard::PutNumber("Time Val", (sample.GetTimeStamp() - now).to<double>());
+    frc::SmartDashboard::PutNumber("Time Val",
+                                   (sample.GetTimeStamp() - now).to<double>());
     frc::SmartDashboard::PutNumber("A", sample.GetTimeStamp().to<double>());
     frc::SmartDashboard::PutNumber("B", now.to<double>());
 
-    dutyCycleOutput.UpdateDutyCycle(frc::SmartDashboard::GetNumber("SetDC", 0.5));
+    dutyCycleOutput.UpdateDutyCycle(
+        frc::SmartDashboard::GetNumber("SetDC", 0.5));
   }
 };
 
@@ -127,7 +134,6 @@ class MyRobot : public frc::TimedRobot {
 //   HAL_DMAHandle dma;
 //   HAL_GyroHandle gyro;
 
-
 //   /**
 //    * This function is run when the robot is first started up and should be
 //    * used for any initialization code.
@@ -147,7 +153,6 @@ class MyRobot : public frc::TimedRobot {
 //     HAL_SetDigitalPWMOutputChannel(pwmHandle, 0, &status);
 //     std::cout << "pwm channel " << status << std::endl;
 
-
 //     aiHandle = HAL_InitializeAnalogInputPort(HAL_GetPort(0), &status);
 //     aoHandle = HAL_InitializeAnalogOutputPort(HAL_GetPort(0), &status);
 
@@ -157,15 +162,15 @@ class MyRobot : public frc::TimedRobot {
 
 //     gyro = HAL_InitializeAnalogGyro(aiHandle, &status);
 
-//     dutyCycle = HAL_InitializeDutyCycle(dioHandle, HAL_AnalogTriggerType::HAL_Trigger_kFallingPulse, &status);
-//     std::cout << "init dutycycle " << status << std::endl;
+//     dutyCycle = HAL_InitializeDutyCycle(dioHandle,
+//     HAL_AnalogTriggerType::HAL_Trigger_kFallingPulse, &status); std::cout <<
+//     "init dutycycle " << status << std::endl;
 
 //     interruptDIO = HAL_InitializeDIOPort(HAL_GetPort(1), false, &status);
 //     std::cout << "init interrupt dio " << status << std::endl;
 
 //     HAL_SetDIO(interruptDIO, true, &status);
 //     std::cout << "set interrupt dio " << status << std::endl;
-
 
 //     dma = HAL_InitializeDMA(&status);
 //     std::cout << "init dma " << status << std::endl;
@@ -176,7 +181,8 @@ class MyRobot : public frc::TimedRobot {
 //     HAL_AddDMAAnalogInput(dma, aiHandle, &status);
 //     HAL_AddDMAAnalogAccumulator(dma, aiHandle, &status);
 
-//     HAL_SetDMAExternalTrigger(dma, interruptDIO, HAL_AnalogTriggerType::HAL_Trigger_kFallingPulse, false, true, &status);
+//     HAL_SetDMAExternalTrigger(dma, interruptDIO,
+//     HAL_AnalogTriggerType::HAL_Trigger_kFallingPulse, false, true, &status);
 //     std::cout << "init dma trigger " << status << std::endl;
 
 //     HAL_StartDMA(dma, 1024, &status);
@@ -198,7 +204,8 @@ class MyRobot : public frc::TimedRobot {
 //   void AutonomousPeriodic() override {}
 
 //   /**
-//    * This function is called once each time the robot enters tele-operated mode
+//    * This function is called once each time the robot enters tele-operated
+//    mode
 //    */
 //   void TeleopInit() override {}
 
@@ -228,42 +235,50 @@ class MyRobot : public frc::TimedRobot {
 //     auto dmastatus = HAL_ReadDMA(dma, &sample, 5, &remaining, &status);
 
 //     if (dmastatus == HAL_DMAReadStatus::HAL_DMA_OK) {
-//       double op = HAL_GetDMASampleDutyCycleOutput(&sample, dutyCycle, &status);
-//       auto rawop = op;
-//       op = op / (double)HAL_GetDutyCycleOutputScaleFactor(dutyCycle, &status);
+//       double op = HAL_GetDMASampleDutyCycleOutput(&sample, dutyCycle,
+//       &status); auto rawop = op; op = op /
+//       (double)HAL_GetDutyCycleOutputScaleFactor(dutyCycle, &status);
 
 //       frc::SmartDashboard::PutNumber("DMAOutputRaw", rawop);
 //       frc::SmartDashboard::PutNumber("DMAOutput", op);
 //       frc::SmartDashboard::PutNumber("DMAcount", count++);
-//       frc::SmartDashboard::PutNumber("DMATime", HAL_GetDMASampleTime(&sample, &status));
-//       wpi::SmallVector<double, 128> dmaValues;
-//       for (uint32_t i = 0; i < sample.captureSize; i++) {
+//       frc::SmartDashboard::PutNumber("DMATime", HAL_GetDMASampleTime(&sample,
+//       &status)); wpi::SmallVector<double, 128> dmaValues; for (uint32_t i =
+//       0; i < sample.captureSize; i++) {
 //         dmaValues.emplace_back(sample.readBuffer[i]);
 //       }
 
 //       frc::SmartDashboard::PutNumberArray("DMAVals", dmaValues);
 
-//       frc::SmartDashboard::PutNumber("DMAAI", HAL_GetDMASampleAnalogInput(&sample, aiHandle, &status));
-//       frc::SmartDashboard::PutNumber("DMAAccumCount", HAL_GetDMASampleAnalogAccumulatorCount(&sample, aiHandle, &status));
-//       frc::SmartDashboard::PutNumber("DMAAccumValue", HAL_GetDMASampleAnalogAccumulatorValue(&sample, aiHandle, &status));
+//       frc::SmartDashboard::PutNumber("DMAAI",
+//       HAL_GetDMASampleAnalogInput(&sample, aiHandle, &status));
+//       frc::SmartDashboard::PutNumber("DMAAccumCount",
+//       HAL_GetDMASampleAnalogAccumulatorCount(&sample, aiHandle, &status));
+//       frc::SmartDashboard::PutNumber("DMAAccumValue",
+//       HAL_GetDMASampleAnalogAccumulatorValue(&sample, aiHandle, &status));
 //     }
 
 //     HAL_SetDIO(interruptDIO, true, &status);
 
 //     frc::SmartDashboard::PutNumber("DMAResult", (int)dmastatus);
 //     frc::SmartDashboard::PutNumber("Remaining", (int)remaining);
-//     frc::SmartDashboard::PutNumber("Frequency", HAL_GetDutyCycleFrequency(dutyCycle, &status));
-//     frc::SmartDashboard::PutNumber("Output", HAL_GetDutyCycleOutput(dutyCycle, &status));
+//     frc::SmartDashboard::PutNumber("Frequency",
+//     HAL_GetDutyCycleFrequency(dutyCycle, &status));
+//     frc::SmartDashboard::PutNumber("Output",
+//     HAL_GetDutyCycleOutput(dutyCycle, &status));
 
-//     frc::SmartDashboard::PutNumber("AccumCount", HAL_GetAccumulatorCount(aiHandle, &status));
-//     frc::SmartDashboard::PutNumber("AccumValue", HAL_GetAccumulatorValue(aiHandle, &status));
-//     frc::SmartDashboard::PutNumber("AI", HAL_GetAnalogValue(aiHandle, &status));
+//     frc::SmartDashboard::PutNumber("AccumCount",
+//     HAL_GetAccumulatorCount(aiHandle, &status));
+//     frc::SmartDashboard::PutNumber("AccumValue",
+//     HAL_GetAccumulatorValue(aiHandle, &status));
+//     frc::SmartDashboard::PutNumber("AI", HAL_GetAnalogValue(aiHandle,
+//     &status));
 
-
-
-//     HAL_SetDigitalPWMDutyCycle(pwmHandle, frc::SmartDashboard::GetNumber("SetDC", 0.5), &status);
-//     HAL_SetDigitalPWMRate(frc::SmartDashboard::GetNumber("SetFreq", 250), &status);
-//     HAL_SetAnalogOutput(aoHandle, frc::SmartDashboard::GetNumber("SetAO", 2.5), &status);
+//     HAL_SetDigitalPWMDutyCycle(pwmHandle,
+//     frc::SmartDashboard::GetNumber("SetDC", 0.5), &status);
+//     HAL_SetDigitalPWMRate(frc::SmartDashboard::GetNumber("SetFreq", 250),
+//     &status); HAL_SetAnalogOutput(aoHandle,
+//     frc::SmartDashboard::GetNumber("SetAO", 2.5), &status);
 //   }
 // };
 

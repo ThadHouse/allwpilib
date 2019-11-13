@@ -48,6 +48,7 @@ class Encoder : public ErrorBase,
                 public SendableHelper<Encoder> {
   friend class DMA;
   friend class DMASample;
+
  public:
   enum IndexingType {
     kResetWhileHigh,

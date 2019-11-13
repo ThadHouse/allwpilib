@@ -1,6 +1,13 @@
+/*----------------------------------------------------------------------------*/
+/* Copyright (c) 2019 FIRST. All Rights Reserved.                             */
+/* Open Source Software - may be modified and shared by FRC teams. The code   */
+/* must be accompanied by the FIRST BSD license file in the root directory of */
+/* the project.                                                               */
+/*----------------------------------------------------------------------------*/
+
 #pragma once
 
-#include "hal/Types.h"
+#include <hal/Types.h>
 
 #include "frc/ErrorBase.h"
 
@@ -14,6 +21,7 @@ class DMASample;
 
 class DMA : ErrorBase {
   friend class DMASample;
+
  public:
   DMA();
   ~DMA() override;
@@ -46,4 +54,4 @@ class DMA : ErrorBase {
  private:
   hal::Handle<HAL_DMAHandle> dmaHandle;
 };
-}
+}  // namespace frc

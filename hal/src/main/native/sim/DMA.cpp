@@ -1,3 +1,10 @@
+/*----------------------------------------------------------------------------*/
+/* Copyright (c) 2019 FIRST. All Rights Reserved.                             */
+/* Open Source Software - may be modified and shared by FRC teams. The code   */
+/* must be accompanied by the FIRST BSD license file in the root directory of */
+/* the project.                                                               */
+/*----------------------------------------------------------------------------*/
+
 #include "hal/DMA.h"
 
 extern "C" {
@@ -30,7 +37,6 @@ void HAL_AddDMAAnalogAccumulator(HAL_DMAHandle handle,
 
 void HAL_AddDMADutyCycle(HAL_DMAHandle handle,
                          HAL_DutyCycleHandle dutyCycleHandle, int32_t* status) {
-
 }
 
 void HAL_SetDMAExternalTrigger(HAL_DMAHandle handle,
@@ -81,15 +87,14 @@ int32_t HAL_GetDMASampleAveragedAnalogInput(const HAL_DMASample* dmaSample,
   return 0;
 }
 
-int32_t HAL_GetDMASampleAnalogAccumulator(const HAL_DMASample* dmaSample,
-                                          HAL_AnalogInputHandle aInHandle,
-                                          int32_t* status) {
-  return 0;
-}
+void HAL_GetDMASampleAnalogAccumulator(const HAL_DMASample* dmaSample,
+                                       HAL_AnalogInputHandle aInHandle,
+                                       int64_t* count, int64_t* value,
+                                       int32_t* status) {}
 
 int32_t HAL_GetDMASampleDutyCycleOutput(const HAL_DMASample* dmaSample,
                                         HAL_DutyCycleHandle dutyCycleHandle,
                                         int32_t* status) {
   return 0;
 }
-}
+}  // extern "C"

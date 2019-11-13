@@ -1,13 +1,21 @@
+/*----------------------------------------------------------------------------*/
+/* Copyright (c) 2019 FIRST. All Rights Reserved.                             */
+/* Open Source Software - may be modified and shared by FRC teams. The code   */
+/* must be accompanied by the FIRST BSD license file in the root directory of */
+/* the project.                                                               */
+/*----------------------------------------------------------------------------*/
+
 #pragma once
 
-#include "hal/DMA.h"
-#include "frc/DMA.h"
-#include "units/units.h"
-#include "frc/Encoder.h"
-#include "frc/Counter.h"
+#include <hal/AnalogInput.h>
+#include <hal/DMA.h>
+#include <units/units.h>
+
 #include "frc/AnalogInput.h"
+#include "frc/Counter.h"
+#include "frc/DMA.h"
 #include "frc/DutyCycle.h"
-#include "hal/AnalogInput.h"
+#include "frc/Encoder.h"
 
 namespace frc {
 class DMASample : public HAL_DMASample {
@@ -19,9 +27,7 @@ class DMASample : public HAL_DMASample {
     return HAL_ReadDMA(dma->dmaHandle, this, timeoutMs, remaining, status);
   }
 
-  uint64_t GetTime() const {
-    return timeStamp;
-  }
+  uint64_t GetTime() const { return timeStamp; }
 
   units::second_t GetTimeStamp() const {
     return units::second_t{static_cast<double>(GetTime()) * 1.0e-6};
@@ -57,37 +63,44 @@ class DMASample : public HAL_DMASample {
   }
 
   int32_t GetAnalogInputRaw(const AnalogInput* analogInput,
-                         int32_t* status) const {
+                            int32_t* status) const {
     return HAL_GetDMASampleAnalogInputRaw(this, analogInput->m_port, status);
   }
 
-  double GetAnalogInputVoltage(const AnalogInput* analogInput, int32_t* status) {
-    return HAL_GetAnalogValueToVolts(analogInput->m_port, GetAnalogInputRaw(analogInput, status), status);
+  double GetAnalogInputVoltage(const AnalogInput* analogInput,
+                               int32_t* status) {
+    return HAL_GetAnalogValueToVolts(
+        analogInput->m_port, GetAnalogInputRaw(analogInput, status), status);
   }
 
   int32_t GetAveragedAnalogInputRaw(const AnalogInput* analogInput,
-                                 int32_t* status) const {
-    return HAL_GetDMASampleAveragedAnalogInputRaw(this, analogInput->m_port,
-                                               status);
-  }
-
-  double GetAveragedAnalogInputVoltage(const AnalogInput* analogInput, int32_t* status) {
-    return HAL_GetAnalogValueToVolts(analogInput->m_port, GetAveragedAnalogInputRaw(analogInput, status), status);
-  }
-
-  void GetAnalogAccumulator(const AnalogInput* analogInput, int64_t* count, int64_t* value,
                                     int32_t* status) const {
-    return HAL_GetDMASampleAnalogAccumulator(this, analogInput->m_port, count, value,
+    return HAL_GetDMASampleAveragedAnalogInputRaw(this, analogInput->m_port,
                                                   status);
   }
 
+  double GetAveragedAnalogInputVoltage(const AnalogInput* analogInput,
+                                       int32_t* status) {
+    return HAL_GetAnalogValueToVolts(
+        analogInput->m_port, GetAveragedAnalogInputRaw(analogInput, status),
+        status);
+  }
+
+  void GetAnalogAccumulator(const AnalogInput* analogInput, int64_t* count,
+                            int64_t* value, int32_t* status) const {
+    return HAL_GetDMASampleAnalogAccumulator(this, analogInput->m_port, count,
+                                             value, status);
+  }
+
   int32_t GetDutyCycleOutputRaw(const DutyCycle* dutyCycle,
-                             int32_t* status) const {
-    return HAL_GetDMASampleDutyCycleOutputRaw(this, dutyCycle->m_handle, status);
+                                int32_t* status) const {
+    return HAL_GetDMASampleDutyCycleOutputRaw(this, dutyCycle->m_handle,
+                                              status);
   }
 
   double GetDutyCycleOutput(const DutyCycle* dutyCycle, int32_t* status) {
-    return GetDutyCycleOutputRaw(dutyCycle, status) / static_cast<double>(dutyCycle->GetOutputScaleFactor());
+    return GetDutyCycleOutputRaw(dutyCycle, status) /
+           static_cast<double>(dutyCycle->GetOutputScaleFactor());
   }
 };
 

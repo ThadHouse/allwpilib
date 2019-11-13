@@ -1,13 +1,20 @@
+/*----------------------------------------------------------------------------*/
+/* Copyright (c) 2019 FIRST. All Rights Reserved.                             */
+/* Open Source Software - may be modified and shared by FRC teams. The code   */
+/* must be accompanied by the FIRST BSD license file in the root directory of */
+/* the project.                                                               */
+/*----------------------------------------------------------------------------*/
+
 #include "frc/DMA.h"
 
-#include "hal/DMA.h"
-#include "hal/HALBase.h"
-
-#include <frc/Encoder.h>
-#include <frc/Counter.h>
 #include <frc/AnalogInput.h>
+#include <frc/Counter.h>
 #include <frc/DigitalSource.h>
 #include <frc/DutyCycle.h>
+#include <frc/Encoder.h>
+
+#include <hal/DMA.h>
+#include <hal/HALBase.h>
 
 using namespace frc;
 

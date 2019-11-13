@@ -40,6 +40,7 @@ class Counter : public ErrorBase,
                 public SendableHelper<Counter> {
   friend class DMA;
   friend class DMASample;
+
  public:
   enum Mode {
     kTwoPulse = 0,
