@@ -29,7 +29,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableRegistry;
  * accumulated effectively increasing the resolution, while the averaged samples are divided by the
  * number of samples to retain the resolution, but get more stable values.
  */
-public class AnalogInput implements PIDSource, Sendable, AutoCloseable, HandleBase {
+public class AnalogInput implements PIDSource, Sendable, AutoCloseable {
   private static final int kAccumulatorSlot = 1;
   int m_port; // explicit no modifier, private and package accessible.
   private int m_channel;
@@ -363,10 +363,5 @@ public class AnalogInput implements PIDSource, Sendable, AutoCloseable, HandleBa
 
   public AnalogInSim getSimObject() {
     return new AnalogInSim(m_channel);
-  }
-
-  @Override
-  public int getHandle() {
-    return m_port;
   }
 }

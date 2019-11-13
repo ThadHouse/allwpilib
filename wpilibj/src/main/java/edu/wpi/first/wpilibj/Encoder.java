@@ -30,7 +30,7 @@ import static edu.wpi.first.wpilibj.util.ErrorMessages.requireNonNullParam;
  * <p>All encoders will immediately start counting - reset() them if you need them to be zeroed
  * before use.
  */
-public class Encoder implements CounterBase, PIDSource, Sendable, AutoCloseable, HandleBase {
+public class Encoder implements CounterBase, PIDSource, Sendable, AutoCloseable {
   public enum IndexingType {
     kResetWhileHigh(0), kResetWhileLow(1), kResetOnFallingEdge(2), kResetOnRisingEdge(3);
 
@@ -582,10 +582,5 @@ public class Encoder implements CounterBase, PIDSource, Sendable, AutoCloseable,
     builder.addDoubleProperty("Speed", this::getRate, null);
     builder.addDoubleProperty("Distance", this::getDistance, null);
     builder.addDoubleProperty("Distance per Tick", this::getDistancePerPulse, null);
-  }
-
-  @Override
-  public int getHandle() {
-    return m_encoder;
   }
 }

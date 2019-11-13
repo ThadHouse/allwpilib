@@ -114,9 +114,4 @@ public class DigitalInput extends DigitalSource implements Sendable, AutoCloseab
     builder.setSmartDashboardType("Digital Input");
     builder.addBooleanProperty("Value", this::get, null);
   }
-
-  @Override
-  public int getHandle() {
-    return m_handle;
-  }
 }

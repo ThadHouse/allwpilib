@@ -208,9 +208,4 @@ public class DigitalOutput extends DigitalSource implements Sendable, AutoClosea
   public int getPortHandleForRouting() {
     return m_handle;
   }
-
-  @Override
-  public int getHandle() {
-    return m_handle;
-  }
 }
