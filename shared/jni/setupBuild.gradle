@@ -1,3 +1,5 @@
+import org.gradle.internal.os.OperatingSystem
+
 apply plugin: 'cpp'
 apply plugin: 'google-test-test-suite'
 apply plugin: 'visual-studio'
@@ -31,6 +33,12 @@ ext {
 staticGtestConfigs["${nativeName}Test"] = []
 
 apply from: "${rootDir}/shared/googletest.gradle"
+
+if (OperatingSystem.current().isWindows()) {
+    apply plugin: 'windows-resources'
+}
+
+def hasRcFile = project.file("src/main/native/win/${nativeName}.rc").exists()
 
 model {
     components {
@@ -83,6 +91,19 @@ model {
                         srcDir 'src/main/native/include'
                         if (project.hasProperty('generatedHeaders')) {
                             srcDir generatedHeaders
+                        }
+                    }
+                }
+            }
+            binaries.all {
+                if ((it instanceof SharedLibraryBinarySpec) && hasRcFile && it.targetPlatform.operatingSystem.isWindows()) {
+                    println "Adding Resources"
+                    it.sources {
+                        rc(WindowsResourceSet) {
+                            source {
+                                srcDirs 'src/main/native/win'
+                                include "${nativeName}.rc"
+                            }
                         }
                     }
                 }
