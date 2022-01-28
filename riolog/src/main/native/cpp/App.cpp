@@ -17,15 +17,13 @@
 #include <glass/WindowManager.h>
 #include <glass/other/Log.h>
 #include <imgui.h>
-#include <libssh/libssh.h>
 #include <wpi/Logger.h>
 #include <wpi/fs.h>
 #include <wpigui.h>
 #include <unordered_map>
 #include <mutex>
 #include "wpi/SmallString.h"
-#include "DeploySession.h"
-#include "wpi/MulticastServiceResolver.h"
+#include "RioLog.h"
 
 namespace gui = wpi::gui;
 
@@ -57,13 +55,11 @@ struct TeamNumberRefHolder {
 
 static std::unique_ptr<TeamNumberRefHolder> teamNumberRef;
 static wpi::Logger logger;
-static sysid::DeploySession deploySession{logger};
-static std::unique_ptr<wpi::MulticastServiceResolver> multicastResolver;
 static glass::MainMenuBar gMainMenu;
 static glass::LogData gLogData;
 static glass::LogView gLogView{&gLogData};
 static bool autoScroll = true;
-
+static std::unique_ptr<rl::RioLog> rioLog;
 
 static int minWidth = 400;
 
@@ -142,6 +138,11 @@ static void DisplayGui() {
     ImGui::EndPopup();
   }
 
+  auto msgs = rioLog->GetMessages();
+  for (auto&& msg : msgs) {
+    gLogData.Append(fmt::format("{} {}\n", msg.tag, msg.length));
+  }
+
   glass::DisplayLog(&gLogData, autoScroll);
 
   ImGui::End();
@@ -171,21 +172,19 @@ void Application(std::string_view saveDir) {
   glass::SetStorageDir(saveDir.empty() ? gui::GetPlatformSaveFileDir()
                                        : saveDir);
 
-  ssh_init();
-
   teamNumberRef =
       std::make_unique<TeamNumberRefHolder>(glass::GetStorageRoot());
 
-  multicastResolver =
-      std::make_unique<wpi::MulticastServiceResolver>("_ni._tcp");
-  multicastResolver->Start();
+  rioLog = std::make_unique<rl::RioLog>();
+  auto addr = inet_addr("172.22.11.2");
+  rioLog->SetDsIpAddress(addr);
 
   gui::AddLateExecute(DisplayGui);
-  gui::Initialize("roboRIO Team Number Setter", 600, 400);
+  gui::Initialize("riolog", 600, 400);
 
   gui::Main();
-  multicastResolver->Stop();
-  multicastResolver = nullptr;
+
+  rioLog = nullptr;
 
   glass::DestroyContext();
   gui::DestroyContext();

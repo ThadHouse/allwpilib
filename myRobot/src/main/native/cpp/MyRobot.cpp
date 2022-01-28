@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 #include <frc/TimedRobot.h>
+#include <frc/DriverStation.h>
 
 class MyRobot : public frc::TimedRobot {
   /**
@@ -36,10 +37,17 @@ class MyRobot : public frc::TimedRobot {
    */
   void TestPeriodic() override {}
 
+  int count = 0;
+
   /**
    * This function is called periodically during all modes
    */
-  void RobotPeriodic() override {}
+  void RobotPeriodic() override {
+    if (count % 25 == 0) {
+      printf("Helllo! %d\n", count);
+    }
+    count++;
+  }
 };
 
 int main() {

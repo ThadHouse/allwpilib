@@ -19,8 +19,7 @@ endif()
 
 add_executable(roborioteamnumbersetter ${riolog_src} ${riolog_resources_src} ${riolog_rc} ${APP_ICON_MACOSX})
 wpilib_link_macos_gui(riolog)
-target_link_libraries(riolog libglass ${LIBSSH_LIBRARIES})
-target_include_directories(riolog PRIVATE ${LIBSSH_INCLUDE_DIRS})
+target_link_libraries(riolog libglass)
 
 if (WIN32)
     set_target_properties(riolog PROPERTIES WIN32_EXECUTABLE YES)

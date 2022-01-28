@@ -24,20 +24,6 @@ if (!project.hasProperty('onlylinuxathena') && !project.hasProperty('onlylinuxra
     def wpilibVersionFileInput = file("src/main/generate/WPILibVersion.cpp.in")
     def wpilibVersionFileOutput = file("$buildDir/generated/main/cpp/WPILibVersion.cpp")
 
-    nativeUtils {
-        nativeDependencyContainer {
-            libssh(getNativeDependencyTypeClass('WPIStaticMavenDependency')) {
-                groupId = "edu.wpi.first.thirdparty.frc2022"
-                artifactId = "libssh"
-                headerClassifier = "headers"
-                sourceClassifier = "sources"
-                ext = "zip"
-                version = '0.95-1'
-                targetPlatforms.addAll(nativeUtils.wpi.platforms.desktopPlatforms)
-            }
-        }
-    }
-
     task generateCppVersion() {
         description = 'Generates the wpilib version class'
         group = 'WPILib'
@@ -111,11 +97,10 @@ if (!project.hasProperty('onlylinuxathena') && !project.hasProperty('onlylinuxra
                         it.buildable = false
                         return
                     }
-                    it.cppCompiler.define("LIBSSH_STATIC")
                     lib project: ':glass', library: 'glass', linkage: 'static'
                     lib project: ':wpiutil', library: 'wpiutil', linkage: 'static'
                     lib project: ':wpigui', library: 'wpigui', linkage: 'static'
-                    nativeUtils.useRequiredLibrary(it, 'imgui_static', 'libssh')
+                    nativeUtils.useRequiredLibrary(it, 'imgui_static')
                     if (it.targetPlatform.operatingSystem.isWindows()) {
                         it.linker.args << 'Gdi32.lib' << 'Shell32.lib' << 'd3d11.lib' << 'd3dcompiler.lib'
                         it.linker.args << 'ws2_32.lib' << 'advapi32.lib' << 'crypt32.lib' << 'user32.lib'
