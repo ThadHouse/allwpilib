@@ -31,10 +31,6 @@ RioLog::RioLog(int port) : m_port{port} {
               [&](uv::Buffer& buf, size_t len) { HandleRead(buf, len); });
           tcp.StartRead();
           m_connect->Succeeded(tcp);
-          {
-            std::scoped_lock lock{m_messagesMutex};
-            m_messages.emplace_back(Message{42, 56});
-          }
           tcp.end.connect([&] {
             tcp.Close();
             m_connect->Disconnected();
@@ -46,8 +42,6 @@ RioLog::RioLog(int port) : m_port{port} {
     m_asyncTrigger->wakeup.connect(
         [&](AsyncMessage msg) { AsyncConnect(msg); });
   });
-
-  //   });
 }
 
 void RioLog::SetDsIpAddress(int64_t address) {
@@ -85,9 +79,40 @@ void RioLog::HandleRead(uv::Buffer& buf, size_t len) {
   }
 }
 
-static constexpr uint16_t ReadU16BE(wpi::span<uint8_t> data, size_t offset) {
-  uint16_t read = data[offset] << 8 | data[offset + 1];
+static constexpr uint16_t ReadU16BE(wpi::span<uint8_t>& data) {
+  uint16_t read = data[0] << 8 | data[1];
+  data = data.subspan(2);
   return read;
+}
+
+static constexpr int16_t Read16BE(wpi::span<uint8_t>& data) {
+  uint16_t read = data[0] << 8 | data[1];
+  data = data.subspan(2);
+  return read;
+}
+
+static constexpr int32_t Read32BE(wpi::span<uint8_t>& data) {
+  uint32_t read = data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3];
+  data = data.subspan(4);
+  return read;
+}
+
+static float ReadFloatBE(wpi::span<uint8_t>& data) {
+  char buf[4]{};
+  buf[3] = data[0];
+  buf[2] = data[1];
+  buf[1] = data[2];
+  buf[0] = data[3];
+  data = data.subspan(4);
+  return *reinterpret_cast<float*>(buf);
+}
+
+static std::string ReadSizedString(wpi::span<uint8_t>& data) {
+  size_t size = ReadU16BE(data);
+  std::string ret =
+      std::string{reinterpret_cast<const char*>(data.data()), size};
+  data = data.subspan(size);
+  return ret;
 }
 
 std::vector<Message> RioLog::GetMessages() {
@@ -101,22 +126,34 @@ std::vector<Message> RioLog::GetMessages() {
 }
 
 void RioLog::HandleData(wpi::span<uint8_t> data) {
-  size_t count = 0;
-  size_t len = 0;
-  do {
-    len = ReadU16BE(data, count);
-    count += 2;
-  } while (len == 0);
-
-  uint8_t tag = data[count];
-  count++;
-
-  auto outputBuffer = data.subspan(count);
+  uint16_t size = ReadU16BE(data);
+  uint8_t tag = data[0];
+  data = data.subspan(1);
+  Message msg;
+  msg.timestamp = ReadFloatBE(data);
+  msg.sequenceNumber = ReadU16BE(data);
   if (tag == 11) {
-    std::scoped_lock lock{m_messagesMutex};
-    m_messages.emplace_back(Message{tag, outputBuffer.size()});
+    // Error
+    Error error;
+    error.numOccurance = ReadU16BE(data);
+    error.errorCode = Read32BE(data);
+    error.flags = data[0];
+    data = data.subspan(1);
+    error.details = ReadSizedString(data);
+    error.location = ReadSizedString(data);
+    error.callStack = ReadSizedString(data);
+    msg.value = std::move(error);
   } else if (tag == 12) {
-    std::scoped_lock lock{m_messagesMutex};
-    m_messages.emplace_back(Message{tag, outputBuffer.size()});
+    // Print
+    Print print;
+    if (!data.empty()) {
+      print.line = std::string{reinterpret_cast<const char*>(data.data()), data.size()};
+    }
+    msg.value = std::move(print);
+  } else {
+    // Invalid
+    return;
   }
+  std::scoped_lock lock{m_messagesMutex};
+  m_messages.emplace_back(std::move(msg));
 }

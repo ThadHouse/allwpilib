@@ -140,7 +140,11 @@ static void DisplayGui() {
 
   auto msgs = rioLog->GetMessages();
   for (auto&& msg : msgs) {
-    gLogData.Append(fmt::format("{} {}\n", msg.tag, msg.length));
+    if (std::holds_alternative<rl::Print>(msg.value)) {
+      rl::Print& print = std::get<rl::Print>(msg.value);
+      gLogData.Append(fmt::format("PRINT: {} {} {}\n", msg.timestamp, msg.sequenceNumber, print.line));
+    }
+
   }
 
   glass::DisplayLog(&gLogData, autoScroll);

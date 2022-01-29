@@ -24,7 +24,9 @@ nativeUtils.wpi.addWarningsAsErrors()
 nativeUtils.wpi.addReleaseSymbolGeneration()
 
 nativeUtils.setSinglePrintPerPlatform()
-nativeUtils.enableSourceLink()
+if (project.hasProperty('buildServer')) {
+    nativeUtils.enableSourceLink()
+}
 
 nativeUtils.platformConfigs.each {
     if (it.name.contains('windows')) {

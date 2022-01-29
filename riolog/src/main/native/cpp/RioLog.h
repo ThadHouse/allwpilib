@@ -7,11 +7,31 @@
 #include <vector>
 #include <wpi/mutex.h>
 #include <wpi/SmallVector.h>
+#include <variant>
 
 namespace rl {
+
+struct Print {
+  std::string line;
+};
+
+struct Error {
+  int32_t errorCode;
+  uint16_t numOccurance;
+  uint8_t flags;
+  std::string details;
+  std::string location;
+  std::string callStack;
+
+  constexpr bool IsWarning() const {
+    return (flags & 1) == 0;
+  }
+};
+
 struct Message {
-  uint8_t tag;
-  size_t length;
+  float timestamp;
+  uint16_t sequenceNumber;
+  std::variant<Print, Error> value;
 };
 
 class RioLog {
