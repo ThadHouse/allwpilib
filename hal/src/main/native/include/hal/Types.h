@@ -60,6 +60,8 @@ typedef HAL_Handle HAL_DutyCycleHandle;
 
 typedef HAL_Handle HAL_AddressableLEDHandle;
 
+typedef HAL_Handle HAL_HMBHandle;
+
 typedef HAL_CANHandle HAL_PDPHandle;
 
 typedef HAL_Handle HAL_PowerDistributionHandle;
