@@ -970,6 +970,49 @@ struct JExceptionInit {
   JException* cls;
 };
 
+/**
+ * Finds an method id and keep it as a global reference.
+ *
+ * Method ID's are global and do not need to be freed. However
+ * a free method is included for future use.
+ */
+class JMethod {
+ public:
+  JMethod(JNIEnv* env, jclass cls, const char* name, const char* sig, bool staticMethod) {
+    if (!cls) {
+      return;
+    }
+    jmethodID local;
+    if (staticMethod) {
+      local = env->GetStaticMethodID(cls, name, sig);
+    } else {
+      local = env->GetMethodID(cls, name, sig);
+    }
+    if (!local) {
+      return;
+    }
+    m_method = local;
+  }
+
+  void free(JNIEnv* env) {
+    m_method = nullptr;
+  }
+
+  explicit operator bool() const { return m_method; }
+
+  operator jmethodID() const { return m_method; }
+ protected:
+  jmethodID m_method = nullptr;
+};
+
+struct JMethodInit {
+  const char* name;
+  const char* sig;
+  bool staticMethod;
+  JClass* cls;
+  JMethod* method;
+};
+
 }  // namespace wpi::java
 
 #endif  // WPIUTIL_WPI_JNI_UTIL_H_
