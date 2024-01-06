@@ -29,6 +29,28 @@ def main():
     with open(f"{dirname}/src/generate/types.json") as f:
         types = json.load(f)
 
+    # DotNet files
+    env = Environment(
+        loader=FileSystemLoader(f"{dirname}/src/generate/main/dotnet"), autoescape=False
+    )
+    rootPath = f"{dirname}/src/generated/main/dotnet"
+    for fn in glob.glob(f"{dirname}/src/generate/main/dotnet/*.jinja"):
+        template = env.get_template(os.path.basename(fn))
+        outfn = os.path.basename(fn)[:-6]  # drop ".jinja"
+        if os.path.basename(fn).startswith("NetworkTable") or os.path.basename(
+            fn
+        ).startswith("Generic"):
+            output = template.render(types=types)
+            Output(rootPath, outfn, output)
+        else:
+            for replacements in types:
+                output = template.render(replacements)
+                if outfn == "Timestamped.cs":
+                    outfn2 = f"Timestamped{replacements['TypeName']}.cs"
+                else:
+                    outfn2 = f"{replacements['TypeName']}{outfn}"
+                Output(rootPath, outfn2, output)
+
     # Java files
     env = Environment(
         loader=FileSystemLoader(f"{dirname}/src/generate/main/java"), autoescape=False
