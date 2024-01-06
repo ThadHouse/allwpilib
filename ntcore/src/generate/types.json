@@ -12,6 +12,13 @@
       "TemplateType": "bool",
       "TYPE_NAME": "BOOLEAN"
     },
+    "dotnet": {
+      "ValueType": "bool",
+      "EmptyValue": "false",
+      "GetCall": "m_longValue != 0",
+      "MakeCall": " ? 1 : 0",
+      "BaseType": "bool"
+    },
     "java": {
       "ValueType": "boolean",
       "EmptyValue": "false",
@@ -44,6 +51,13 @@
       "TemplateType": "int64_t",
       "TYPE_NAME": "INTEGER"
     },
+    "dotnet": {
+      "ValueType": "long",
+      "EmptyValue": "0",
+      "GetCall": "m_longValue",
+      "MakeCall": "",
+      "BaseType": "long"
+    },
     "java": {
       "ValueType": "long",
       "EmptyValue": "0",
@@ -75,6 +89,13 @@
       "ParamType": "float",
       "TemplateType": "float",
       "TYPE_NAME": "FLOAT"
+    },
+    "dotnet": {
+      "ValueType": "float",
+      "EmptyValue": "0",
+      "GetCall": "m_floatValue",
+      "MakeCall": "",
+      "BaseType": "float"
     },
     "java": {
       "ValueType": "float",
@@ -109,6 +130,13 @@
       "ParamType": "double",
       "TemplateType": "double",
       "TYPE_NAME": "DOUBLE"
+    },
+    "dotnet": {
+      "ValueType": "double",
+      "EmptyValue": "0",
+      "GetCall": "m_doubleValue",
+      "MakeCall": "",
+      "BaseType": "double"
     },
     "java": {
       "ValueType": "double",
@@ -146,6 +174,13 @@
       "SmallRetType": "std::string_view",
       "SmallElemType": "char"
     },
+    "dotnet": {
+      "ValueType": "string",
+      "EmptyValue": "\"\"",
+      "GetCall": "(string)m_objectValue!",
+      "MakeCall": "",
+      "BaseType": "string"
+    },
     "java": {
       "ValueType": "String",
       "EmptyValue": "\"\"",
@@ -179,6 +214,14 @@
       "INCLUDES": "#include <utility>",
       "SmallRetType": "std::span<uint8_t>",
       "SmallElemType": "uint8_t"
+    },
+    "dotnet": {
+      "ValueType": "byte[]",
+      "EmptyValue": "[]",
+      "GetCall": "(byte[])m_objectValue!",
+      "MakeCall": "",
+      "BaseType": "byte",
+      "IsArray": true
     },
     "java": {
       "ValueType": "byte[]",
@@ -214,6 +257,14 @@
       "INCLUDES": "#include <utility>",
       "SmallRetType": "std::span<int>",
       "SmallElemType": "int"
+    },
+    "dotnet": {
+      "ValueType": "bool[]",
+      "EmptyValue": "[]",
+      "GetCall": "(bool[])m_objectValue!",
+      "MakeCall": "",
+      "BaseType": "bool",
+      "IsArray": true
     },
     "java": {
       "ValueType": "boolean[]",
@@ -251,6 +302,14 @@
       "SmallRetType": "std::span<int64_t>",
       "SmallElemType": "int64_t"
     },
+    "dotnet": {
+      "ValueType": "long[]",
+      "EmptyValue": "[]",
+      "GetCall": "(long[])m_objectValue!",
+      "MakeCall": "",
+      "BaseType": "long",
+      "IsArray": true
+    },
     "java": {
       "ValueType": "long[]",
       "WrapValueType": "Long[]",
@@ -286,6 +345,14 @@
       "INCLUDES": "#include <utility>",
       "SmallRetType": "std::span<float>",
       "SmallElemType": "float"
+    },
+    "dotnet": {
+      "ValueType": "float[]",
+      "EmptyValue": "[]",
+      "GetCall": "(float[])m_objectValue!",
+      "MakeCall": "",
+      "BaseType": "float",
+      "IsArray": true
     },
     "java": {
       "ValueType": "float[]",
@@ -323,6 +390,14 @@
       "SmallRetType": "std::span<double>",
       "SmallElemType": "double"
     },
+    "dotnet": {
+      "ValueType": "double[]",
+      "EmptyValue": "[]",
+      "GetCall": "(double[])m_objectValue!",
+      "MakeCall": "",
+      "BaseType": "double",
+      "IsArray": true
+    },
     "java": {
       "ValueType": "double[]",
       "WrapValueType": "Double[]",
@@ -356,6 +431,14 @@
       "DefaultValueCopy": "defaultValue.begin(), defaultValue.end()",
       "TYPE_NAME": "STRING_ARRAY",
       "INCLUDES": "#include <utility>"
+    },
+    "dotnet": {
+      "ValueType": "string[]",
+      "EmptyValue": "[]",
+      "GetCall": "(string[])m_objectValue!",
+      "MakeCall": "",
+      "BaseType": "string",
+      "IsArray": true
     },
     "java": {
       "ValueType": "String[]",
