@@ -46,10 +46,10 @@ public class IntegerTopic : Topic {
    * @param options subscribe options
    * @return subscriber
    */
-  public IntegerSubscriber Subscribe(
+  public IIntegerSubscriber Subscribe(
       long defaultValue,
       PubSubOptions options) {
-    return new IntegerEntryImpl(
+    return new IntegerEntryImpl<NtSubscriber>(
         this,
         NtCore.Subscribe(
             Handle, NetworkTableType.Integer,
@@ -73,11 +73,11 @@ public class IntegerTopic : Topic {
    * @param options subscribe options
    * @return subscriber
    */
-  public IntegerSubscriber SubscribeEx(
+  public IIntegerSubscriber SubscribeEx(
       string typeString,
       long defaultValue,
       PubSubOptions options) {
-    return new IntegerEntryImpl(
+    return new IntegerEntryImpl<NtSubscriber>(
         this,
         NtCore.Subscribe(
             Handle, NetworkTableType.Integer,
@@ -100,9 +100,9 @@ public class IntegerTopic : Topic {
    * @param options publish options
    * @return publisher
    */
-  public IntegerPublisher Publish(
+  public IIntegerPublisher Publish(
       PubSubOptions options) {
-    return new IntegerEntryImpl(
+    return new IntegerEntryImpl<NtPublisher>(
         this,
         NtCore.Publish(
             Handle, NetworkTableType.Integer,
@@ -128,11 +128,11 @@ public class IntegerTopic : Topic {
    * @return publisher
    * @throws IllegalArgumentException if properties is not a JSON object
    */
-  public IntegerPublisher PublishEx(
+  public IIntegerPublisher PublishEx(
       string typeString,
       string properties,
       PubSubOptions options) {
-    return new IntegerEntryImpl(
+    return new IntegerEntryImpl<NtPublisher>(
         this,
         NtCore.PublishEx(
             Handle, NetworkTableType.Integer,
@@ -160,10 +160,10 @@ public class IntegerTopic : Topic {
    * @param options publish and/or subscribe options
    * @return entry
    */
-  public IntegerEntry GetEntry(
+  public IIntegerEntry GetEntry(
       long defaultValue,
       PubSubOptions options) {
-    return new IntegerEntryImpl(
+    return new IntegerEntryImpl<NtEntry>(
         this,
         NtCore.GetEntry(
             Handle, NetworkTableType.Integer,
@@ -192,11 +192,11 @@ public class IntegerTopic : Topic {
    * @param options publish and/or subscribe options
    * @return entry
    */
-  public IntegerEntry GetEntryEx(
+  public IIntegerEntry GetEntryEx(
       string typeString,
       long defaultValue,
       PubSubOptions options) {
-    return new IntegerEntryImpl(
+    return new IntegerEntryImpl<NtEntry>(
         this,
         NtCore.GetEntry(
             Handle, NetworkTableType.Integer,

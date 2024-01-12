@@ -10,7 +10,7 @@ using NetworkTables.Natives;
 namespace NetworkTables;
 
 /** NetworkTables {{ TypeName }} implementation. */
-internal sealed class {{ TypeName }}EntryImpl : EntryBase, {{ TypeName }}Entry {
+internal sealed class {{ TypeName }}EntryImpl<T> : EntryBase<T>, I{{ TypeName }}Entry where T : struct, INtEntryHandle {
   /**
    * Constructor.
    *
@@ -18,17 +18,16 @@ internal sealed class {{ TypeName }}EntryImpl : EntryBase, {{ TypeName }}Entry {
    * @param handle Native handle
    * @param defaultValue Default value for Get()
    */
-  internal {{ TypeName }}EntryImpl({{ TypeName }}Topic topic, NtPubSubEntry handle, {{ dotnet.ValueType }} defaultValue) : base(handle) {
+  internal {{ TypeName }}EntryImpl({{ TypeName }}Topic topic, T handle, {{ dotnet.ValueType }} defaultValue) : base(handle) {
     Topic = topic;
     m_defaultValue = defaultValue;
   }
-
 
   public override {{ TypeName }}Topic Topic { get; }
 
 
   public {{ dotnet.ValueType }} Get() {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     if (value.Is{{ TypeName }}) {
       return value.Get{{ TypeName }}();
     }
@@ -37,7 +36,7 @@ internal sealed class {{ TypeName }}EntryImpl : EntryBase, {{ TypeName }}Entry {
 
 
   public {{ dotnet.ValueType }} Get({{ dotnet.ValueType }} defaultValue) {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     if (value.Is{{ TypeName }}) {
       return value.Get{{ TypeName }}();
     }
@@ -46,21 +45,21 @@ internal sealed class {{ TypeName }}EntryImpl : EntryBase, {{ TypeName }}Entry {
 
 
   public Timestamped{{ TypeName }} GetAtomic() {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     {{ dotnet.ValueType }} baseValue = value.Is{{ TypeName }} ? value.Get{{ TypeName }}() : m_defaultValue;
     return new Timestamped{{ TypeName }}(value.Time, value.ServerTime, baseValue);
   }
 
 
   public Timestamped{{ TypeName }} GetAtomic({{ dotnet.ValueType }} defaultValue) {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     {{ dotnet.ValueType }} baseValue = value.Is{{ TypeName }} ? value.Get{{ TypeName }}() : defaultValue;
     return new Timestamped{{ TypeName }}(value.Time, value.ServerTime, baseValue);
   }
 
 
   public Timestamped{{ TypeName }}[] ReadQueue() {
-    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle, out nuint _);
+    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
     Timestamped{{ TypeName }}[] timestamped = new Timestamped{{ TypeName }}[values.Length];
     for(int i = 0; i < values.Length; i++) {
       timestamped[i] = new Timestamped{{ TypeName }}(values[i].Time, values[i].ServerTime, values[i].Get{{ TypeName }}());
@@ -70,7 +69,7 @@ internal sealed class {{ TypeName }}EntryImpl : EntryBase, {{ TypeName }}Entry {
 
 
   public {{ dotnet.ValueType }}[] ReadQueueValues() {
-    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle, out nuint _);
+    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
     {{ dotnet.ValueType }}[] timestamped = new {{ dotnet.BaseType }}[values.Length]{% if dotnet.IsArray %}[]{% endif %};
     for(int i = 0; i < values.Length; i++) {
       timestamped[i] = values[i].Get{{ TypeName }}();

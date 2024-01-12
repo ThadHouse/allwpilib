@@ -10,7 +10,7 @@ using NetworkTables.Natives;
 namespace NetworkTables;
 
 /** NetworkTables StringArray implementation. */
-internal sealed class StringArrayEntryImpl : EntryBase, StringArrayEntry {
+internal sealed class StringArrayEntryImpl<T> : EntryBase<T>, IStringArrayEntry where T : struct, INtEntryHandle {
   /**
    * Constructor.
    *
@@ -18,17 +18,16 @@ internal sealed class StringArrayEntryImpl : EntryBase, StringArrayEntry {
    * @param handle Native handle
    * @param defaultValue Default value for Get()
    */
-  internal StringArrayEntryImpl(StringArrayTopic topic, NtPubSubEntry handle, string[] defaultValue) : base(handle) {
+  internal StringArrayEntryImpl(StringArrayTopic topic, T handle, string[] defaultValue) : base(handle) {
     Topic = topic;
     m_defaultValue = defaultValue;
   }
-
 
   public override StringArrayTopic Topic { get; }
 
 
   public string[] Get() {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     if (value.IsStringArray) {
       return value.GetStringArray();
     }
@@ -37,7 +36,7 @@ internal sealed class StringArrayEntryImpl : EntryBase, StringArrayEntry {
 
 
   public string[] Get(string[] defaultValue) {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     if (value.IsStringArray) {
       return value.GetStringArray();
     }
@@ -46,21 +45,21 @@ internal sealed class StringArrayEntryImpl : EntryBase, StringArrayEntry {
 
 
   public TimestampedStringArray GetAtomic() {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     string[] baseValue = value.IsStringArray ? value.GetStringArray() : m_defaultValue;
     return new TimestampedStringArray(value.Time, value.ServerTime, baseValue);
   }
 
 
   public TimestampedStringArray GetAtomic(string[] defaultValue) {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     string[] baseValue = value.IsStringArray ? value.GetStringArray() : defaultValue;
     return new TimestampedStringArray(value.Time, value.ServerTime, baseValue);
   }
 
 
   public TimestampedStringArray[] ReadQueue() {
-    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle, out nuint _);
+    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
     TimestampedStringArray[] timestamped = new TimestampedStringArray[values.Length];
     for(int i = 0; i < values.Length; i++) {
       timestamped[i] = new TimestampedStringArray(values[i].Time, values[i].ServerTime, values[i].GetStringArray());
@@ -70,7 +69,7 @@ internal sealed class StringArrayEntryImpl : EntryBase, StringArrayEntry {
 
 
   public string[][] ReadQueueValues() {
-    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle, out nuint _);
+    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
     string[][] timestamped = new string[values.Length][];
     for(int i = 0; i < values.Length; i++) {
       timestamped[i] = values[i].GetStringArray();

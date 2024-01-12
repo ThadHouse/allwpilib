@@ -46,10 +46,10 @@ public class BooleanTopic : Topic {
    * @param options subscribe options
    * @return subscriber
    */
-  public BooleanSubscriber Subscribe(
+  public IBooleanSubscriber Subscribe(
       bool defaultValue,
       PubSubOptions options) {
-    return new BooleanEntryImpl(
+    return new BooleanEntryImpl<NtSubscriber>(
         this,
         NtCore.Subscribe(
             Handle, NetworkTableType.Boolean,
@@ -73,11 +73,11 @@ public class BooleanTopic : Topic {
    * @param options subscribe options
    * @return subscriber
    */
-  public BooleanSubscriber SubscribeEx(
+  public IBooleanSubscriber SubscribeEx(
       string typeString,
       bool defaultValue,
       PubSubOptions options) {
-    return new BooleanEntryImpl(
+    return new BooleanEntryImpl<NtSubscriber>(
         this,
         NtCore.Subscribe(
             Handle, NetworkTableType.Boolean,
@@ -100,9 +100,9 @@ public class BooleanTopic : Topic {
    * @param options publish options
    * @return publisher
    */
-  public BooleanPublisher Publish(
+  public IBooleanPublisher Publish(
       PubSubOptions options) {
-    return new BooleanEntryImpl(
+    return new BooleanEntryImpl<NtPublisher>(
         this,
         NtCore.Publish(
             Handle, NetworkTableType.Boolean,
@@ -128,11 +128,11 @@ public class BooleanTopic : Topic {
    * @return publisher
    * @throws IllegalArgumentException if properties is not a JSON object
    */
-  public BooleanPublisher PublishEx(
+  public IBooleanPublisher PublishEx(
       string typeString,
       string properties,
       PubSubOptions options) {
-    return new BooleanEntryImpl(
+    return new BooleanEntryImpl<NtPublisher>(
         this,
         NtCore.PublishEx(
             Handle, NetworkTableType.Boolean,
@@ -160,10 +160,10 @@ public class BooleanTopic : Topic {
    * @param options publish and/or subscribe options
    * @return entry
    */
-  public BooleanEntry GetEntry(
+  public IBooleanEntry GetEntry(
       bool defaultValue,
       PubSubOptions options) {
-    return new BooleanEntryImpl(
+    return new BooleanEntryImpl<NtEntry>(
         this,
         NtCore.GetEntry(
             Handle, NetworkTableType.Boolean,
@@ -192,11 +192,11 @@ public class BooleanTopic : Topic {
    * @param options publish and/or subscribe options
    * @return entry
    */
-  public BooleanEntry GetEntryEx(
+  public IBooleanEntry GetEntryEx(
       string typeString,
       bool defaultValue,
       PubSubOptions options) {
-    return new BooleanEntryImpl(
+    return new BooleanEntryImpl<NtEntry>(
         this,
         NtCore.GetEntry(
             Handle, NetworkTableType.Boolean,

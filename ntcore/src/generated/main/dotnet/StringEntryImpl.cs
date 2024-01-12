@@ -10,7 +10,7 @@ using NetworkTables.Natives;
 namespace NetworkTables;
 
 /** NetworkTables String implementation. */
-internal sealed class StringEntryImpl : EntryBase, StringEntry {
+internal sealed class StringEntryImpl<T> : EntryBase<T>, IStringEntry where T : struct, INtEntryHandle {
   /**
    * Constructor.
    *
@@ -18,17 +18,16 @@ internal sealed class StringEntryImpl : EntryBase, StringEntry {
    * @param handle Native handle
    * @param defaultValue Default value for Get()
    */
-  internal StringEntryImpl(StringTopic topic, NtPubSubEntry handle, string defaultValue) : base(handle) {
+  internal StringEntryImpl(StringTopic topic, T handle, string defaultValue) : base(handle) {
     Topic = topic;
     m_defaultValue = defaultValue;
   }
-
 
   public override StringTopic Topic { get; }
 
 
   public string Get() {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     if (value.IsString) {
       return value.GetString();
     }
@@ -37,7 +36,7 @@ internal sealed class StringEntryImpl : EntryBase, StringEntry {
 
 
   public string Get(string defaultValue) {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     if (value.IsString) {
       return value.GetString();
     }
@@ -46,21 +45,21 @@ internal sealed class StringEntryImpl : EntryBase, StringEntry {
 
 
   public TimestampedString GetAtomic() {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     string baseValue = value.IsString ? value.GetString() : m_defaultValue;
     return new TimestampedString(value.Time, value.ServerTime, baseValue);
   }
 
 
   public TimestampedString GetAtomic(string defaultValue) {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     string baseValue = value.IsString ? value.GetString() : defaultValue;
     return new TimestampedString(value.Time, value.ServerTime, baseValue);
   }
 
 
   public TimestampedString[] ReadQueue() {
-    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle, out nuint _);
+    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
     TimestampedString[] timestamped = new TimestampedString[values.Length];
     for(int i = 0; i < values.Length; i++) {
       timestamped[i] = new TimestampedString(values[i].Time, values[i].ServerTime, values[i].GetString());
@@ -70,7 +69,7 @@ internal sealed class StringEntryImpl : EntryBase, StringEntry {
 
 
   public string[] ReadQueueValues() {
-    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle, out nuint _);
+    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
     string[] timestamped = new string[values.Length];
     for(int i = 0; i < values.Length; i++) {
       timestamped[i] = values[i].GetString();
