@@ -10,7 +10,7 @@ using NetworkTables.Natives;
 namespace NetworkTables;
 
 /** NetworkTables IntegerArray implementation. */
-internal sealed class IntegerArrayEntryImpl : EntryBase, IntegerArrayEntry {
+internal sealed class IntegerArrayEntryImpl<T> : EntryBase<T>, IIntegerArrayEntry where T : struct, INtEntryHandle {
   /**
    * Constructor.
    *
@@ -18,17 +18,16 @@ internal sealed class IntegerArrayEntryImpl : EntryBase, IntegerArrayEntry {
    * @param handle Native handle
    * @param defaultValue Default value for Get()
    */
-  internal IntegerArrayEntryImpl(IntegerArrayTopic topic, NtPubSubEntry handle, long[] defaultValue) : base(handle) {
+  internal IntegerArrayEntryImpl(IntegerArrayTopic topic, T handle, long[] defaultValue) : base(handle) {
     Topic = topic;
     m_defaultValue = defaultValue;
   }
-
 
   public override IntegerArrayTopic Topic { get; }
 
 
   public long[] Get() {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     if (value.IsIntegerArray) {
       return value.GetIntegerArray();
     }
@@ -37,7 +36,7 @@ internal sealed class IntegerArrayEntryImpl : EntryBase, IntegerArrayEntry {
 
 
   public long[] Get(long[] defaultValue) {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     if (value.IsIntegerArray) {
       return value.GetIntegerArray();
     }
@@ -46,21 +45,21 @@ internal sealed class IntegerArrayEntryImpl : EntryBase, IntegerArrayEntry {
 
 
   public TimestampedIntegerArray GetAtomic() {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     long[] baseValue = value.IsIntegerArray ? value.GetIntegerArray() : m_defaultValue;
     return new TimestampedIntegerArray(value.Time, value.ServerTime, baseValue);
   }
 
 
   public TimestampedIntegerArray GetAtomic(long[] defaultValue) {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     long[] baseValue = value.IsIntegerArray ? value.GetIntegerArray() : defaultValue;
     return new TimestampedIntegerArray(value.Time, value.ServerTime, baseValue);
   }
 
 
   public TimestampedIntegerArray[] ReadQueue() {
-    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle, out nuint _);
+    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
     TimestampedIntegerArray[] timestamped = new TimestampedIntegerArray[values.Length];
     for(int i = 0; i < values.Length; i++) {
       timestamped[i] = new TimestampedIntegerArray(values[i].Time, values[i].ServerTime, values[i].GetIntegerArray());
@@ -70,7 +69,7 @@ internal sealed class IntegerArrayEntryImpl : EntryBase, IntegerArrayEntry {
 
 
   public long[][] ReadQueueValues() {
-    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle, out nuint _);
+    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
     long[][] timestamped = new long[values.Length][];
     for(int i = 0; i < values.Length; i++) {
       timestamped[i] = values[i].GetIntegerArray();

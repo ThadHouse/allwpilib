@@ -11,22 +11,22 @@ using NetworkTables.Natives;
 namespace NetworkTables;
 
 /** NetworkTables generic implementation. */
-internal sealed class GenericEntryImpl : EntryBase, GenericEntry {
+internal sealed class GenericEntryImpl<THandle> : EntryBase<THandle>, IGenericEntry where THandle : struct, INtEntryHandle
+{
   /**
    * Constructor.
    *
    * @param topic Topic
    * @param handle Native handle
    */
-  internal GenericEntryImpl(Topic topic, NtPubSubEntry handle): base(handle) {
+  internal GenericEntryImpl(Topic topic, THandle handle): base(handle) {
     Topic = topic;
   }
 
   public override Topic Topic { get; }
 
   public NetworkTableValue Get() {
-    NtCore.GetEntryValue(Handle, out var value);
-    return value;
+    return NtCore.GetEntryValue(Handle);
   }
 {% for t in types %}
   /**
@@ -38,7 +38,7 @@ internal sealed class GenericEntryImpl : EntryBase, GenericEntry {
    */
 
   public {{ t.dotnet.ValueType }} Get{{ t.TypeName }}({{ t.dotnet.ValueType }} defaultValue) {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     if (value.Is{{ t.TypeName }}) {
       return value.Get{{ t.TypeName }}();
     }
@@ -47,7 +47,7 @@ internal sealed class GenericEntryImpl : EntryBase, GenericEntry {
 {% endfor %}
 
   public NetworkTableValue[] ReadQueue() {
-    return NtCore.ReadQueueValue(Handle, out nuint _);
+    return NtCore.ReadQueueValue(Handle);
   }
 
 

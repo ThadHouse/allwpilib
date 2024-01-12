@@ -7,7 +7,7 @@
 namespace NetworkTables;
 
 /** NetworkTables generic publisher. */
-public interface GenericPublisher : Publisher {
+public interface IGenericPublisher : Publisher {
 
   /**
    * Publish a new value.

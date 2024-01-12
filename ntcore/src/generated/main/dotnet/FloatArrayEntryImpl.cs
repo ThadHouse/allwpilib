@@ -10,7 +10,7 @@ using NetworkTables.Natives;
 namespace NetworkTables;
 
 /** NetworkTables FloatArray implementation. */
-internal sealed class FloatArrayEntryImpl : EntryBase, FloatArrayEntry {
+internal sealed class FloatArrayEntryImpl<T> : EntryBase<T>, IFloatArrayEntry where T : struct, INtEntryHandle {
   /**
    * Constructor.
    *
@@ -18,17 +18,16 @@ internal sealed class FloatArrayEntryImpl : EntryBase, FloatArrayEntry {
    * @param handle Native handle
    * @param defaultValue Default value for Get()
    */
-  internal FloatArrayEntryImpl(FloatArrayTopic topic, NtPubSubEntry handle, float[] defaultValue) : base(handle) {
+  internal FloatArrayEntryImpl(FloatArrayTopic topic, T handle, float[] defaultValue) : base(handle) {
     Topic = topic;
     m_defaultValue = defaultValue;
   }
-
 
   public override FloatArrayTopic Topic { get; }
 
 
   public float[] Get() {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     if (value.IsFloatArray) {
       return value.GetFloatArray();
     }
@@ -37,7 +36,7 @@ internal sealed class FloatArrayEntryImpl : EntryBase, FloatArrayEntry {
 
 
   public float[] Get(float[] defaultValue) {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     if (value.IsFloatArray) {
       return value.GetFloatArray();
     }
@@ -46,21 +45,21 @@ internal sealed class FloatArrayEntryImpl : EntryBase, FloatArrayEntry {
 
 
   public TimestampedFloatArray GetAtomic() {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     float[] baseValue = value.IsFloatArray ? value.GetFloatArray() : m_defaultValue;
     return new TimestampedFloatArray(value.Time, value.ServerTime, baseValue);
   }
 
 
   public TimestampedFloatArray GetAtomic(float[] defaultValue) {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     float[] baseValue = value.IsFloatArray ? value.GetFloatArray() : defaultValue;
     return new TimestampedFloatArray(value.Time, value.ServerTime, baseValue);
   }
 
 
   public TimestampedFloatArray[] ReadQueue() {
-    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle, out nuint _);
+    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
     TimestampedFloatArray[] timestamped = new TimestampedFloatArray[values.Length];
     for(int i = 0; i < values.Length; i++) {
       timestamped[i] = new TimestampedFloatArray(values[i].Time, values[i].ServerTime, values[i].GetFloatArray());
@@ -70,7 +69,7 @@ internal sealed class FloatArrayEntryImpl : EntryBase, FloatArrayEntry {
 
 
   public float[][] ReadQueueValues() {
-    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle, out nuint _);
+    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
     float[][] timestamped = new float[values.Length][];
     for(int i = 0; i < values.Length; i++) {
       timestamped[i] = values[i].GetFloatArray();

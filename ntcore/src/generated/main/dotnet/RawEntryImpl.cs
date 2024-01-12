@@ -10,7 +10,7 @@ using NetworkTables.Natives;
 namespace NetworkTables;
 
 /** NetworkTables Raw implementation. */
-internal sealed class RawEntryImpl : EntryBase, RawEntry {
+internal sealed class RawEntryImpl<T> : EntryBase<T>, IRawEntry where T : struct, INtEntryHandle {
   /**
    * Constructor.
    *
@@ -18,17 +18,16 @@ internal sealed class RawEntryImpl : EntryBase, RawEntry {
    * @param handle Native handle
    * @param defaultValue Default value for Get()
    */
-  internal RawEntryImpl(RawTopic topic, NtPubSubEntry handle, byte[] defaultValue) : base(handle) {
+  internal RawEntryImpl(RawTopic topic, T handle, byte[] defaultValue) : base(handle) {
     Topic = topic;
     m_defaultValue = defaultValue;
   }
-
 
   public override RawTopic Topic { get; }
 
 
   public byte[] Get() {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     if (value.IsRaw) {
       return value.GetRaw();
     }
@@ -37,7 +36,7 @@ internal sealed class RawEntryImpl : EntryBase, RawEntry {
 
 
   public byte[] Get(byte[] defaultValue) {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     if (value.IsRaw) {
       return value.GetRaw();
     }
@@ -46,21 +45,21 @@ internal sealed class RawEntryImpl : EntryBase, RawEntry {
 
 
   public TimestampedRaw GetAtomic() {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     byte[] baseValue = value.IsRaw ? value.GetRaw() : m_defaultValue;
     return new TimestampedRaw(value.Time, value.ServerTime, baseValue);
   }
 
 
   public TimestampedRaw GetAtomic(byte[] defaultValue) {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     byte[] baseValue = value.IsRaw ? value.GetRaw() : defaultValue;
     return new TimestampedRaw(value.Time, value.ServerTime, baseValue);
   }
 
 
   public TimestampedRaw[] ReadQueue() {
-    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle, out nuint _);
+    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
     TimestampedRaw[] timestamped = new TimestampedRaw[values.Length];
     for(int i = 0; i < values.Length; i++) {
       timestamped[i] = new TimestampedRaw(values[i].Time, values[i].ServerTime, values[i].GetRaw());
@@ -70,7 +69,7 @@ internal sealed class RawEntryImpl : EntryBase, RawEntry {
 
 
   public byte[][] ReadQueueValues() {
-    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle, out nuint _);
+    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
     byte[][] timestamped = new byte[values.Length][];
     for(int i = 0; i < values.Length; i++) {
       timestamped[i] = values[i].GetRaw();

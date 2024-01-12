@@ -16,13 +16,14 @@ namespace NetworkTables;
  * <p>For backwards compatibility, the NetworkTableEntry close() does not release the entry.
  */
 public sealed class NetworkTableEntry : Publisher, Subscriber, IDisposable {
+
   /**
    * Construct from native handle.
    *
    * @param inst Instance
    * @param handle Native handle
    */
-  public NetworkTableEntry(NetworkTableInstance inst, NtPubSubEntry handle) : this(new Topic(inst, NtCore.GetTopicFromHandle(handle)), handle) {
+  public NetworkTableEntry(NetworkTableInstance inst, NtEntry handle) : this(new Topic(inst, NtCore.GetTopicFromHandle(handle)), handle) {
   }
 
   /**
@@ -31,11 +32,14 @@ public sealed class NetworkTableEntry : Publisher, Subscriber, IDisposable {
    * @param topic Topic
    * @param handle Native handle
    */
-  public NetworkTableEntry(Topic topic, NtPubSubEntry handle) {
+  public NetworkTableEntry(Topic topic, NtEntry handle) {
     Topic = topic;
     Handle = handle;
   }
 
+    NtPublisher PubSub<NtPublisher>.Handle => new(Handle.Handle);
+
+    NtSubscriber PubSub<NtSubscriber>.Handle => new(Handle.Handle);
 
   public void Dispose() {}
 
@@ -53,7 +57,7 @@ public sealed class NetworkTableEntry : Publisher, Subscriber, IDisposable {
    * @return Native handle
    */
 
-  public NtPubSubEntry Handle { get; }
+  public NtEntry Handle { get; }
 
   /**
    * Gets the subscribed-to / published-to topic.
@@ -107,8 +111,7 @@ public sealed class NetworkTableEntry : Publisher, Subscriber, IDisposable {
    * @return the entry's value
    */
   public NetworkTableValue GetValue() {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
-    return value;
+    return NtCore.GetEntryValue(Handle);
   }
 {% for t in types %}
   /**
@@ -119,7 +122,7 @@ public sealed class NetworkTableEntry : Publisher, Subscriber, IDisposable {
    * @return the entry's value or the given default value
    */
   public {{ t.dotnet.ValueType }} Get{{ t.TypeName }}({{ t.dotnet.ValueType }} defaultValue) {
-    NtCore.GetEntryValue(Handle, out NetworkTableValue value);
+    NetworkTableValue value = NtCore.GetEntryValue(Handle);
     if (value.Is{{ t.TypeName }}) {
       return value.Get{{ t.TypeName }}();
     }
@@ -136,7 +139,7 @@ public sealed class NetworkTableEntry : Publisher, Subscriber, IDisposable {
    *     published since the previous call.
    */
   public NetworkTableValue[] ReadQueue() {
-    return NtCore.ReadQueueValue(Handle, out nuint _);
+    return NtCore.ReadQueueValue(Handle);
   }
 
 //  /**

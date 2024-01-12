@@ -46,10 +46,10 @@ public class DoubleTopic : Topic {
    * @param options subscribe options
    * @return subscriber
    */
-  public DoubleSubscriber Subscribe(
+  public IDoubleSubscriber Subscribe(
       double defaultValue,
       PubSubOptions options) {
-    return new DoubleEntryImpl(
+    return new DoubleEntryImpl<NtSubscriber>(
         this,
         NtCore.Subscribe(
             Handle, NetworkTableType.Double,
@@ -73,11 +73,11 @@ public class DoubleTopic : Topic {
    * @param options subscribe options
    * @return subscriber
    */
-  public DoubleSubscriber SubscribeEx(
+  public IDoubleSubscriber SubscribeEx(
       string typeString,
       double defaultValue,
       PubSubOptions options) {
-    return new DoubleEntryImpl(
+    return new DoubleEntryImpl<NtSubscriber>(
         this,
         NtCore.Subscribe(
             Handle, NetworkTableType.Double,
@@ -100,9 +100,9 @@ public class DoubleTopic : Topic {
    * @param options publish options
    * @return publisher
    */
-  public DoublePublisher Publish(
+  public IDoublePublisher Publish(
       PubSubOptions options) {
-    return new DoubleEntryImpl(
+    return new DoubleEntryImpl<NtPublisher>(
         this,
         NtCore.Publish(
             Handle, NetworkTableType.Double,
@@ -128,11 +128,11 @@ public class DoubleTopic : Topic {
    * @return publisher
    * @throws IllegalArgumentException if properties is not a JSON object
    */
-  public DoublePublisher PublishEx(
+  public IDoublePublisher PublishEx(
       string typeString,
       string properties,
       PubSubOptions options) {
-    return new DoubleEntryImpl(
+    return new DoubleEntryImpl<NtPublisher>(
         this,
         NtCore.PublishEx(
             Handle, NetworkTableType.Double,
@@ -160,10 +160,10 @@ public class DoubleTopic : Topic {
    * @param options publish and/or subscribe options
    * @return entry
    */
-  public DoubleEntry GetEntry(
+  public IDoubleEntry GetEntry(
       double defaultValue,
       PubSubOptions options) {
-    return new DoubleEntryImpl(
+    return new DoubleEntryImpl<NtEntry>(
         this,
         NtCore.GetEntry(
             Handle, NetworkTableType.Double,
@@ -192,11 +192,11 @@ public class DoubleTopic : Topic {
    * @param options publish and/or subscribe options
    * @return entry
    */
-  public DoubleEntry GetEntryEx(
+  public IDoubleEntry GetEntryEx(
       string typeString,
       double defaultValue,
       PubSubOptions options) {
-    return new DoubleEntryImpl(
+    return new DoubleEntryImpl<NtEntry>(
         this,
         NtCore.GetEntry(
             Handle, NetworkTableType.Double,
