@@ -16,14 +16,13 @@ public interface I{{ TypeName }}Publisher : Publisher {
 
   new {{ TypeName }}Topic Topic { get; }
 
+{% if dotnet.IsArray %}
   /**
    * Publish a new value using current NT time.
    *
    * @param value value to publish
    */
-  void Set({{ dotnet.ValueType }} value) {
-    Set(value, 0);
-  }
+  void Set(params {{ dotnet.ValueType }} value);
 
   /**
    * Publish a new value.
@@ -31,7 +30,31 @@ public interface I{{ TypeName }}Publisher : Publisher {
    * @param value value to publish
    * @param time timestamp; 0 indicates current NT time should be used
    */
-  void Set({{ dotnet.ValueType }} value, long time);
+  void Set(long time, params {{ dotnet.ValueType }} value);
+
+  /**
+   * Publish a default value.
+   * On reconnect, a default value will never be used in preference to a
+   * published value.
+   *
+   * @param value value
+   */
+  void SetDefault(params {{ dotnet.ValueType }} value);
+{% else %}
+  /**
+   * Publish a new value using current NT time.
+   *
+   * @param value value to publish
+   */
+  void Set({{ dotnet.ValueType }} value);
+
+  /**
+   * Publish a new value.
+   *
+   * @param value value to publish
+   * @param time timestamp; 0 indicates current NT time should be used
+   */
+  void Set(long time, {{ dotnet.ValueType }} value);
 
   /**
    * Publish a default value.
@@ -41,4 +64,5 @@ public interface I{{ TypeName }}Publisher : Publisher {
    * @param value value
    */
   void SetDefault({{ dotnet.ValueType }} value);
+{% endif -%}
 }

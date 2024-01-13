@@ -16,14 +16,13 @@ public interface IRawPublisher : Publisher {
 
   new RawTopic Topic { get; }
 
+
   /**
    * Publish a new value using current NT time.
    *
    * @param value value to publish
    */
-  void Set(byte[] value) {
-    Set(value, 0);
-  }
+  void Set(params byte[] value);
 
   /**
    * Publish a new value.
@@ -31,7 +30,7 @@ public interface IRawPublisher : Publisher {
    * @param value value to publish
    * @param time timestamp; 0 indicates current NT time should be used
    */
-  void Set(byte[] value, long time);
+  void Set(long time, params byte[] value);
 
   /**
    * Publish a default value.
@@ -40,5 +39,5 @@ public interface IRawPublisher : Publisher {
    *
    * @param value value
    */
-  void SetDefault(byte[] value);
+  void SetDefault(params byte[] value);
 }
