@@ -15,8 +15,7 @@
     "dotnet": {
       "ValueType": "bool",
       "EmptyValue": "false",
-      "GetCall": "m_longValue != 0",
-      "MakeCall": " ? 1 : 0",
+      "GetCall": "m_structValue.boolValue",
       "BaseType": "bool"
     },
     "java": {
@@ -54,8 +53,7 @@
     "dotnet": {
       "ValueType": "long",
       "EmptyValue": "0",
-      "GetCall": "m_longValue",
-      "MakeCall": "",
+      "GetCall": "m_structValue.longValue",
       "BaseType": "long"
     },
     "java": {
@@ -93,8 +91,7 @@
     "dotnet": {
       "ValueType": "float",
       "EmptyValue": "0",
-      "GetCall": "m_floatValue",
-      "MakeCall": "",
+      "GetCall": "m_structValue.floatValue",
       "BaseType": "float"
     },
     "java": {
@@ -134,8 +131,7 @@
     "dotnet": {
       "ValueType": "double",
       "EmptyValue": "0",
-      "GetCall": "m_doubleValue",
-      "MakeCall": "",
+      "GetCall": "m_structValue.doubleValue",
       "BaseType": "double"
     },
     "java": {
@@ -178,7 +174,6 @@
       "ValueType": "string",
       "EmptyValue": "\"\"",
       "GetCall": "(string)m_objectValue!",
-      "MakeCall": "",
       "BaseType": "string"
     },
     "java": {
@@ -219,7 +214,6 @@
       "ValueType": "byte[]",
       "EmptyValue": "[]",
       "GetCall": "(byte[])m_objectValue!",
-      "MakeCall": "",
       "BaseType": "byte",
       "IsArray": true
     },
@@ -262,7 +256,6 @@
       "ValueType": "bool[]",
       "EmptyValue": "[]",
       "GetCall": "(bool[])m_objectValue!",
-      "MakeCall": "",
       "BaseType": "bool",
       "IsArray": true
     },
@@ -306,7 +299,6 @@
       "ValueType": "long[]",
       "EmptyValue": "[]",
       "GetCall": "(long[])m_objectValue!",
-      "MakeCall": "",
       "BaseType": "long",
       "IsArray": true
     },
@@ -350,7 +342,6 @@
       "ValueType": "float[]",
       "EmptyValue": "[]",
       "GetCall": "(float[])m_objectValue!",
-      "MakeCall": "",
       "BaseType": "float",
       "IsArray": true
     },
@@ -394,7 +385,6 @@
       "ValueType": "double[]",
       "EmptyValue": "[]",
       "GetCall": "(double[])m_objectValue!",
-      "MakeCall": "",
       "BaseType": "double",
       "IsArray": true
     },
@@ -436,7 +426,6 @@
       "ValueType": "string[]",
       "EmptyValue": "[]",
       "GetCall": "(string[])m_objectValue!",
-      "MakeCall": "",
       "BaseType": "string",
       "IsArray": true
     },
