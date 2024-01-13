@@ -37,7 +37,7 @@ def main():
     for fn in glob.glob(f"{dirname}/src/generate/main/dotnet/*.jinja"):
         template = env.get_template(os.path.basename(fn))
         outfn = os.path.basename(fn)[:-6]  # drop ".jinja"
-        if os.path.basename(fn).startswith("NetworkTable") or os.path.basename(
+        if os.path.basename(fn).startswith("NetworkTable") or os.path.basename(fn).startswith("RefNetworkTable") or os.path.basename(
             fn
         ).startswith("Generic"):
             output = template.render(types=types)

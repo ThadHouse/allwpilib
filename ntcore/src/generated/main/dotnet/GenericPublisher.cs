@@ -7,26 +7,8 @@
 namespace NetworkTables;
 
 /** NetworkTables generic publisher. */
-public interface IGenericPublisher : Publisher {
-
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @return False if the topic already exists with a different type
-   */
-  bool Set(in NetworkTableValue value);
-
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @return False if the topic already exists with a different type
-   * @throws IllegalArgumentException if the value is not a known type
-   */
-  bool SetValue<T>(T value) {
-    return SetValue(value, 0);
-  }
+public partial interface IGenericPublisher
+{
 
   /**
    * Publish a new value.
@@ -34,224 +16,10 @@ public interface IGenericPublisher : Publisher {
    * @param value value to publish
    * @param time timestamp; 0 indicates current NT time should be used
    * @return False if the topic already exists with a different type
-   * @throws IllegalArgumentException if the value is not a known type
    */
-  bool SetValue<T>(T value, long time);
+  bool SetBoolean(long time, bool value);
 
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @return False if the topic already exists with a different type
-   */
-  bool SetBoolean(bool value) {
-    return SetBoolean(value, 0);
-  }
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @param time timestamp; 0 indicates current NT time should be used
-   * @return False if the topic already exists with a different type
-   */
-  bool SetBoolean(bool value, long time);
-
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @return False if the topic already exists with a different type
-   */
-  bool SetInteger(long value) {
-    return SetInteger(value, 0);
-  }
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @param time timestamp; 0 indicates current NT time should be used
-   * @return False if the topic already exists with a different type
-   */
-  bool SetInteger(long value, long time);
-
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @return False if the topic already exists with a different type
-   */
-  bool SetFloat(float value) {
-    return SetFloat(value, 0);
-  }
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @param time timestamp; 0 indicates current NT time should be used
-   * @return False if the topic already exists with a different type
-   */
-  bool SetFloat(float value, long time);
-
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @return False if the topic already exists with a different type
-   */
-  bool SetDouble(double value) {
-    return SetDouble(value, 0);
-  }
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @param time timestamp; 0 indicates current NT time should be used
-   * @return False if the topic already exists with a different type
-   */
-  bool SetDouble(double value, long time);
-
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @return False if the topic already exists with a different type
-   */
-  bool SetString(string value) {
-    return SetString(value, 0);
-  }
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @param time timestamp; 0 indicates current NT time should be used
-   * @return False if the topic already exists with a different type
-   */
-  bool SetString(string value, long time);
-
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @return False if the topic already exists with a different type
-   */
-  bool SetRaw(byte[] value) {
-    return SetRaw(value, 0);
-  }
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @param time timestamp; 0 indicates current NT time should be used
-   * @return False if the topic already exists with a different type
-   */
-  bool SetRaw(byte[] value, long time);
-
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @return False if the topic already exists with a different type
-   */
-  bool SetBooleanArray(bool[] value) {
-    return SetBooleanArray(value, 0);
-  }
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @param time timestamp; 0 indicates current NT time should be used
-   * @return False if the topic already exists with a different type
-   */
-  bool SetBooleanArray(bool[] value, long time);
-
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @return False if the topic already exists with a different type
-   */
-  bool SetIntegerArray(long[] value) {
-    return SetIntegerArray(value, 0);
-  }
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @param time timestamp; 0 indicates current NT time should be used
-   * @return False if the topic already exists with a different type
-   */
-  bool SetIntegerArray(long[] value, long time);
-
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @return False if the topic already exists with a different type
-   */
-  bool SetFloatArray(float[] value) {
-    return SetFloatArray(value, 0);
-  }
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @param time timestamp; 0 indicates current NT time should be used
-   * @return False if the topic already exists with a different type
-   */
-  bool SetFloatArray(float[] value, long time);
-
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @return False if the topic already exists with a different type
-   */
-  bool SetDoubleArray(double[] value) {
-    return SetDoubleArray(value, 0);
-  }
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @param time timestamp; 0 indicates current NT time should be used
-   * @return False if the topic already exists with a different type
-   */
-  bool SetDoubleArray(double[] value, long time);
-
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @return False if the topic already exists with a different type
-   */
-  bool SetStringArray(string[] value) {
-    return SetStringArray(value, 0);
-  }
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @param time timestamp; 0 indicates current NT time should be used
-   * @return False if the topic already exists with a different type
-   */
-  bool SetStringArray(string[] value, long time);
-
-  /**
-   * Sets the entry's value if it does not exist.
-   *
-   * @param defaultValue the default value to set
-   * @return False if the entry exists with a different type
-   */
-  bool SetDefault(in NetworkTableValue defaultValue);
-
-  /**
-   * Sets the entry's value if it does not exist.
-   *
-   * @param defaultValue the default value to set
-   * @return False if the entry exists with a different type
-   * @throws IllegalArgumentException if the value is not a known type
-   */
-  bool SetDefaultValue<T>(T defaultValue);
+  bool SetBoolean(bool value);
 
   /**
    * Sets the entry's value if it does not exist.
@@ -262,12 +30,34 @@ public interface IGenericPublisher : Publisher {
   bool SetDefaultBoolean(bool defaultValue);
 
   /**
+   * Publish a new value.
+   *
+   * @param value value to publish
+   * @param time timestamp; 0 indicates current NT time should be used
+   * @return False if the topic already exists with a different type
+   */
+  bool SetInteger(long time, long value);
+
+  bool SetInteger(long value);
+
+  /**
    * Sets the entry's value if it does not exist.
    *
    * @param defaultValue the default value to set
    * @return False if the entry exists with a different type
    */
   bool SetDefaultInteger(long defaultValue);
+
+  /**
+   * Publish a new value.
+   *
+   * @param value value to publish
+   * @param time timestamp; 0 indicates current NT time should be used
+   * @return False if the topic already exists with a different type
+   */
+  bool SetFloat(long time, float value);
+
+  bool SetFloat(float value);
 
   /**
    * Sets the entry's value if it does not exist.
@@ -278,12 +68,34 @@ public interface IGenericPublisher : Publisher {
   bool SetDefaultFloat(float defaultValue);
 
   /**
+   * Publish a new value.
+   *
+   * @param value value to publish
+   * @param time timestamp; 0 indicates current NT time should be used
+   * @return False if the topic already exists with a different type
+   */
+  bool SetDouble(long time, double value);
+
+  bool SetDouble(double value);
+
+  /**
    * Sets the entry's value if it does not exist.
    *
    * @param defaultValue the default value to set
    * @return False if the entry exists with a different type
    */
   bool SetDefaultDouble(double defaultValue);
+
+  /**
+   * Publish a new value.
+   *
+   * @param value value to publish
+   * @param time timestamp; 0 indicates current NT time should be used
+   * @return False if the topic already exists with a different type
+   */
+  bool SetString(long time, string value);
+
+  bool SetString(string value);
 
   /**
    * Sets the entry's value if it does not exist.
@@ -294,12 +106,34 @@ public interface IGenericPublisher : Publisher {
   bool SetDefaultString(string defaultValue);
 
   /**
+   * Publish a new value.
+   *
+   * @param value value to publish
+   * @param time timestamp; 0 indicates current NT time should be used
+   * @return False if the topic already exists with a different type
+   */
+  bool SetRaw(long time, byte[] value);
+
+  bool SetRaw(byte[] value);
+
+  /**
    * Sets the entry's value if it does not exist.
    *
    * @param defaultValue the default value to set
    * @return False if the entry exists with a different type
    */
   bool SetDefaultRaw(byte[] defaultValue);
+
+  /**
+   * Publish a new value.
+   *
+   * @param value value to publish
+   * @param time timestamp; 0 indicates current NT time should be used
+   * @return False if the topic already exists with a different type
+   */
+  bool SetBooleanArray(long time, bool[] value);
+
+  bool SetBooleanArray(bool[] value);
 
   /**
    * Sets the entry's value if it does not exist.
@@ -310,12 +144,34 @@ public interface IGenericPublisher : Publisher {
   bool SetDefaultBooleanArray(bool[] defaultValue);
 
   /**
+   * Publish a new value.
+   *
+   * @param value value to publish
+   * @param time timestamp; 0 indicates current NT time should be used
+   * @return False if the topic already exists with a different type
+   */
+  bool SetIntegerArray(long time, long[] value);
+
+  bool SetIntegerArray(long[] value);
+
+  /**
    * Sets the entry's value if it does not exist.
    *
    * @param defaultValue the default value to set
    * @return False if the entry exists with a different type
    */
   bool SetDefaultIntegerArray(long[] defaultValue);
+
+  /**
+   * Publish a new value.
+   *
+   * @param value value to publish
+   * @param time timestamp; 0 indicates current NT time should be used
+   * @return False if the topic already exists with a different type
+   */
+  bool SetFloatArray(long time, float[] value);
+
+  bool SetFloatArray(float[] value);
 
   /**
    * Sets the entry's value if it does not exist.
@@ -326,12 +182,34 @@ public interface IGenericPublisher : Publisher {
   bool SetDefaultFloatArray(float[] defaultValue);
 
   /**
+   * Publish a new value.
+   *
+   * @param value value to publish
+   * @param time timestamp; 0 indicates current NT time should be used
+   * @return False if the topic already exists with a different type
+   */
+  bool SetDoubleArray(long time, double[] value);
+
+  bool SetDoubleArray(double[] value);
+
+  /**
    * Sets the entry's value if it does not exist.
    *
    * @param defaultValue the default value to set
    * @return False if the entry exists with a different type
    */
   bool SetDefaultDoubleArray(double[] defaultValue);
+
+  /**
+   * Publish a new value.
+   *
+   * @param value value to publish
+   * @param time timestamp; 0 indicates current NT time should be used
+   * @return False if the topic already exists with a different type
+   */
+  bool SetStringArray(long time, string[] value);
+
+  bool SetStringArray(string[] value);
 
   /**
    * Sets the entry's value if it does not exist.

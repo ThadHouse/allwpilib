@@ -68,7 +68,7 @@ public readonly partial struct NetworkTableValue
    * @return The entry value
    */
   public static NetworkTableValue Make{{ t.TypeName }}({{ t.dotnet.ValueType }} value) {
-    return new NetworkTableValue(NetworkTableType.{{ t.TypeName }}, value{{ t.dotnet.MakeCall }});
+    return new NetworkTableValue(NetworkTableType.{{ t.TypeName }}, value);
   }
 
   /**
@@ -78,8 +78,8 @@ public readonly partial struct NetworkTableValue
    * @param time the creation time to use (instead of the current time)
    * @return The entry value
    */
-  public static NetworkTableValue Make{{ t.TypeName }}({{ t.dotnet.ValueType }} value, long time) {
-    return new NetworkTableValue(NetworkTableType.{{ t.TypeName }}, value{{ t.dotnet.MakeCall }}, time);
+  public static NetworkTableValue Make{{ t.TypeName }}(long time, {{ t.dotnet.ValueType }} value) {
+    return new NetworkTableValue(NetworkTableType.{{ t.TypeName }}, value, time);
   }
 {% endif -%}
 
