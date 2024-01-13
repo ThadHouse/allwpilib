@@ -25,6 +25,5 @@ namespace NetworkTables;
  * kept to the NetworkTableInstance returned by this function to keep it from being garbage
  * collected.
  */
-public sealed class NetworkTableInstance {
-    public NtInst Handle { get; }
+public sealed partial class NetworkTableInstance {
 }
