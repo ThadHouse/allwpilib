@@ -5,6 +5,7 @@ package wpi.proto;
 import "geometry2d.proto";
 
 option java_package = "edu.wpi.first.math.proto";
+option csharp_namespace = "WPIMath.Proto";
 
 message ProtobufChassisSpeeds {
   double vx = 1;
