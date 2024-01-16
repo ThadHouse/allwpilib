@@ -40,7 +40,7 @@ public interface IBooleanSubscriber : Subscriber {
    *
    * @return timestamped value
    */
-  TimestampedBoolean GetAtomic();
+  TimestampedObject<bool> GetAtomic();
 
   /**
    * Get the last published value along with its timestamp
@@ -50,7 +50,7 @@ public interface IBooleanSubscriber : Subscriber {
    * @param defaultValue default value to return if no value has been published
    * @return timestamped value
    */
-  TimestampedBoolean GetAtomic(bool defaultValue);
+  TimestampedObject<bool> GetAtomic(bool defaultValue);
 
   /**
    * Get an array of all value changes since the last call to readQueue.
@@ -62,7 +62,7 @@ public interface IBooleanSubscriber : Subscriber {
    * @return Array of timestamped values; empty array if no new changes have
    *     been published since the previous call.
    */
-  TimestampedBoolean[] ReadQueue();
+  TimestampedObject<bool>[] ReadQueue();
 
   /**
    * Get an array of all value changes since the last call to readQueue.

@@ -45,25 +45,25 @@ internal sealed class {{ TypeName }}EntryImpl<T> : EntryBase<T>, I{{ TypeName }}
   }
 
 
-  public Timestamped{{ TypeName }} GetAtomic() {
+  public TimestampedObject<{{ dotnet.ValueType }}> GetAtomic() {
     NetworkTableValue value = NtCore.GetEntryValue(Handle);
     {{ dotnet.ValueType }} baseValue = value.Is{{ TypeName }} ? value.Get{{ TypeName }}() : m_defaultValue;
-    return new Timestamped{{ TypeName }}(value.Time, value.ServerTime, baseValue);
+    return new TimestampedObject<{{ dotnet.ValueType }}>(value.Time, value.ServerTime, baseValue);
   }
 
 
-  public Timestamped{{ TypeName }} GetAtomic({{ dotnet.ValueType }} defaultValue) {
+  public TimestampedObject<{{ dotnet.ValueType }}> GetAtomic({{ dotnet.ValueType }} defaultValue) {
     NetworkTableValue value = NtCore.GetEntryValue(Handle);
     {{ dotnet.ValueType }} baseValue = value.Is{{ TypeName }} ? value.Get{{ TypeName }}() : defaultValue;
-    return new Timestamped{{ TypeName }}(value.Time, value.ServerTime, baseValue);
+    return new TimestampedObject<{{ dotnet.ValueType }}>(value.Time, value.ServerTime, baseValue);
   }
 
 
-  public Timestamped{{ TypeName }}[] ReadQueue() {
+  public TimestampedObject<{{ dotnet.ValueType }}>[] ReadQueue() {
     NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
-    Timestamped{{ TypeName }}[] timestamped = new Timestamped{{ TypeName }}[values.Length];
+    TimestampedObject<{{ dotnet.ValueType }}>[] timestamped = new TimestampedObject<{{ dotnet.ValueType }}>[values.Length];
     for(int i = 0; i < values.Length; i++) {
-      timestamped[i] = new Timestamped{{ TypeName }}(values[i].Time, values[i].ServerTime, values[i].Get{{ TypeName }}());
+      timestamped[i] = new TimestampedObject<{{ dotnet.ValueType }}>(values[i].Time, values[i].ServerTime, values[i].Get{{ TypeName }}());
     }
     return timestamped;
   }
