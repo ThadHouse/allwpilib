@@ -10,6 +10,7 @@ from glob import glob
 
 if __name__ == "__main__":
     proto_files = glob("wpimath/src/main/proto/*.proto")
+    os.makedirs(os.path.abspath('./wpimath/src/generated/main/dotnet'))
     for path in proto_files:
         absolute_filename = os.path.abspath(path)
         absolute_dir, filename = os.path.split(absolute_filename)
@@ -18,6 +19,14 @@ if __name__ == "__main__":
                 sys.argv[1],
                 f"--plugin=protoc-gen-quickbuf={sys.argv[2]}",
                 f"--quickbuf_out=gen_descriptors=true:{os.path.abspath('./wpimath/src/generated/main/java')}",
+                f"-I{absolute_dir}",
+                absolute_filename,
+            ]
+        )
+        subprocess.run(
+            [
+                sys.argv[1],
+                f"--csharp_out={os.path.abspath('./wpimath/src/generated/main/dotnet')}",
                 f"-I{absolute_dir}",
                 absolute_filename,
             ]
