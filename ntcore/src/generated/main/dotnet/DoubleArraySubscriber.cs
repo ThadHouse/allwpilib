@@ -40,7 +40,7 @@ public interface IDoubleArraySubscriber : Subscriber {
    *
    * @return timestamped value
    */
-  TimestampedDoubleArray GetAtomic();
+  TimestampedObject<double[]> GetAtomic();
 
   /**
    * Get the last published value along with its timestamp
@@ -50,7 +50,7 @@ public interface IDoubleArraySubscriber : Subscriber {
    * @param defaultValue default value to return if no value has been published
    * @return timestamped value
    */
-  TimestampedDoubleArray GetAtomic(double[] defaultValue);
+  TimestampedObject<double[]> GetAtomic(double[] defaultValue);
 
   /**
    * Get an array of all value changes since the last call to readQueue.
@@ -62,7 +62,7 @@ public interface IDoubleArraySubscriber : Subscriber {
    * @return Array of timestamped values; empty array if no new changes have
    *     been published since the previous call.
    */
-  TimestampedDoubleArray[] ReadQueue();
+  TimestampedObject<double[]>[] ReadQueue();
 
   /**
    * Get an array of all value changes since the last call to readQueue.

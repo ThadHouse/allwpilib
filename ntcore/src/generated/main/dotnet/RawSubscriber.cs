@@ -40,7 +40,7 @@ public interface IRawSubscriber : Subscriber {
    *
    * @return timestamped value
    */
-  TimestampedRaw GetAtomic();
+  TimestampedObject<byte[]> GetAtomic();
 
   /**
    * Get the last published value along with its timestamp
@@ -50,7 +50,7 @@ public interface IRawSubscriber : Subscriber {
    * @param defaultValue default value to return if no value has been published
    * @return timestamped value
    */
-  TimestampedRaw GetAtomic(byte[] defaultValue);
+  TimestampedObject<byte[]> GetAtomic(byte[] defaultValue);
 
   /**
    * Get an array of all value changes since the last call to readQueue.
@@ -62,7 +62,7 @@ public interface IRawSubscriber : Subscriber {
    * @return Array of timestamped values; empty array if no new changes have
    *     been published since the previous call.
    */
-  TimestampedRaw[] ReadQueue();
+  TimestampedObject<byte[]>[] ReadQueue();
 
   /**
    * Get an array of all value changes since the last call to readQueue.
