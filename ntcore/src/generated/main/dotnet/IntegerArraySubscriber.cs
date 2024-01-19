@@ -7,7 +7,7 @@
 namespace NetworkTables;
 
 /** NetworkTables IntegerArray subscriber. */
-public interface IIntegerArraySubscriber : Subscriber {
+public interface IIntegerArraySubscriber : ISubscriber {
   /**
    * Get the corresponding topic.
    *

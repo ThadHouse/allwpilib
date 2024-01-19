@@ -7,7 +7,7 @@
 namespace NetworkTables;
 
 /** NetworkTables Double subscriber. */
-public interface IDoubleSubscriber : Subscriber {
+public interface IDoubleSubscriber : ISubscriber {
   /**
    * Get the corresponding topic.
    *

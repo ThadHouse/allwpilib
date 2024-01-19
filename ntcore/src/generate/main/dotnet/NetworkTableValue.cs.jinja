@@ -58,7 +58,7 @@ public readonly partial struct NetworkTableValue
    * @return The entry value
    */
   public static NetworkTableValue Make{{ t.TypeName }}({{ t.dotnet.ValueType }} value, long time) {
-    return new NetworkTableValue(NetworkTableType.{{ t.TypeName }}, value, type);
+    return new NetworkTableValue(NetworkTableType.{{ t.TypeName }}, value, time);
   }
 {% else %}
   /**

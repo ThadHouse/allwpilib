@@ -7,7 +7,7 @@
 namespace NetworkTables;
 
 /** NetworkTables String subscriber. */
-public interface IStringSubscriber : Subscriber {
+public interface IStringSubscriber : ISubscriber {
   /**
    * Get the corresponding topic.
    *

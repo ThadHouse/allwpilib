@@ -7,7 +7,7 @@
 namespace NetworkTables;
 
 /** NetworkTables BooleanArray subscriber. */
-public interface IBooleanArraySubscriber : Subscriber {
+public interface IBooleanArraySubscriber : ISubscriber {
   /**
    * Get the corresponding topic.
    *

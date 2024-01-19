@@ -7,7 +7,7 @@
 namespace NetworkTables;
 
 /** NetworkTables Raw subscriber. */
-public interface IRawSubscriber : Subscriber {
+public interface IRawSubscriber : ISubscriber {
   /**
    * Get the corresponding topic.
    *
