@@ -37,7 +37,7 @@ internal sealed partial class GenericEntryImpl<THandle>
    */
 
   public bool SetBoolean(bool value) {
-    return SetBoolean(0, value);
+    return SetBoolean(value, 0);
   }
 
   public bool SetBoolean(bool value, long time) {
@@ -79,7 +79,7 @@ internal sealed partial class GenericEntryImpl<THandle>
    */
 
   public bool SetInteger(long value) {
-    return SetInteger(0, value);
+    return SetInteger(value, 0);
   }
 
   public bool SetInteger(long value, long time) {
@@ -121,7 +121,7 @@ internal sealed partial class GenericEntryImpl<THandle>
    */
 
   public bool SetFloat(float value) {
-    return SetFloat(0, value);
+    return SetFloat(value, 0);
   }
 
   public bool SetFloat(float value, long time) {
@@ -163,7 +163,7 @@ internal sealed partial class GenericEntryImpl<THandle>
    */
 
   public bool SetDouble(double value) {
-    return SetDouble(0, value);
+    return SetDouble(value, 0);
   }
 
   public bool SetDouble(double value, long time) {
@@ -205,7 +205,7 @@ internal sealed partial class GenericEntryImpl<THandle>
    */
 
   public bool SetString(string value) {
-    return SetString(0, value);
+    return SetString(value, 0);
   }
 
   public bool SetString(string value, long time) {
@@ -247,7 +247,7 @@ internal sealed partial class GenericEntryImpl<THandle>
    */
 
   public bool SetRaw(byte[] value) {
-    return SetRaw(0, value);
+    return SetRaw(value, 0);
   }
 
   public bool SetRaw(byte[] value, long time) {
@@ -289,7 +289,7 @@ internal sealed partial class GenericEntryImpl<THandle>
    */
 
   public bool SetBooleanArray(bool[] value) {
-    return SetBooleanArray(0, value);
+    return SetBooleanArray(value, 0);
   }
 
   public bool SetBooleanArray(bool[] value, long time) {
@@ -331,7 +331,7 @@ internal sealed partial class GenericEntryImpl<THandle>
    */
 
   public bool SetIntegerArray(long[] value) {
-    return SetIntegerArray(0, value);
+    return SetIntegerArray(value, 0);
   }
 
   public bool SetIntegerArray(long[] value, long time) {
@@ -373,7 +373,7 @@ internal sealed partial class GenericEntryImpl<THandle>
    */
 
   public bool SetFloatArray(float[] value) {
-    return SetFloatArray(0, value);
+    return SetFloatArray(value, 0);
   }
 
   public bool SetFloatArray(float[] value, long time) {
@@ -415,7 +415,7 @@ internal sealed partial class GenericEntryImpl<THandle>
    */
 
   public bool SetDoubleArray(double[] value) {
-    return SetDoubleArray(0, value);
+    return SetDoubleArray(value, 0);
   }
 
   public bool SetDoubleArray(double[] value, long time) {
@@ -457,7 +457,7 @@ internal sealed partial class GenericEntryImpl<THandle>
    */
 
   public bool SetStringArray(string[] value) {
-    return SetStringArray(0, value);
+    return SetStringArray(value, 0);
   }
 
   public bool SetStringArray(string[] value, long time) {

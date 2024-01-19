@@ -37,7 +37,7 @@ internal sealed partial class GenericEntryImpl<THandle>
    */
 
   public bool Set{{ t.TypeName }}({{ t.dotnet.ValueType }} value) {
-    return Set{{ t.TypeName }}(0, value);
+    return Set{{ t.TypeName }}(value, 0);
   }
 
   public bool Set{{ t.TypeName }}({{ t.dotnet.ValueType }} value, long time) {
