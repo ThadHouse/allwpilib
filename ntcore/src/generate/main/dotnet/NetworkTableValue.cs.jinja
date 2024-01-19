@@ -46,7 +46,7 @@ public readonly partial struct NetworkTableValue
    * @param value the value
    * @return The entry value
    */
-  public static NetworkTableValue Make{{ t.TypeName }}(params {{ t.dotnet.ValueType }} value) {
+  public static NetworkTableValue Make{{ t.TypeName }}({{ t.dotnet.ValueType }} value) {
     return new NetworkTableValue(NetworkTableType.{{ t.TypeName }}, value);
   }
 

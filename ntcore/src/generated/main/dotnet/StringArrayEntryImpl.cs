@@ -79,18 +79,18 @@ internal sealed class StringArrayEntryImpl<T> : EntryBase<T>, IStringArrayEntry 
   }
 
 
-  public void Set(string[] value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeStringArray(value.AsSpan(), 0);
+  public void Set(ReadOnlySpan<string> value) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeStringArray(value, 0);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 
-  public void Set(string[] value, long time) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeStringArray(value.AsSpan(), time);
+  public void Set(ReadOnlySpan<string> value, long time) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeStringArray(value, time);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 
-  public void SetDefault(string[] value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeStringArray(value.AsSpan());
+  public void SetDefault(ReadOnlySpan<string> value) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeStringArray(value);
     NtCore.SetDefaultEntryValue(Handle, ntValue);
   }
 public void Unpublish() {

@@ -79,18 +79,18 @@ internal sealed class RawEntryImpl<T> : EntryBase<T>, IRawEntry where T : struct
   }
 
 
-  public void Set(byte[] value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeRaw(value.AsSpan(), 0);
+  public void Set(ReadOnlySpan<byte> value) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeRaw(value, 0);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 
-  public void Set(byte[] value, long time) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeRaw(value.AsSpan(), time);
+  public void Set(ReadOnlySpan<byte> value, long time) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeRaw(value, time);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 
-  public void SetDefault(byte[] value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeRaw(value.AsSpan());
+  public void SetDefault(ReadOnlySpan<byte> value) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeRaw(value);
     NtCore.SetDefaultEntryValue(Handle, ntValue);
   }
 public void Unpublish() {
