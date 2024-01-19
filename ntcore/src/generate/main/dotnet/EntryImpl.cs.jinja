@@ -79,18 +79,18 @@ internal sealed class {{ TypeName }}EntryImpl<T> : EntryBase<T>, I{{ TypeName }}
   }
 
 {% if dotnet.IsArray %}
-  public void Set({{ dotnet.ValueType }} value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value.AsSpan(), 0);
+  public void Set(ReadOnlySpan<{{ dotnet.BaseType }}> value) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value, 0);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 
-  public void Set({{ dotnet.ValueType }} value, long time) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value.AsSpan(), time);
+  public void Set(ReadOnlySpan<{{ dotnet.BaseType }}> value, long time) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value, time);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 
-  public void SetDefault({{ dotnet.ValueType }} value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value.AsSpan());
+  public void SetDefault(ReadOnlySpan<{{ dotnet.BaseType }}> value) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value);
     NtCore.SetDefaultEntryValue(Handle, ntValue);
   }
 {% else %}

@@ -79,18 +79,18 @@ internal sealed class BooleanArrayEntryImpl<T> : EntryBase<T>, IBooleanArrayEntr
   }
 
 
-  public void Set(bool[] value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeBooleanArray(value.AsSpan(), 0);
+  public void Set(ReadOnlySpan<bool> value) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeBooleanArray(value, 0);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 
-  public void Set(bool[] value, long time) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeBooleanArray(value.AsSpan(), time);
+  public void Set(ReadOnlySpan<bool> value, long time) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeBooleanArray(value, time);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 
-  public void SetDefault(bool[] value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeBooleanArray(value.AsSpan());
+  public void SetDefault(ReadOnlySpan<bool> value) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeBooleanArray(value);
     NtCore.SetDefaultEntryValue(Handle, ntValue);
   }
 public void Unpublish() {

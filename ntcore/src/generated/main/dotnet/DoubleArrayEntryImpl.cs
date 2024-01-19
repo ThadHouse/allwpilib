@@ -79,18 +79,18 @@ internal sealed class DoubleArrayEntryImpl<T> : EntryBase<T>, IDoubleArrayEntry 
   }
 
 
-  public void Set(double[] value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeDoubleArray(value.AsSpan(), 0);
+  public void Set(ReadOnlySpan<double> value) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeDoubleArray(value, 0);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 
-  public void Set(double[] value, long time) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeDoubleArray(value.AsSpan(), time);
+  public void Set(ReadOnlySpan<double> value, long time) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeDoubleArray(value, time);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 
-  public void SetDefault(double[] value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeDoubleArray(value.AsSpan());
+  public void SetDefault(ReadOnlySpan<double> value) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeDoubleArray(value);
     NtCore.SetDefaultEntryValue(Handle, ntValue);
   }
 public void Unpublish() {
