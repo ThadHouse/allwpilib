@@ -368,7 +368,7 @@ public readonly partial struct NetworkTableValue
    * @return The entry value
    */
   public static NetworkTableValue MakeRaw(byte[] value, long time) {
-    return new NetworkTableValue(NetworkTableType.Raw, value, type);
+    return new NetworkTableValue(NetworkTableType.Raw, value, time);
   }
 
 
@@ -390,7 +390,7 @@ public readonly partial struct NetworkTableValue
    * @return The entry value
    */
   public static NetworkTableValue MakeBooleanArray(bool[] value, long time) {
-    return new NetworkTableValue(NetworkTableType.BooleanArray, value, type);
+    return new NetworkTableValue(NetworkTableType.BooleanArray, value, time);
   }
 
 
@@ -412,7 +412,7 @@ public readonly partial struct NetworkTableValue
    * @return The entry value
    */
   public static NetworkTableValue MakeIntegerArray(long[] value, long time) {
-    return new NetworkTableValue(NetworkTableType.IntegerArray, value, type);
+    return new NetworkTableValue(NetworkTableType.IntegerArray, value, time);
   }
 
 
@@ -434,7 +434,7 @@ public readonly partial struct NetworkTableValue
    * @return The entry value
    */
   public static NetworkTableValue MakeFloatArray(float[] value, long time) {
-    return new NetworkTableValue(NetworkTableType.FloatArray, value, type);
+    return new NetworkTableValue(NetworkTableType.FloatArray, value, time);
   }
 
 
@@ -456,7 +456,7 @@ public readonly partial struct NetworkTableValue
    * @return The entry value
    */
   public static NetworkTableValue MakeDoubleArray(double[] value, long time) {
-    return new NetworkTableValue(NetworkTableType.DoubleArray, value, type);
+    return new NetworkTableValue(NetworkTableType.DoubleArray, value, time);
   }
 
 
@@ -478,7 +478,7 @@ public readonly partial struct NetworkTableValue
    * @return The entry value
    */
   public static NetworkTableValue MakeStringArray(string[] value, long time) {
-    return new NetworkTableValue(NetworkTableType.StringArray, value, type);
+    return new NetworkTableValue(NetworkTableType.StringArray, value, time);
   }
 
 }
