@@ -80,12 +80,12 @@ internal sealed class FloatEntryImpl<T> : EntryBase<T>, IFloatEntry where T : st
 
 
     public void Set(float value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeFloat(0, value);
+    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeFloat(value, 0);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 
-  public void Set(long time, float value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeFloat(time, value);
+  public void Set(float value, long time) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeFloat(value, time);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 

@@ -257,7 +257,7 @@ public readonly partial struct NetworkTableValue
    * @param time the creation time to use (instead of the current time)
    * @return The entry value
    */
-  public static NetworkTableValue MakeBoolean(long time, bool value) {
+  public static NetworkTableValue MakeBoolean(bool value, long time) {
     return new NetworkTableValue(NetworkTableType.Boolean, value, time);
   }
 
@@ -279,7 +279,7 @@ public readonly partial struct NetworkTableValue
    * @param time the creation time to use (instead of the current time)
    * @return The entry value
    */
-  public static NetworkTableValue MakeInteger(long time, long value) {
+  public static NetworkTableValue MakeInteger(long value, long time) {
     return new NetworkTableValue(NetworkTableType.Integer, value, time);
   }
 
@@ -301,7 +301,7 @@ public readonly partial struct NetworkTableValue
    * @param time the creation time to use (instead of the current time)
    * @return The entry value
    */
-  public static NetworkTableValue MakeFloat(long time, float value) {
+  public static NetworkTableValue MakeFloat(float value, long time) {
     return new NetworkTableValue(NetworkTableType.Float, value, time);
   }
 
@@ -323,7 +323,7 @@ public readonly partial struct NetworkTableValue
    * @param time the creation time to use (instead of the current time)
    * @return The entry value
    */
-  public static NetworkTableValue MakeDouble(long time, double value) {
+  public static NetworkTableValue MakeDouble(double value, long time) {
     return new NetworkTableValue(NetworkTableType.Double, value, time);
   }
 
@@ -345,7 +345,7 @@ public readonly partial struct NetworkTableValue
    * @param time the creation time to use (instead of the current time)
    * @return The entry value
    */
-  public static NetworkTableValue MakeString(long time, string value) {
+  public static NetworkTableValue MakeString(string value, long time) {
     return new NetworkTableValue(NetworkTableType.String, value, time);
   }
 
@@ -367,8 +367,8 @@ public readonly partial struct NetworkTableValue
    * @param time the creation time to use (instead of the current time)
    * @return The entry value
    */
-  public static NetworkTableValue MakeRaw(long time, params byte[] value) {
-    return new NetworkTableValue(NetworkTableType.Raw, value, time);
+  public static NetworkTableValue MakeRaw(byte[] value, long time) {
+    return new NetworkTableValue(NetworkTableType.Raw, value, type);
   }
 
 
@@ -389,8 +389,8 @@ public readonly partial struct NetworkTableValue
    * @param time the creation time to use (instead of the current time)
    * @return The entry value
    */
-  public static NetworkTableValue MakeBooleanArray(long time, params bool[] value) {
-    return new NetworkTableValue(NetworkTableType.BooleanArray, value, time);
+  public static NetworkTableValue MakeBooleanArray(bool[] value, long time) {
+    return new NetworkTableValue(NetworkTableType.BooleanArray, value, type);
   }
 
 
@@ -411,8 +411,8 @@ public readonly partial struct NetworkTableValue
    * @param time the creation time to use (instead of the current time)
    * @return The entry value
    */
-  public static NetworkTableValue MakeIntegerArray(long time, params long[] value) {
-    return new NetworkTableValue(NetworkTableType.IntegerArray, value, time);
+  public static NetworkTableValue MakeIntegerArray(long[] value, long time) {
+    return new NetworkTableValue(NetworkTableType.IntegerArray, value, type);
   }
 
 
@@ -433,8 +433,8 @@ public readonly partial struct NetworkTableValue
    * @param time the creation time to use (instead of the current time)
    * @return The entry value
    */
-  public static NetworkTableValue MakeFloatArray(long time, params float[] value) {
-    return new NetworkTableValue(NetworkTableType.FloatArray, value, time);
+  public static NetworkTableValue MakeFloatArray(float[] value, long time) {
+    return new NetworkTableValue(NetworkTableType.FloatArray, value, type);
   }
 
 
@@ -455,8 +455,8 @@ public readonly partial struct NetworkTableValue
    * @param time the creation time to use (instead of the current time)
    * @return The entry value
    */
-  public static NetworkTableValue MakeDoubleArray(long time, params double[] value) {
-    return new NetworkTableValue(NetworkTableType.DoubleArray, value, time);
+  public static NetworkTableValue MakeDoubleArray(double[] value, long time) {
+    return new NetworkTableValue(NetworkTableType.DoubleArray, value, type);
   }
 
 
@@ -477,8 +477,8 @@ public readonly partial struct NetworkTableValue
    * @param time the creation time to use (instead of the current time)
    * @return The entry value
    */
-  public static NetworkTableValue MakeStringArray(long time, params string[] value) {
-    return new NetworkTableValue(NetworkTableType.StringArray, value, time);
+  public static NetworkTableValue MakeStringArray(string[] value, long time) {
+    return new NetworkTableValue(NetworkTableType.StringArray, value, type);
   }
 
 }

@@ -30,7 +30,7 @@ public interface IStringArrayPublisher : Publisher {
    * @param value value to publish
    * @param time timestamp; 0 indicates current NT time should be used
    */
-  void Set(long time, params string[] value);
+  void Set(string[] value, long time);
 
   /**
    * Publish a default value.
@@ -39,5 +39,5 @@ public interface IStringArrayPublisher : Publisher {
    *
    * @param value value
    */
-  void SetDefault(params string[] value);
+  void SetDefault(string[] value);
 }

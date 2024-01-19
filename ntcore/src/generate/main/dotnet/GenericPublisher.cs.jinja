@@ -17,7 +17,7 @@ public partial interface IGenericPublisher
    * @param time timestamp; 0 indicates current NT time should be used
    * @return False if the topic already exists with a different type
    */
-  bool Set{{ t.TypeName }}(long time, {{ t.dotnet.ValueType }} value);
+  bool Set{{ t.TypeName }}({{ t.dotnet.ValueType }} value, long time);
 
   bool Set{{ t.TypeName }}({{ t.dotnet.ValueType }} value);
 

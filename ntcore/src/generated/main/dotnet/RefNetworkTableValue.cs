@@ -30,7 +30,7 @@ public readonly ref partial struct RefNetworkTableValue
         return new RefNetworkTableValue(value);
     }
 
-    public static RefNetworkTableValue MakeBoolean(long time, bool value) {
+    public static RefNetworkTableValue MakeBoolean(bool value, long time) {
         return new RefNetworkTableValue(value, time);
     }
 
@@ -52,7 +52,7 @@ public readonly ref partial struct RefNetworkTableValue
         return new RefNetworkTableValue(value);
     }
 
-    public static RefNetworkTableValue MakeInteger(long time, long value) {
+    public static RefNetworkTableValue MakeInteger(long value, long time) {
         return new RefNetworkTableValue(value, time);
     }
 
@@ -74,7 +74,7 @@ public readonly ref partial struct RefNetworkTableValue
         return new RefNetworkTableValue(value);
     }
 
-    public static RefNetworkTableValue MakeFloat(long time, float value) {
+    public static RefNetworkTableValue MakeFloat(float value, long time) {
         return new RefNetworkTableValue(value, time);
     }
 
@@ -96,7 +96,7 @@ public readonly ref partial struct RefNetworkTableValue
         return new RefNetworkTableValue(value);
     }
 
-    public static RefNetworkTableValue MakeDouble(long time, double value) {
+    public static RefNetworkTableValue MakeDouble(double value, long time) {
         return new RefNetworkTableValue(value, time);
     }
 
@@ -120,7 +120,7 @@ public readonly ref partial struct RefNetworkTableValue
         return new RefNetworkTableValue(value);
     }
 
-    public static RefNetworkTableValue MakeString(long time, string value) {
+    public static RefNetworkTableValue MakeString(string value, long time) {
         return new RefNetworkTableValue(value, time);
     }
 
@@ -145,7 +145,7 @@ public readonly ref partial struct RefNetworkTableValue
         return new RefNetworkTableValue(value);
     }
 
-    public static RefNetworkTableValue MakeRaw(long time, ReadOnlySpan<byte> value) {
+    public static RefNetworkTableValue MakeRaw(ReadOnlySpan<byte> value, long time) {
         return new RefNetworkTableValue(value, time);
     }
 
@@ -170,7 +170,7 @@ public readonly ref partial struct RefNetworkTableValue
         return new RefNetworkTableValue(value);
     }
 
-    public static RefNetworkTableValue MakeBooleanArray(long time, ReadOnlySpan<bool> value) {
+    public static RefNetworkTableValue MakeBooleanArray(ReadOnlySpan<bool> value, long time) {
         return new RefNetworkTableValue(value, time);
     }
 
@@ -195,7 +195,7 @@ public readonly ref partial struct RefNetworkTableValue
         return new RefNetworkTableValue(value);
     }
 
-    public static RefNetworkTableValue MakeIntegerArray(long time, ReadOnlySpan<long> value) {
+    public static RefNetworkTableValue MakeIntegerArray(ReadOnlySpan<long> value, long time) {
         return new RefNetworkTableValue(value, time);
     }
 
@@ -220,7 +220,7 @@ public readonly ref partial struct RefNetworkTableValue
         return new RefNetworkTableValue(value);
     }
 
-    public static RefNetworkTableValue MakeFloatArray(long time, ReadOnlySpan<float> value) {
+    public static RefNetworkTableValue MakeFloatArray(ReadOnlySpan<float> value, long time) {
         return new RefNetworkTableValue(value, time);
     }
 
@@ -245,7 +245,7 @@ public readonly ref partial struct RefNetworkTableValue
         return new RefNetworkTableValue(value);
     }
 
-    public static RefNetworkTableValue MakeDoubleArray(long time, ReadOnlySpan<double> value) {
+    public static RefNetworkTableValue MakeDoubleArray(ReadOnlySpan<double> value, long time) {
         return new RefNetworkTableValue(value, time);
     }
 
@@ -270,7 +270,7 @@ public readonly ref partial struct RefNetworkTableValue
         return new RefNetworkTableValue(value);
     }
 
-    public static RefNetworkTableValue MakeStringArray(long time, ReadOnlySpan<string> value) {
+    public static RefNetworkTableValue MakeStringArray(ReadOnlySpan<string> value, long time) {
         return new RefNetworkTableValue(value, time);
     }
 

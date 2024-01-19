@@ -79,17 +79,17 @@ internal sealed class StringArrayEntryImpl<T> : EntryBase<T>, IStringArrayEntry 
   }
 
 
-  public void Set(params string[] value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeStringArray(0, value.AsSpan());
+  public void Set(string[] value) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeStringArray(value.AsSpan(), 0);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 
-  public void Set(long time, params string[] value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeStringArray(time, value.AsSpan());
+  public void Set(string[] value, long time) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeStringArray(value.AsSpan(), time);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 
-  public void SetDefault(params string[] value) {
+  public void SetDefault(string[] value) {
     RefNetworkTableValue ntValue = RefNetworkTableValue.MakeStringArray(value.AsSpan());
     NtCore.SetDefaultEntryValue(Handle, ntValue);
   }

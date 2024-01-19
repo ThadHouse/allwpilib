@@ -30,7 +30,7 @@ public interface I{{ TypeName }}Publisher : Publisher {
    * @param value value to publish
    * @param time timestamp; 0 indicates current NT time should be used
    */
-  void Set(long time, params {{ dotnet.ValueType }} value);
+  void Set({{ dotnet.ValueType }} value, long time);
 
   /**
    * Publish a default value.
@@ -39,7 +39,7 @@ public interface I{{ TypeName }}Publisher : Publisher {
    *
    * @param value value
    */
-  void SetDefault(params {{ dotnet.ValueType }} value);
+  void SetDefault({{ dotnet.ValueType }} value);
 {% else %}
   /**
    * Publish a new value using current NT time.
@@ -54,7 +54,7 @@ public interface I{{ TypeName }}Publisher : Publisher {
    * @param value value to publish
    * @param time timestamp; 0 indicates current NT time should be used
    */
-  void Set(long time, {{ dotnet.ValueType }} value);
+  void Set({{ dotnet.ValueType }} value, long time);
 
   /**
    * Publish a default value.

@@ -80,12 +80,12 @@ internal sealed class StringEntryImpl<T> : EntryBase<T>, IStringEntry where T : 
 
 
     public void Set(string value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeString(0, value);
+    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeString(value, 0);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 
-  public void Set(long time, string value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeString(time, value);
+  public void Set(string value, long time) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeString(value, time);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 

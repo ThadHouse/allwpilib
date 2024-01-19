@@ -30,7 +30,7 @@ public interface IIntegerPublisher : Publisher {
    * @param value value to publish
    * @param time timestamp; 0 indicates current NT time should be used
    */
-  void Set(long time, long value);
+  void Set(long value, long time);
 
   /**
    * Publish a default value.

@@ -33,7 +33,7 @@ public readonly ref partial struct RefNetworkTableValue
         return new RefNetworkTableValue(value);
     }
 
-    public static RefNetworkTableValue Make{{ t.TypeName }}(long time, ReadOnlySpan<{{ t.dotnet.BaseType }}> value) {
+    public static RefNetworkTableValue Make{{ t.TypeName }}(ReadOnlySpan<{{ t.dotnet.BaseType }}> value, long time) {
         return new RefNetworkTableValue(value, time);
     }
 {% elif t.TypeName == "String" %}
@@ -56,7 +56,7 @@ public readonly ref partial struct RefNetworkTableValue
         return new RefNetworkTableValue(value);
     }
 
-    public static RefNetworkTableValue Make{{ t.TypeName }}(long time, {{ t.dotnet.ValueType }} value) {
+    public static RefNetworkTableValue Make{{ t.TypeName }}({{ t.dotnet.ValueType }} value, long time) {
         return new RefNetworkTableValue(value, time);
     }
 {% else %}
@@ -77,7 +77,7 @@ public readonly ref partial struct RefNetworkTableValue
         return new RefNetworkTableValue(value);
     }
 
-    public static RefNetworkTableValue Make{{ t.TypeName }}(long time, {{ t.dotnet.ValueType }} value) {
+    public static RefNetworkTableValue Make{{ t.TypeName }}({{ t.dotnet.ValueType }} value, long time) {
         return new RefNetworkTableValue(value, time);
     }
 {% endif -%}

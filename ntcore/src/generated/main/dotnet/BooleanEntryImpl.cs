@@ -80,12 +80,12 @@ internal sealed class BooleanEntryImpl<T> : EntryBase<T>, IBooleanEntry where T 
 
 
     public void Set(bool value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeBoolean(0, value);
+    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeBoolean(value, 0);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 
-  public void Set(long time, bool value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeBoolean(time, value);
+  public void Set(bool value, long time) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeBoolean(value, time);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 

@@ -40,8 +40,8 @@ internal sealed partial class GenericEntryImpl<THandle>
     return Set{{ t.TypeName }}(0, value);
   }
 
-  public bool Set{{ t.TypeName }}(long time, {{ t.dotnet.ValueType }} value) {
-    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.Make{{ t.TypeName }}(time, value));
+  public bool Set{{ t.TypeName }}({{ t.dotnet.ValueType }} value, long time) {
+    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.Make{{ t.TypeName }}(value, time));
   }
 
   /**

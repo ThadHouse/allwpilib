@@ -40,8 +40,8 @@ internal sealed partial class GenericEntryImpl<THandle>
     return SetBoolean(0, value);
   }
 
-  public bool SetBoolean(long time, bool value) {
-    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.MakeBoolean(time, value));
+  public bool SetBoolean(bool value, long time) {
+    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.MakeBoolean(value, time));
   }
 
   /**
@@ -82,8 +82,8 @@ internal sealed partial class GenericEntryImpl<THandle>
     return SetInteger(0, value);
   }
 
-  public bool SetInteger(long time, long value) {
-    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.MakeInteger(time, value));
+  public bool SetInteger(long value, long time) {
+    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.MakeInteger(value, time));
   }
 
   /**
@@ -124,8 +124,8 @@ internal sealed partial class GenericEntryImpl<THandle>
     return SetFloat(0, value);
   }
 
-  public bool SetFloat(long time, float value) {
-    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.MakeFloat(time, value));
+  public bool SetFloat(float value, long time) {
+    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.MakeFloat(value, time));
   }
 
   /**
@@ -166,8 +166,8 @@ internal sealed partial class GenericEntryImpl<THandle>
     return SetDouble(0, value);
   }
 
-  public bool SetDouble(long time, double value) {
-    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.MakeDouble(time, value));
+  public bool SetDouble(double value, long time) {
+    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.MakeDouble(value, time));
   }
 
   /**
@@ -208,8 +208,8 @@ internal sealed partial class GenericEntryImpl<THandle>
     return SetString(0, value);
   }
 
-  public bool SetString(long time, string value) {
-    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.MakeString(time, value));
+  public bool SetString(string value, long time) {
+    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.MakeString(value, time));
   }
 
   /**
@@ -250,8 +250,8 @@ internal sealed partial class GenericEntryImpl<THandle>
     return SetRaw(0, value);
   }
 
-  public bool SetRaw(long time, byte[] value) {
-    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.MakeRaw(time, value));
+  public bool SetRaw(byte[] value, long time) {
+    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.MakeRaw(value, time));
   }
 
   /**
@@ -292,8 +292,8 @@ internal sealed partial class GenericEntryImpl<THandle>
     return SetBooleanArray(0, value);
   }
 
-  public bool SetBooleanArray(long time, bool[] value) {
-    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.MakeBooleanArray(time, value));
+  public bool SetBooleanArray(bool[] value, long time) {
+    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.MakeBooleanArray(value, time));
   }
 
   /**
@@ -334,8 +334,8 @@ internal sealed partial class GenericEntryImpl<THandle>
     return SetIntegerArray(0, value);
   }
 
-  public bool SetIntegerArray(long time, long[] value) {
-    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.MakeIntegerArray(time, value));
+  public bool SetIntegerArray(long[] value, long time) {
+    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.MakeIntegerArray(value, time));
   }
 
   /**
@@ -376,8 +376,8 @@ internal sealed partial class GenericEntryImpl<THandle>
     return SetFloatArray(0, value);
   }
 
-  public bool SetFloatArray(long time, float[] value) {
-    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.MakeFloatArray(time, value));
+  public bool SetFloatArray(float[] value, long time) {
+    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.MakeFloatArray(value, time));
   }
 
   /**
@@ -418,8 +418,8 @@ internal sealed partial class GenericEntryImpl<THandle>
     return SetDoubleArray(0, value);
   }
 
-  public bool SetDoubleArray(long time, double[] value) {
-    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.MakeDoubleArray(time, value));
+  public bool SetDoubleArray(double[] value, long time) {
+    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.MakeDoubleArray(value, time));
   }
 
   /**
@@ -460,8 +460,8 @@ internal sealed partial class GenericEntryImpl<THandle>
     return SetStringArray(0, value);
   }
 
-  public bool SetStringArray(long time, string[] value) {
-    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.MakeStringArray(time, value));
+  public bool SetStringArray(string[] value, long time) {
+    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.MakeStringArray(value, time));
   }
 
   /**

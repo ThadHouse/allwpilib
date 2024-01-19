@@ -80,12 +80,12 @@ internal sealed class DoubleEntryImpl<T> : EntryBase<T>, IDoubleEntry where T : 
 
 
     public void Set(double value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeDouble(0, value);
+    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeDouble(value, 0);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 
-  public void Set(long time, double value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeDouble(time, value);
+  public void Set(double value, long time) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeDouble(value, time);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 
