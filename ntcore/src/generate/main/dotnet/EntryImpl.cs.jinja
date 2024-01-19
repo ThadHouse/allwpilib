@@ -79,28 +79,28 @@ internal sealed class {{ TypeName }}EntryImpl<T> : EntryBase<T>, I{{ TypeName }}
   }
 
 {% if dotnet.IsArray %}
-  public void Set(params {{ dotnet.ValueType }} value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(0, value.AsSpan());
+  public void Set({{ dotnet.ValueType }} value) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value.AsSpan(), 0);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 
-  public void Set(long time, params {{ dotnet.ValueType }} value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(time, value.AsSpan());
+  public void Set({{ dotnet.ValueType }} value, long time) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value.AsSpan(), time);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 
-  public void SetDefault(params {{ dotnet.ValueType }} value) {
+  public void SetDefault({{ dotnet.ValueType }} value) {
     RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value.AsSpan());
     NtCore.SetDefaultEntryValue(Handle, ntValue);
   }
 {% else %}
     public void Set({{ dotnet.ValueType }} value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(0, value);
+    RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value, 0);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 
-  public void Set(long time, {{ dotnet.ValueType }} value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(time, value);
+  public void Set({{ dotnet.ValueType }} value, long time) {
+    RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value, time);
     NtCore.SetEntryValue(Handle, ntValue);
   }
 
