@@ -54,7 +54,7 @@ public class IntegerArrayTopic : Topic {
       PubSubOptions options) {
     return new IntegerArrayEntryImpl<NtSubscriber>(
         this,
-        NtCore.SubscribeDangerous(
+        NtCore.Subscribe(
             Handle, NetworkTableType.IntegerArray,
             "int[]"u8, options),
         defaultValue);
@@ -104,13 +104,13 @@ public class IntegerArrayTopic : Topic {
    * @param options subscribe options
    * @return subscriber
    */
-  internal IIntegerArraySubscriber SubscribeExDangerous(
+  public IIntegerArraySubscriber SubscribeEx(
       ReadOnlySpan<byte> typeString,
       long[] defaultValue,
       PubSubOptions options) {
     return new IntegerArrayEntryImpl<NtSubscriber>(
         this,
-        NtCore.SubscribeDangerous(
+        NtCore.Subscribe(
             Handle, NetworkTableType.IntegerArray,
             typeString, options),
         defaultValue);
@@ -135,7 +135,7 @@ public class IntegerArrayTopic : Topic {
       PubSubOptions options) {
     return new IntegerArrayEntryImpl<NtPublisher>(
         this,
-        NtCore.PublishDangerous(
+        NtCore.Publish(
             Handle, NetworkTableType.IntegerArray,
             "int[]"u8, options),
         []);
@@ -186,13 +186,13 @@ public class IntegerArrayTopic : Topic {
    * @return publisher
    * @throws IllegalArgumentException if properties is not a JSON object
    */
-  internal IIntegerArrayPublisher PublishExDangerous(
+  public IIntegerArrayPublisher PublishEx(
       ReadOnlySpan<byte> typeString,
       string properties,
       PubSubOptions options) {
     return new IntegerArrayEntryImpl<NtPublisher>(
         this,
-        NtCore.PublishExDangerous(
+        NtCore.PublishEx(
             Handle, NetworkTableType.IntegerArray,
             typeString, properties, options),
         []);
@@ -216,13 +216,13 @@ public class IntegerArrayTopic : Topic {
    * @return publisher
    * @throws IllegalArgumentException if properties is not a JSON object
    */
-  internal IIntegerArrayPublisher PublishExDangerous(
+  public IIntegerArrayPublisher PublishEx(
       string typeString,
       ReadOnlySpan<byte> properties,
       PubSubOptions options) {
     return new IntegerArrayEntryImpl<NtPublisher>(
         this,
-        NtCore.PublishExDangerous(
+        NtCore.PublishEx(
             Handle, NetworkTableType.IntegerArray,
             typeString, properties, options),
         []);
@@ -246,13 +246,13 @@ public class IntegerArrayTopic : Topic {
    * @return publisher
    * @throws IllegalArgumentException if properties is not a JSON object
    */
-  internal IIntegerArrayPublisher PublishExDangerous(
+  public IIntegerArrayPublisher PublishEx(
       ReadOnlySpan<byte> typeString,
       ReadOnlySpan<byte> properties,
       PubSubOptions options) {
     return new IntegerArrayEntryImpl<NtPublisher>(
         this,
-        NtCore.PublishExDangerous(
+        NtCore.PublishEx(
             Handle, NetworkTableType.IntegerArray,
             typeString, properties, options),
         []);
@@ -283,7 +283,7 @@ public class IntegerArrayTopic : Topic {
       PubSubOptions options) {
     return new IntegerArrayEntryImpl<NtEntry>(
         this,
-        NtCore.GetEntryDangerous(
+        NtCore.GetEntry(
             Handle, NetworkTableType.IntegerArray,
             "int[]"u8, options),
         defaultValue);
@@ -343,13 +343,13 @@ public class IntegerArrayTopic : Topic {
    * @param options publish and/or subscribe options
    * @return entry
    */
-  internal IIntegerArrayEntry GetEntryExDangerous(
+  public IIntegerArrayEntry GetEntryEx(
       ReadOnlySpan<byte> typeString,
       long[] defaultValue,
       PubSubOptions options) {
     return new IntegerArrayEntryImpl<NtEntry>(
         this,
-        NtCore.GetEntryDangerous(
+        NtCore.GetEntry(
             Handle, NetworkTableType.IntegerArray,
             typeString, options),
         defaultValue);

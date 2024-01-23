@@ -55,7 +55,7 @@ public class {{ TypeName }}Topic : Topic {
       PubSubOptions options) {
     return new {{ TypeName }}EntryImpl<NtSubscriber>(
         this,
-        NtCore.SubscribeDangerous(
+        NtCore.Subscribe(
             Handle, NetworkTableType.{{ TypeName }},
             {{ TypeString }}u8, options),
         defaultValue);
@@ -105,13 +105,13 @@ public class {{ TypeName }}Topic : Topic {
    * @param options subscribe options
    * @return subscriber
    */
-  internal I{{ TypeName }}Subscriber SubscribeExDangerous(
+  public I{{ TypeName }}Subscriber SubscribeEx(
       ReadOnlySpan<byte> typeString,
       {{ dotnet.ValueType }} defaultValue,
       PubSubOptions options) {
     return new {{ TypeName }}EntryImpl<NtSubscriber>(
         this,
-        NtCore.SubscribeDangerous(
+        NtCore.Subscribe(
             Handle, NetworkTableType.{{ TypeName }},
             typeString, options),
         defaultValue);
@@ -136,7 +136,7 @@ public class {{ TypeName }}Topic : Topic {
       PubSubOptions options) {
     return new {{ TypeName }}EntryImpl<NtPublisher>(
         this,
-        NtCore.PublishDangerous(
+        NtCore.Publish(
             Handle, NetworkTableType.{{ TypeName }},
             {{ TypeString }}u8, options),
         {{ dotnet.EmptyValue }});
@@ -187,13 +187,13 @@ public class {{ TypeName }}Topic : Topic {
    * @return publisher
    * @throws IllegalArgumentException if properties is not a JSON object
    */
-  internal I{{ TypeName }}Publisher PublishExDangerous(
+  public I{{ TypeName }}Publisher PublishEx(
       ReadOnlySpan<byte> typeString,
       string properties,
       PubSubOptions options) {
     return new {{ TypeName }}EntryImpl<NtPublisher>(
         this,
-        NtCore.PublishExDangerous(
+        NtCore.PublishEx(
             Handle, NetworkTableType.{{ TypeName }},
             typeString, properties, options),
         {{ dotnet.EmptyValue }});
@@ -217,13 +217,13 @@ public class {{ TypeName }}Topic : Topic {
    * @return publisher
    * @throws IllegalArgumentException if properties is not a JSON object
    */
-  internal I{{ TypeName }}Publisher PublishExDangerous(
+  public I{{ TypeName }}Publisher PublishEx(
       string typeString,
       ReadOnlySpan<byte> properties,
       PubSubOptions options) {
     return new {{ TypeName }}EntryImpl<NtPublisher>(
         this,
-        NtCore.PublishExDangerous(
+        NtCore.PublishEx(
             Handle, NetworkTableType.{{ TypeName }},
             typeString, properties, options),
         {{ dotnet.EmptyValue }});
@@ -247,13 +247,13 @@ public class {{ TypeName }}Topic : Topic {
    * @return publisher
    * @throws IllegalArgumentException if properties is not a JSON object
    */
-  internal I{{ TypeName }}Publisher PublishExDangerous(
+  public I{{ TypeName }}Publisher PublishEx(
       ReadOnlySpan<byte> typeString,
       ReadOnlySpan<byte> properties,
       PubSubOptions options) {
     return new {{ TypeName }}EntryImpl<NtPublisher>(
         this,
-        NtCore.PublishExDangerous(
+        NtCore.PublishEx(
             Handle, NetworkTableType.{{ TypeName }},
             typeString, properties, options),
         {{ dotnet.EmptyValue }});
@@ -284,7 +284,7 @@ public class {{ TypeName }}Topic : Topic {
       PubSubOptions options) {
     return new {{ TypeName }}EntryImpl<NtEntry>(
         this,
-        NtCore.GetEntryDangerous(
+        NtCore.GetEntry(
             Handle, NetworkTableType.{{ TypeName }},
             {{ TypeString }}u8, options),
         defaultValue);
@@ -344,13 +344,13 @@ public class {{ TypeName }}Topic : Topic {
    * @param options publish and/or subscribe options
    * @return entry
    */
-  internal I{{ TypeName }}Entry GetEntryExDangerous(
+  public I{{ TypeName }}Entry GetEntryEx(
       ReadOnlySpan<byte> typeString,
       {{ dotnet.ValueType }} defaultValue,
       PubSubOptions options) {
     return new {{ TypeName }}EntryImpl<NtEntry>(
         this,
-        NtCore.GetEntryDangerous(
+        NtCore.GetEntry(
             Handle, NetworkTableType.{{ TypeName }},
             typeString, options),
         defaultValue);
@@ -402,13 +402,13 @@ public class {{ TypeName }}Topic : Topic {
    * @param options subscribe options
    * @return subscriber
    */
-  internal I{{ TypeName }}Subscriber SubscribeDangerous(
+  public I{{ TypeName }}Subscriber Subscribe(
       ReadOnlySpan<byte> typeString,
       {{ dotnet.ValueType }} defaultValue,
       PubSubOptions options) {
     return new {{ TypeName }}EntryImpl<NtSubscriber>(
         this,
-        NtCore.SubscribeDangerous(
+        NtCore.Subscribe(
             Handle, NetworkTableType.{{ TypeName }},
             typeString, options),
         defaultValue);
@@ -457,12 +457,12 @@ public class {{ TypeName }}Topic : Topic {
    * @param options publish options
    * @return publisher
    */
-  internal I{{ TypeName }}Publisher PublishDangerous(
+  public I{{ TypeName }}Publisher Publish(
       ReadOnlySpan<byte> typeString,
       PubSubOptions options) {
     return new {{ TypeName }}EntryImpl<NtPublisher>(
         this,
-        NtCore.PublishDangerous(
+        NtCore.Publish(
             Handle, NetworkTableType.{{ TypeName }},
             typeString, options),
         {{ dotnet.EmptyValue }});
@@ -513,13 +513,13 @@ public class {{ TypeName }}Topic : Topic {
    * @return publisher
    * @throws IllegalArgumentException if properties is not a JSON object
    */
-  internal I{{ TypeName }}Publisher PublishExDangerous(
+  public I{{ TypeName }}Publisher PublishEx(
       ReadOnlySpan<byte> typeString,
       string properties,
       PubSubOptions options) {
     return new {{ TypeName }}EntryImpl<NtPublisher>(
         this,
-        NtCore.PublishExDangerous(
+        NtCore.PublishEx(
             Handle, NetworkTableType.{{ TypeName }},
             typeString, properties, options),
         {{ dotnet.EmptyValue }});
@@ -543,13 +543,13 @@ public class {{ TypeName }}Topic : Topic {
    * @return publisher
    * @throws IllegalArgumentException if properties is not a JSON object
    */
-  internal I{{ TypeName }}Publisher PublishExDangerous(
+  public I{{ TypeName }}Publisher PublishEx(
       string typeString,
       ReadOnlySpan<byte> properties,
       PubSubOptions options) {
     return new {{ TypeName }}EntryImpl<NtPublisher>(
         this,
-        NtCore.PublishExDangerous(
+        NtCore.PublishEx(
             Handle, NetworkTableType.{{ TypeName }},
             typeString, properties, options),
         {{ dotnet.EmptyValue }});
@@ -573,13 +573,13 @@ public class {{ TypeName }}Topic : Topic {
    * @return publisher
    * @throws IllegalArgumentException if properties is not a JSON object
    */
-  internal I{{ TypeName }}Publisher PublishExDangerous(
+  public I{{ TypeName }}Publisher PublishEx(
       ReadOnlySpan<byte> typeString,
       ReadOnlySpan<byte> properties,
       PubSubOptions options) {
     return new {{ TypeName }}EntryImpl<NtPublisher>(
         this,
-        NtCore.PublishExDangerous(
+        NtCore.PublishEx(
             Handle, NetworkTableType.{{ TypeName }},
             typeString, properties, options),
         {{ dotnet.EmptyValue }});
@@ -639,13 +639,13 @@ public class {{ TypeName }}Topic : Topic {
    * @param options publish and/or subscribe options
    * @return entry
    */
-  internal I{{ TypeName }}Entry GetEntryDangerous(
+  public I{{ TypeName }}Entry GetEntry(
       ReadOnlySpan<byte> typeString,
       {{ dotnet.ValueType }} defaultValue,
       PubSubOptions options) {
     return new {{ TypeName }}EntryImpl<NtEntry>(
         this,
-        NtCore.GetEntryDangerous(
+        NtCore.GetEntry(
             Handle, NetworkTableType.{{ TypeName }},
             typeString, options),
         defaultValue);

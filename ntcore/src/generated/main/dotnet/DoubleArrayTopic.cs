@@ -54,7 +54,7 @@ public class DoubleArrayTopic : Topic {
       PubSubOptions options) {
     return new DoubleArrayEntryImpl<NtSubscriber>(
         this,
-        NtCore.SubscribeDangerous(
+        NtCore.Subscribe(
             Handle, NetworkTableType.DoubleArray,
             "double[]"u8, options),
         defaultValue);
@@ -104,13 +104,13 @@ public class DoubleArrayTopic : Topic {
    * @param options subscribe options
    * @return subscriber
    */
-  internal IDoubleArraySubscriber SubscribeExDangerous(
+  public IDoubleArraySubscriber SubscribeEx(
       ReadOnlySpan<byte> typeString,
       double[] defaultValue,
       PubSubOptions options) {
     return new DoubleArrayEntryImpl<NtSubscriber>(
         this,
-        NtCore.SubscribeDangerous(
+        NtCore.Subscribe(
             Handle, NetworkTableType.DoubleArray,
             typeString, options),
         defaultValue);
@@ -135,7 +135,7 @@ public class DoubleArrayTopic : Topic {
       PubSubOptions options) {
     return new DoubleArrayEntryImpl<NtPublisher>(
         this,
-        NtCore.PublishDangerous(
+        NtCore.Publish(
             Handle, NetworkTableType.DoubleArray,
             "double[]"u8, options),
         []);
@@ -186,13 +186,13 @@ public class DoubleArrayTopic : Topic {
    * @return publisher
    * @throws IllegalArgumentException if properties is not a JSON object
    */
-  internal IDoubleArrayPublisher PublishExDangerous(
+  public IDoubleArrayPublisher PublishEx(
       ReadOnlySpan<byte> typeString,
       string properties,
       PubSubOptions options) {
     return new DoubleArrayEntryImpl<NtPublisher>(
         this,
-        NtCore.PublishExDangerous(
+        NtCore.PublishEx(
             Handle, NetworkTableType.DoubleArray,
             typeString, properties, options),
         []);
@@ -216,13 +216,13 @@ public class DoubleArrayTopic : Topic {
    * @return publisher
    * @throws IllegalArgumentException if properties is not a JSON object
    */
-  internal IDoubleArrayPublisher PublishExDangerous(
+  public IDoubleArrayPublisher PublishEx(
       string typeString,
       ReadOnlySpan<byte> properties,
       PubSubOptions options) {
     return new DoubleArrayEntryImpl<NtPublisher>(
         this,
-        NtCore.PublishExDangerous(
+        NtCore.PublishEx(
             Handle, NetworkTableType.DoubleArray,
             typeString, properties, options),
         []);
@@ -246,13 +246,13 @@ public class DoubleArrayTopic : Topic {
    * @return publisher
    * @throws IllegalArgumentException if properties is not a JSON object
    */
-  internal IDoubleArrayPublisher PublishExDangerous(
+  public IDoubleArrayPublisher PublishEx(
       ReadOnlySpan<byte> typeString,
       ReadOnlySpan<byte> properties,
       PubSubOptions options) {
     return new DoubleArrayEntryImpl<NtPublisher>(
         this,
-        NtCore.PublishExDangerous(
+        NtCore.PublishEx(
             Handle, NetworkTableType.DoubleArray,
             typeString, properties, options),
         []);
@@ -283,7 +283,7 @@ public class DoubleArrayTopic : Topic {
       PubSubOptions options) {
     return new DoubleArrayEntryImpl<NtEntry>(
         this,
-        NtCore.GetEntryDangerous(
+        NtCore.GetEntry(
             Handle, NetworkTableType.DoubleArray,
             "double[]"u8, options),
         defaultValue);
@@ -343,13 +343,13 @@ public class DoubleArrayTopic : Topic {
    * @param options publish and/or subscribe options
    * @return entry
    */
-  internal IDoubleArrayEntry GetEntryExDangerous(
+  public IDoubleArrayEntry GetEntryEx(
       ReadOnlySpan<byte> typeString,
       double[] defaultValue,
       PubSubOptions options) {
     return new DoubleArrayEntryImpl<NtEntry>(
         this,
-        NtCore.GetEntryDangerous(
+        NtCore.GetEntry(
             Handle, NetworkTableType.DoubleArray,
             typeString, options),
         defaultValue);
