@@ -54,7 +54,7 @@ public class StringTopic : Topic {
       PubSubOptions options) {
     return new StringEntryImpl<NtSubscriber>(
         this,
-        NtCore.SubscribeDangerous(
+        NtCore.Subscribe(
             Handle, NetworkTableType.String,
             "string"u8, options),
         defaultValue);
@@ -104,13 +104,13 @@ public class StringTopic : Topic {
    * @param options subscribe options
    * @return subscriber
    */
-  internal IStringSubscriber SubscribeExDangerous(
+  public IStringSubscriber SubscribeEx(
       ReadOnlySpan<byte> typeString,
       string defaultValue,
       PubSubOptions options) {
     return new StringEntryImpl<NtSubscriber>(
         this,
-        NtCore.SubscribeDangerous(
+        NtCore.Subscribe(
             Handle, NetworkTableType.String,
             typeString, options),
         defaultValue);
@@ -135,7 +135,7 @@ public class StringTopic : Topic {
       PubSubOptions options) {
     return new StringEntryImpl<NtPublisher>(
         this,
-        NtCore.PublishDangerous(
+        NtCore.Publish(
             Handle, NetworkTableType.String,
             "string"u8, options),
         "");
@@ -186,13 +186,13 @@ public class StringTopic : Topic {
    * @return publisher
    * @throws IllegalArgumentException if properties is not a JSON object
    */
-  internal IStringPublisher PublishExDangerous(
+  public IStringPublisher PublishEx(
       ReadOnlySpan<byte> typeString,
       string properties,
       PubSubOptions options) {
     return new StringEntryImpl<NtPublisher>(
         this,
-        NtCore.PublishExDangerous(
+        NtCore.PublishEx(
             Handle, NetworkTableType.String,
             typeString, properties, options),
         "");
@@ -216,13 +216,13 @@ public class StringTopic : Topic {
    * @return publisher
    * @throws IllegalArgumentException if properties is not a JSON object
    */
-  internal IStringPublisher PublishExDangerous(
+  public IStringPublisher PublishEx(
       string typeString,
       ReadOnlySpan<byte> properties,
       PubSubOptions options) {
     return new StringEntryImpl<NtPublisher>(
         this,
-        NtCore.PublishExDangerous(
+        NtCore.PublishEx(
             Handle, NetworkTableType.String,
             typeString, properties, options),
         "");
@@ -246,13 +246,13 @@ public class StringTopic : Topic {
    * @return publisher
    * @throws IllegalArgumentException if properties is not a JSON object
    */
-  internal IStringPublisher PublishExDangerous(
+  public IStringPublisher PublishEx(
       ReadOnlySpan<byte> typeString,
       ReadOnlySpan<byte> properties,
       PubSubOptions options) {
     return new StringEntryImpl<NtPublisher>(
         this,
-        NtCore.PublishExDangerous(
+        NtCore.PublishEx(
             Handle, NetworkTableType.String,
             typeString, properties, options),
         "");
@@ -283,7 +283,7 @@ public class StringTopic : Topic {
       PubSubOptions options) {
     return new StringEntryImpl<NtEntry>(
         this,
-        NtCore.GetEntryDangerous(
+        NtCore.GetEntry(
             Handle, NetworkTableType.String,
             "string"u8, options),
         defaultValue);
@@ -343,13 +343,13 @@ public class StringTopic : Topic {
    * @param options publish and/or subscribe options
    * @return entry
    */
-  internal IStringEntry GetEntryExDangerous(
+  public IStringEntry GetEntryEx(
       ReadOnlySpan<byte> typeString,
       string defaultValue,
       PubSubOptions options) {
     return new StringEntryImpl<NtEntry>(
         this,
-        NtCore.GetEntryDangerous(
+        NtCore.GetEntry(
             Handle, NetworkTableType.String,
             typeString, options),
         defaultValue);

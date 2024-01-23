@@ -54,7 +54,7 @@ public class IntegerTopic : Topic {
       PubSubOptions options) {
     return new IntegerEntryImpl<NtSubscriber>(
         this,
-        NtCore.SubscribeDangerous(
+        NtCore.Subscribe(
             Handle, NetworkTableType.Integer,
             "int"u8, options),
         defaultValue);
@@ -104,13 +104,13 @@ public class IntegerTopic : Topic {
    * @param options subscribe options
    * @return subscriber
    */
-  internal IIntegerSubscriber SubscribeExDangerous(
+  public IIntegerSubscriber SubscribeEx(
       ReadOnlySpan<byte> typeString,
       long defaultValue,
       PubSubOptions options) {
     return new IntegerEntryImpl<NtSubscriber>(
         this,
-        NtCore.SubscribeDangerous(
+        NtCore.Subscribe(
             Handle, NetworkTableType.Integer,
             typeString, options),
         defaultValue);
@@ -135,7 +135,7 @@ public class IntegerTopic : Topic {
       PubSubOptions options) {
     return new IntegerEntryImpl<NtPublisher>(
         this,
-        NtCore.PublishDangerous(
+        NtCore.Publish(
             Handle, NetworkTableType.Integer,
             "int"u8, options),
         0);
@@ -186,13 +186,13 @@ public class IntegerTopic : Topic {
    * @return publisher
    * @throws IllegalArgumentException if properties is not a JSON object
    */
-  internal IIntegerPublisher PublishExDangerous(
+  public IIntegerPublisher PublishEx(
       ReadOnlySpan<byte> typeString,
       string properties,
       PubSubOptions options) {
     return new IntegerEntryImpl<NtPublisher>(
         this,
-        NtCore.PublishExDangerous(
+        NtCore.PublishEx(
             Handle, NetworkTableType.Integer,
             typeString, properties, options),
         0);
@@ -216,13 +216,13 @@ public class IntegerTopic : Topic {
    * @return publisher
    * @throws IllegalArgumentException if properties is not a JSON object
    */
-  internal IIntegerPublisher PublishExDangerous(
+  public IIntegerPublisher PublishEx(
       string typeString,
       ReadOnlySpan<byte> properties,
       PubSubOptions options) {
     return new IntegerEntryImpl<NtPublisher>(
         this,
-        NtCore.PublishExDangerous(
+        NtCore.PublishEx(
             Handle, NetworkTableType.Integer,
             typeString, properties, options),
         0);
@@ -246,13 +246,13 @@ public class IntegerTopic : Topic {
    * @return publisher
    * @throws IllegalArgumentException if properties is not a JSON object
    */
-  internal IIntegerPublisher PublishExDangerous(
+  public IIntegerPublisher PublishEx(
       ReadOnlySpan<byte> typeString,
       ReadOnlySpan<byte> properties,
       PubSubOptions options) {
     return new IntegerEntryImpl<NtPublisher>(
         this,
-        NtCore.PublishExDangerous(
+        NtCore.PublishEx(
             Handle, NetworkTableType.Integer,
             typeString, properties, options),
         0);
@@ -283,7 +283,7 @@ public class IntegerTopic : Topic {
       PubSubOptions options) {
     return new IntegerEntryImpl<NtEntry>(
         this,
-        NtCore.GetEntryDangerous(
+        NtCore.GetEntry(
             Handle, NetworkTableType.Integer,
             "int"u8, options),
         defaultValue);
@@ -343,13 +343,13 @@ public class IntegerTopic : Topic {
    * @param options publish and/or subscribe options
    * @return entry
    */
-  internal IIntegerEntry GetEntryExDangerous(
+  public IIntegerEntry GetEntryEx(
       ReadOnlySpan<byte> typeString,
       long defaultValue,
       PubSubOptions options) {
     return new IntegerEntryImpl<NtEntry>(
         this,
-        NtCore.GetEntryDangerous(
+        NtCore.GetEntry(
             Handle, NetworkTableType.Integer,
             typeString, options),
         defaultValue);
