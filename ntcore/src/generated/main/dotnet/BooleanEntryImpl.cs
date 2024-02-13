@@ -10,92 +10,95 @@ using NetworkTables.Natives;
 
 namespace NetworkTables;
 
-/** NetworkTables Boolean implementation. */
-internal sealed class BooleanEntryImpl<T> : EntryBase<T>, IBooleanEntry where T : struct, INtEntryHandle {
-  /**
-   * Constructor.
-   *
-   * @param topic Topic
-   * @param handle Native handle
-   * @param defaultValue Default value for Get()
-   */
-  internal BooleanEntryImpl(BooleanTopic topic, T handle, bool defaultValue) : base(handle) {
-    Topic = topic;
-    m_defaultValue = defaultValue;
-  }
-
-  public override BooleanTopic Topic { get; }
-
-
-  public bool Get() {
-    NetworkTableValue value = NtCore.GetEntryValue(Handle);
-    if (value.IsBoolean) {
-      return value.GetBoolean();
+internal sealed class BooleanEntryImpl<T> : EntryBase<T>, IBooleanEntry where T : struct, INtEntryHandle
+{
+    internal BooleanEntryImpl(BooleanTopic topic, T handle, bool defaultValue) : base(handle)
+    {
+        Topic = topic;
+        m_defaultValue = defaultValue;
     }
-    return m_defaultValue;
-  }
 
+    public override BooleanTopic Topic { get; }
 
-  public bool Get(bool defaultValue) {
-    NetworkTableValue value = NtCore.GetEntryValue(Handle);
-    if (value.IsBoolean) {
-      return value.GetBoolean();
+    public bool Get()
+    {
+        NetworkTableValue value = NtCore.GetEntryValue(Handle);
+        if (value.IsBoolean)
+        {
+            return value.GetBoolean();
+        }
+        return m_defaultValue;
     }
-    return defaultValue;
-  }
 
-
-  public TimestampedObject<bool> GetAtomic() {
-    NetworkTableValue value = NtCore.GetEntryValue(Handle);
-    bool baseValue = value.IsBoolean ? value.GetBoolean() : m_defaultValue;
-    return new TimestampedObject<bool>(value.Time, value.ServerTime, baseValue);
-  }
-
-
-  public TimestampedObject<bool> GetAtomic(bool defaultValue) {
-    NetworkTableValue value = NtCore.GetEntryValue(Handle);
-    bool baseValue = value.IsBoolean ? value.GetBoolean() : defaultValue;
-    return new TimestampedObject<bool>(value.Time, value.ServerTime, baseValue);
-  }
-
-
-  public TimestampedObject<bool>[] ReadQueue() {
-    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
-    TimestampedObject<bool>[] timestamped = new TimestampedObject<bool>[values.Length];
-    for(int i = 0; i < values.Length; i++) {
-      timestamped[i] = new TimestampedObject<bool>(values[i].Time, values[i].ServerTime, values[i].GetBoolean());
+    public bool Get(bool defaultValue)
+    {
+        NetworkTableValue value = NtCore.GetEntryValue(Handle);
+        if (value.IsBoolean)
+        {
+            return value.GetBoolean();
+        }
+        return defaultValue;
     }
-    return timestamped;
-  }
 
-
-  public bool[] ReadQueueValues() {
-    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
-    bool[] timestamped = new bool[values.Length];
-    for(int i = 0; i < values.Length; i++) {
-      timestamped[i] = values[i].GetBoolean();
+    public TimestampedObject<bool> GetAtomic()
+    {
+        NetworkTableValue value = NtCore.GetEntryValue(Handle);
+        bool baseValue = value.IsBoolean ? value.GetBoolean() : m_defaultValue;
+        return new TimestampedObject<bool>(value.Time, value.ServerTime, baseValue);
     }
-    return timestamped;
-  }
+
+    public TimestampedObject<bool> GetAtomic(bool defaultValue)
+    {
+        NetworkTableValue value = NtCore.GetEntryValue(Handle);
+        bool baseValue = value.IsBoolean ? value.GetBoolean() : defaultValue;
+        return new TimestampedObject<bool>(value.Time, value.ServerTime, baseValue);
+    }
+
+    public TimestampedObject<bool>[] ReadQueue()
+    {
+        NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
+        TimestampedObject<bool>[] timestamped = new TimestampedObject<bool>[values.Length];
+        for (int i = 0; i < values.Length; i++)
+        {
+            timestamped[i] = new TimestampedObject<bool>(values[i].Time, values[i].ServerTime, values[i].GetBoolean());
+        }
+        return timestamped;
+    }
+
+    public bool[] ReadQueueValues()
+    {
+        NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
+        bool[] timestamped = new bool[values.Length];
+        for (int i = 0; i < values.Length; i++)
+        {
+            timestamped[i] = values[i].GetBoolean();
+        }
+        return timestamped;
+    }
 
 
-    public void Set(bool value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeBoolean(value, 0);
-    NtCore.SetEntryValue(Handle, ntValue);
-  }
+    public void Set(bool value)
+    {
+        RefNetworkTableValue ntValue = RefNetworkTableValue.MakeBoolean(value, 0);
+        NtCore.SetEntryValue(Handle, ntValue);
+    }
 
-  public void Set(bool value, long time) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeBoolean(value, time);
-    NtCore.SetEntryValue(Handle, ntValue);
-  }
+    public void Set(bool value, long time)
+    {
+        RefNetworkTableValue ntValue = RefNetworkTableValue.MakeBoolean(value, time);
+        NtCore.SetEntryValue(Handle, ntValue);
+    }
 
-  public void SetDefault(bool value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeBoolean(value);
-    NtCore.SetDefaultEntryValue(Handle, ntValue);
-  }
-public void Unpublish() {
-    NtCore.Unpublish(Handle);
-  }
+    public void SetDefault(bool value)
+    {
+        RefNetworkTableValue ntValue = RefNetworkTableValue.MakeBoolean(value);
+        NtCore.SetDefaultEntryValue(Handle, ntValue);
+    }
 
-  private readonly bool m_defaultValue;
+    public void Unpublish()
+    {
+        NtCore.Unpublish(Handle);
+    }
+
+    private readonly bool m_defaultValue;
 }

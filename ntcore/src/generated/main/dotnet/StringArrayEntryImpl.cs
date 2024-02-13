@@ -10,92 +10,95 @@ using NetworkTables.Natives;
 
 namespace NetworkTables;
 
-/** NetworkTables StringArray implementation. */
-internal sealed class StringArrayEntryImpl<T> : EntryBase<T>, IStringArrayEntry where T : struct, INtEntryHandle {
-  /**
-   * Constructor.
-   *
-   * @param topic Topic
-   * @param handle Native handle
-   * @param defaultValue Default value for Get()
-   */
-  internal StringArrayEntryImpl(StringArrayTopic topic, T handle, string[] defaultValue) : base(handle) {
-    Topic = topic;
-    m_defaultValue = defaultValue;
-  }
-
-  public override StringArrayTopic Topic { get; }
-
-
-  public string[] Get() {
-    NetworkTableValue value = NtCore.GetEntryValue(Handle);
-    if (value.IsStringArray) {
-      return value.GetStringArray();
+internal sealed class StringArrayEntryImpl<T> : EntryBase<T>, IStringArrayEntry where T : struct, INtEntryHandle
+{
+    internal StringArrayEntryImpl(StringArrayTopic topic, T handle, string[] defaultValue) : base(handle)
+    {
+        Topic = topic;
+        m_defaultValue = defaultValue;
     }
-    return m_defaultValue;
-  }
 
+    public override StringArrayTopic Topic { get; }
 
-  public string[] Get(string[] defaultValue) {
-    NetworkTableValue value = NtCore.GetEntryValue(Handle);
-    if (value.IsStringArray) {
-      return value.GetStringArray();
+    public string[] Get()
+    {
+        NetworkTableValue value = NtCore.GetEntryValue(Handle);
+        if (value.IsStringArray)
+        {
+            return value.GetStringArray();
+        }
+        return m_defaultValue;
     }
-    return defaultValue;
-  }
 
-
-  public TimestampedObject<string[]> GetAtomic() {
-    NetworkTableValue value = NtCore.GetEntryValue(Handle);
-    string[] baseValue = value.IsStringArray ? value.GetStringArray() : m_defaultValue;
-    return new TimestampedObject<string[]>(value.Time, value.ServerTime, baseValue);
-  }
-
-
-  public TimestampedObject<string[]> GetAtomic(string[] defaultValue) {
-    NetworkTableValue value = NtCore.GetEntryValue(Handle);
-    string[] baseValue = value.IsStringArray ? value.GetStringArray() : defaultValue;
-    return new TimestampedObject<string[]>(value.Time, value.ServerTime, baseValue);
-  }
-
-
-  public TimestampedObject<string[]>[] ReadQueue() {
-    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
-    TimestampedObject<string[]>[] timestamped = new TimestampedObject<string[]>[values.Length];
-    for(int i = 0; i < values.Length; i++) {
-      timestamped[i] = new TimestampedObject<string[]>(values[i].Time, values[i].ServerTime, values[i].GetStringArray());
+    public string[] Get(string[] defaultValue)
+    {
+        NetworkTableValue value = NtCore.GetEntryValue(Handle);
+        if (value.IsStringArray)
+        {
+            return value.GetStringArray();
+        }
+        return defaultValue;
     }
-    return timestamped;
-  }
 
-
-  public string[][] ReadQueueValues() {
-    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
-    string[][] timestamped = new string[values.Length][];
-    for(int i = 0; i < values.Length; i++) {
-      timestamped[i] = values[i].GetStringArray();
+    public TimestampedObject<string[]> GetAtomic()
+    {
+        NetworkTableValue value = NtCore.GetEntryValue(Handle);
+        string[] baseValue = value.IsStringArray ? value.GetStringArray() : m_defaultValue;
+        return new TimestampedObject<string[]>(value.Time, value.ServerTime, baseValue);
     }
-    return timestamped;
-  }
+
+    public TimestampedObject<string[]> GetAtomic(string[] defaultValue)
+    {
+        NetworkTableValue value = NtCore.GetEntryValue(Handle);
+        string[] baseValue = value.IsStringArray ? value.GetStringArray() : defaultValue;
+        return new TimestampedObject<string[]>(value.Time, value.ServerTime, baseValue);
+    }
+
+    public TimestampedObject<string[]>[] ReadQueue()
+    {
+        NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
+        TimestampedObject<string[]>[] timestamped = new TimestampedObject<string[]>[values.Length];
+        for (int i = 0; i < values.Length; i++)
+        {
+            timestamped[i] = new TimestampedObject<string[]>(values[i].Time, values[i].ServerTime, values[i].GetStringArray());
+        }
+        return timestamped;
+    }
+
+    public string[][] ReadQueueValues()
+    {
+        NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
+        string[][] timestamped = new string[values.Length][];
+        for (int i = 0; i < values.Length; i++)
+        {
+            timestamped[i] = values[i].GetStringArray();
+        }
+        return timestamped;
+    }
 
 
-  public void Set(ReadOnlySpan<string> value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeStringArray(value, 0);
-    NtCore.SetEntryValue(Handle, ntValue);
-  }
+    public void Set(ReadOnlySpan<string> value)
+    {
+        RefNetworkTableValue ntValue = RefNetworkTableValue.MakeStringArray(value, 0);
+        NtCore.SetEntryValue(Handle, ntValue);
+    }
 
-  public void Set(ReadOnlySpan<string> value, long time) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeStringArray(value, time);
-    NtCore.SetEntryValue(Handle, ntValue);
-  }
+    public void Set(ReadOnlySpan<string> value, long time)
+    {
+        RefNetworkTableValue ntValue = RefNetworkTableValue.MakeStringArray(value, time);
+        NtCore.SetEntryValue(Handle, ntValue);
+    }
 
-  public void SetDefault(ReadOnlySpan<string> value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeStringArray(value);
-    NtCore.SetDefaultEntryValue(Handle, ntValue);
-  }
-public void Unpublish() {
-    NtCore.Unpublish(Handle);
-  }
+    public void SetDefault(ReadOnlySpan<string> value)
+    {
+        RefNetworkTableValue ntValue = RefNetworkTableValue.MakeStringArray(value);
+        NtCore.SetDefaultEntryValue(Handle, ntValue);
+    }
 
-  private readonly string[] m_defaultValue;
+    public void Unpublish()
+    {
+        NtCore.Unpublish(Handle);
+    }
+
+    private readonly string[] m_defaultValue;
 }

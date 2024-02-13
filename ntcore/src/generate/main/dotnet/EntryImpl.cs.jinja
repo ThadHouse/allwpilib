@@ -10,109 +10,113 @@ using NetworkTables.Natives;
 
 namespace NetworkTables;
 
-/** NetworkTables {{ TypeName }} implementation. */
-internal sealed class {{ TypeName }}EntryImpl<T> : EntryBase<T>, I{{ TypeName }}Entry where T : struct, INtEntryHandle {
-  /**
-   * Constructor.
-   *
-   * @param topic Topic
-   * @param handle Native handle
-   * @param defaultValue Default value for Get()
-   */
-  internal {{ TypeName }}EntryImpl({{ TypeName }}Topic topic, T handle, {{ dotnet.ValueType }} defaultValue) : base(handle) {
-    Topic = topic;
-    m_defaultValue = defaultValue;
-  }
-
-  public override {{ TypeName }}Topic Topic { get; }
-
-
-  public {{ dotnet.ValueType }} Get() {
-    NetworkTableValue value = NtCore.GetEntryValue(Handle);
-    if (value.Is{{ TypeName }}) {
-      return value.Get{{ TypeName }}();
+internal sealed class {{ TypeName }}EntryImpl<T> : EntryBase<T>, I{{ TypeName }}Entry where T : struct, INtEntryHandle
+{
+    internal {{ TypeName }}EntryImpl({{ TypeName }}Topic topic, T handle, {{ dotnet.ValueType }} defaultValue) : base(handle)
+    {
+        Topic = topic;
+        m_defaultValue = defaultValue;
     }
-    return m_defaultValue;
-  }
 
+    public override {{ TypeName }}Topic Topic { get; }
 
-  public {{ dotnet.ValueType }} Get({{ dotnet.ValueType }} defaultValue) {
-    NetworkTableValue value = NtCore.GetEntryValue(Handle);
-    if (value.Is{{ TypeName }}) {
-      return value.Get{{ TypeName }}();
+    public {{ dotnet.ValueType }} Get()
+    {
+        NetworkTableValue value = NtCore.GetEntryValue(Handle);
+        if (value.Is{{ TypeName }})
+        {
+            return value.Get{{ TypeName }}();
+        }
+        return m_defaultValue;
     }
-    return defaultValue;
-  }
 
-
-  public TimestampedObject<{{ dotnet.ValueType }}> GetAtomic() {
-    NetworkTableValue value = NtCore.GetEntryValue(Handle);
-    {{ dotnet.ValueType }} baseValue = value.Is{{ TypeName }} ? value.Get{{ TypeName }}() : m_defaultValue;
-    return new TimestampedObject<{{ dotnet.ValueType }}>(value.Time, value.ServerTime, baseValue);
-  }
-
-
-  public TimestampedObject<{{ dotnet.ValueType }}> GetAtomic({{ dotnet.ValueType }} defaultValue) {
-    NetworkTableValue value = NtCore.GetEntryValue(Handle);
-    {{ dotnet.ValueType }} baseValue = value.Is{{ TypeName }} ? value.Get{{ TypeName }}() : defaultValue;
-    return new TimestampedObject<{{ dotnet.ValueType }}>(value.Time, value.ServerTime, baseValue);
-  }
-
-
-  public TimestampedObject<{{ dotnet.ValueType }}>[] ReadQueue() {
-    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
-    TimestampedObject<{{ dotnet.ValueType }}>[] timestamped = new TimestampedObject<{{ dotnet.ValueType }}>[values.Length];
-    for(int i = 0; i < values.Length; i++) {
-      timestamped[i] = new TimestampedObject<{{ dotnet.ValueType }}>(values[i].Time, values[i].ServerTime, values[i].Get{{ TypeName }}());
+    public {{ dotnet.ValueType }} Get({{ dotnet.ValueType }} defaultValue)
+    {
+        NetworkTableValue value = NtCore.GetEntryValue(Handle);
+        if (value.Is{{ TypeName }})
+        {
+            return value.Get{{ TypeName }}();
+        }
+        return defaultValue;
     }
-    return timestamped;
-  }
 
-
-  public {{ dotnet.ValueType }}[] ReadQueueValues() {
-    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
-    {{ dotnet.ValueType }}[] timestamped = new {{ dotnet.BaseType }}[values.Length]{% if dotnet.IsArray %}[]{% endif %};
-    for(int i = 0; i < values.Length; i++) {
-      timestamped[i] = values[i].Get{{ TypeName }}();
+    public TimestampedObject<{{ dotnet.ValueType }}> GetAtomic()
+    {
+        NetworkTableValue value = NtCore.GetEntryValue(Handle);
+        {{ dotnet.ValueType }} baseValue = value.Is{{ TypeName }} ? value.Get{{ TypeName }}() : m_defaultValue;
+        return new TimestampedObject<{{ dotnet.ValueType }}>(value.Time, value.ServerTime, baseValue);
     }
-    return timestamped;
-  }
+
+    public TimestampedObject<{{ dotnet.ValueType }}> GetAtomic({{ dotnet.ValueType }} defaultValue)
+    {
+        NetworkTableValue value = NtCore.GetEntryValue(Handle);
+        {{ dotnet.ValueType }} baseValue = value.Is{{ TypeName }} ? value.Get{{ TypeName }}() : defaultValue;
+        return new TimestampedObject<{{ dotnet.ValueType }}>(value.Time, value.ServerTime, baseValue);
+    }
+
+    public TimestampedObject<{{ dotnet.ValueType }}>[] ReadQueue()
+    {
+        NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
+        TimestampedObject<{{ dotnet.ValueType }}>[] timestamped = new TimestampedObject<{{ dotnet.ValueType }}>[values.Length];
+        for (int i = 0; i < values.Length; i++)
+        {
+            timestamped[i] = new TimestampedObject<{{ dotnet.ValueType }}>(values[i].Time, values[i].ServerTime, values[i].Get{{ TypeName }}());
+        }
+        return timestamped;
+    }
+
+    public {{ dotnet.ValueType }}[] ReadQueueValues()
+    {
+        NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
+        {{ dotnet.ValueType }}[] timestamped = new {{ dotnet.BaseType }}[values.Length]{% if dotnet.IsArray %}[]{% endif %};
+        for (int i = 0; i < values.Length; i++)
+        {
+            timestamped[i] = values[i].Get{{ TypeName }}();
+        }
+        return timestamped;
+    }
 
 {% if dotnet.IsArray %}
-  public void Set(ReadOnlySpan<{{ dotnet.BaseType }}> value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value, 0);
-    NtCore.SetEntryValue(Handle, ntValue);
-  }
+    public void Set(ReadOnlySpan<{{ dotnet.BaseType }}> value)
+    {
+        RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value, 0);
+        NtCore.SetEntryValue(Handle, ntValue);
+    }
 
-  public void Set(ReadOnlySpan<{{ dotnet.BaseType }}> value, long time) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value, time);
-    NtCore.SetEntryValue(Handle, ntValue);
-  }
+    public void Set(ReadOnlySpan<{{ dotnet.BaseType }}> value, long time)
+    {
+        RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value, time);
+        NtCore.SetEntryValue(Handle, ntValue);
+    }
 
-  public void SetDefault(ReadOnlySpan<{{ dotnet.BaseType }}> value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value);
-    NtCore.SetDefaultEntryValue(Handle, ntValue);
-  }
+    public void SetDefault(ReadOnlySpan<{{ dotnet.BaseType }}> value)
+    {
+        RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value);
+        NtCore.SetDefaultEntryValue(Handle, ntValue);
+    }
 {% else %}
-    public void Set({{ dotnet.ValueType }} value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value, 0);
-    NtCore.SetEntryValue(Handle, ntValue);
-  }
+    public void Set({{ dotnet.ValueType }} value)
+    {
+        RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value, 0);
+        NtCore.SetEntryValue(Handle, ntValue);
+    }
 
-  public void Set({{ dotnet.ValueType }} value, long time) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value, time);
-    NtCore.SetEntryValue(Handle, ntValue);
-  }
+    public void Set({{ dotnet.ValueType }} value, long time)
+    {
+        RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value, time);
+        NtCore.SetEntryValue(Handle, ntValue);
+    }
 
-  public void SetDefault({{ dotnet.ValueType }} value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value);
-    NtCore.SetDefaultEntryValue(Handle, ntValue);
-  }
-{% endif -%}
+    public void SetDefault({{ dotnet.ValueType }} value)
+    {
+        RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value);
+        NtCore.SetDefaultEntryValue(Handle, ntValue);
+    }
+{% endif %}
+    public void Unpublish()
+    {
+        NtCore.Unpublish(Handle);
+    }
 
-  public void Unpublish() {
-    NtCore.Unpublish(Handle);
-  }
-
-  private readonly {{ dotnet.ValueType }} m_defaultValue;
+    private readonly {{ dotnet.ValueType }} m_defaultValue;
 }

@@ -6,12 +6,13 @@
 
 namespace NetworkTables;
 
-/**
- * NetworkTables BooleanArray entry.
- *
- * <p>Unlike NetworkTableEntry, the entry goes away when close() is called.
- */
-public interface IBooleanArrayEntry : IBooleanArraySubscriber, IBooleanArrayPublisher {
-  /** Stops publishing the entry if it's published. */
-  void Unpublish();
+/// <summary>
+/// NetworkTables BooleanArray entry.
+/// </summary>
+public interface IBooleanArrayEntry : IBooleanArraySubscriber, IBooleanArrayPublisher
+{
+    /// <summary>
+    /// Stops publishing the entry if its published.
+    /// </summary>
+    void Unpublish();
 }

@@ -6,17 +6,15 @@
 
 namespace NetworkTables;
 
-/** NetworkTables generic subscriber. */
 public partial interface IGenericSubscriber
 {
 {% for t in types %}
-  /**
-   * Gets the entry's value as a {{ t.dotnet.ValueType }}. If the entry does not exist or is of different type, it
-   * will return the default value.
-   *
-   * @param defaultValue the value to be returned if no value is found
-   * @return the entry's value or the given default value
-   */
-  {{ t.dotnet.ValueType }} Get{{ t.TypeName }}({{ t.dotnet.ValueType }} defaultValue);
+    /// <summary>
+    /// Gets the entry's value as a {{ t.dotnet.ValueType }}. If the entry does not exist
+    /// or is of a different type, it will return the default value.
+    /// </summary>
+    /// <param name="defaultValue">the value to be returned if no value is found</param>
+    /// <returns>the entry's value or the given default value</returns>
+    {{ t.dotnet.ValueType }} Get{{ t.TypeName }}({{ t.dotnet.ValueType }} defaultValue);
 {% endfor %}
 }

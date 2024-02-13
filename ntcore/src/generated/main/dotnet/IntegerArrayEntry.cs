@@ -6,12 +6,13 @@
 
 namespace NetworkTables;
 
-/**
- * NetworkTables IntegerArray entry.
- *
- * <p>Unlike NetworkTableEntry, the entry goes away when close() is called.
- */
-public interface IIntegerArrayEntry : IIntegerArraySubscriber, IIntegerArrayPublisher {
-  /** Stops publishing the entry if it's published. */
-  void Unpublish();
+/// <summary>
+/// NetworkTables IntegerArray entry.
+/// </summary>
+public interface IIntegerArrayEntry : IIntegerArraySubscriber, IIntegerArrayPublisher
+{
+    /// <summary>
+    /// Stops publishing the entry if its published.
+    /// </summary>
+    void Unpublish();
 }

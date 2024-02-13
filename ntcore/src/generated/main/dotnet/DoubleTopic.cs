@@ -10,351 +10,357 @@ using NetworkTables.Natives;
 
 namespace NetworkTables;
 
-/** NetworkTables Double topic. */
-public class DoubleTopic : Topic {
-  /** The default type string for this topic type. */
-  public static string kTypeString => "double";
-  public static ReadOnlySpan<byte> kTypeStringUtf8 => "double"u8;
+/// <summary>
+/// NetworkTables Double topic.
+/// </summary>
+public class DoubleTopic : Topic
+{
+    /// <summary>
+    /// The default type string for this topic type
+    /// </summary>
+    public static string kTypeString => "double";
+    /// <summary>
+    /// The default type string for this topic type in a UTF8 Span
+    /// </summary>
+    public static ReadOnlySpan<byte> kTypeStringUtf8 => "double"u8;
 
-  /**
-   * Construct from a generic topic.
-   *
-   * @param topic Topic
-   */
-  public DoubleTopic(Topic topic) : base(topic.Instance, topic.Handle) {
-  }
+    /// <summary>
+    /// Constructs a typed topic from a generic topic.
+    /// </summary>
+    /// <param name="topic">typed topic</param>
+    public DoubleTopic(Topic topic) : base(topic.Instance, topic.Handle) { }
 
-  /**
-   * Constructor; use NetworkTableInstance.getDoubleTopic() instead.
-   *
-   * @param inst Instance
-   * @param handle Native handle
-   */
-  public DoubleTopic(NetworkTableInstance inst, NtTopic handle) : base(inst, handle) {
-  }
-
-
-  /**
-   * Create a new subscriber to the topic.
-   *
-   * <p>The subscriber is only active as long as the returned object
-   * is not closed.
-   *
-   * <p>Subscribers that do not match the published data type do not return
-   * any values. To determine if the data type matches, use the appropriate
-   * Topic functions.
-   *
-   * @param defaultValue default value used when a default is not provided to a
-   *        getter function
-   * @param options subscribe options
-   * @return subscriber
-   */
-  public IDoubleSubscriber Subscribe(
-      double defaultValue,
-      PubSubOptions options) {
-    return new DoubleEntryImpl<NtSubscriber>(
-        this,
-        NtCore.Subscribe(
-            Handle, NetworkTableType.Double,
-            "double"u8, options),
-        defaultValue);
-  }
-
-  /**
-   * Create a new subscriber to the topic, with specified type string.
-   *
-   * <p>The subscriber is only active as long as the returned object
-   * is not closed.
-   *
-   * <p>Subscribers that do not match the published data type do not return
-   * any values. To determine if the data type matches, use the appropriate
-   * Topic functions.
-   *
-   * @param typeString type string
-   * @param defaultValue default value used when a default is not provided to a
-   *        getter function
-   * @param options subscribe options
-   * @return subscriber
-   */
-  public IDoubleSubscriber SubscribeEx(
-      string typeString,
-      double defaultValue,
-      PubSubOptions options) {
-    return new DoubleEntryImpl<NtSubscriber>(
-        this,
-        NtCore.Subscribe(
-            Handle, NetworkTableType.Double,
-            typeString, options),
-        defaultValue);
-  }
-
-  /**
-   * Create a new subscriber to the topic, with specified type string.
-   *
-   * <p>The subscriber is only active as long as the returned object
-   * is not closed.
-   *
-   * <p>Subscribers that do not match the published data type do not return
-   * any values. To determine if the data type matches, use the appropriate
-   * Topic functions.
-   *
-   * @param typeString type string
-   * @param defaultValue default value used when a default is not provided to a
-   *        getter function
-   * @param options subscribe options
-   * @return subscriber
-   */
-  public IDoubleSubscriber SubscribeEx(
-      ReadOnlySpan<byte> typeString,
-      double defaultValue,
-      PubSubOptions options) {
-    return new DoubleEntryImpl<NtSubscriber>(
-        this,
-        NtCore.Subscribe(
-            Handle, NetworkTableType.Double,
-            typeString, options),
-        defaultValue);
-  }
-
-  /**
-   * Create a new publisher to the topic.
-   *
-   * <p>The publisher is only active as long as the returned object
-   * is not closed.
-   *
-   * <p>It is not possible to publish two different data types to the same
-   * topic. Conflicts between publishers are typically resolved by the server on
-   * a first-come, first-served basis. Any published values that do not match
-   * the topic's data type are dropped (ignored). To determine if the data type
-   * matches, use the appropriate Topic functions.
-   *
-   * @param options publish options
-   * @return publisher
-   */
-  public IDoublePublisher Publish(
-      PubSubOptions options) {
-    return new DoubleEntryImpl<NtPublisher>(
-        this,
-        NtCore.Publish(
-            Handle, NetworkTableType.Double,
-            "double"u8, options),
-        0);
-  }
-
- /**
-   * Create a new publisher to the topic.
-   *
-   * <p>The publisher is only active as long as the returned object
-   * is not closed.
-   *
-   * <p>It is not possible to publish two different data types to the same
-   * topic. Conflicts between publishers are typically resolved by the server on
-   * a first-come, first-served basis. Any published values that do not match
-   * the topic's data type are dropped (ignored). To determine if the data type
-   * matches, use the appropriate Topic functions.
-   *
-   * @param typeString type string
-   * @param options publish options
-   * @return publisher
-   */
-  public IDoublePublisher PublishEx(
-      string typeString, string properties,
-      PubSubOptions options) {
-    return new DoubleEntryImpl<NtPublisher>(
-        this,
-        NtCore.PublishEx(
-            Handle, NetworkTableType.Double,
-            typeString, properties, options),
-        0);
-  }
-
-  /**
-   * Create a new publisher to the topic, with type string and initial properties.
-   *
-   * <p>The publisher is only active as long as the returned object
-   * is not closed.
-   *
-   * <p>It is not possible to publish two different data types to the same
-   * topic. Conflicts between publishers are typically resolved by the server on
-   * a first-come, first-served basis. Any published values that do not match
-   * the topic's data type are dropped (ignored). To determine if the data type
-   * matches, use the appropriate Topic functions.
-   *
-   * @param typeString type string
-   * @param properties JSON properties
-   * @param options publish options
-   * @return publisher
-   * @throws IllegalArgumentException if properties is not a JSON object
-   */
-  public IDoublePublisher PublishEx(
-      ReadOnlySpan<byte> typeString,
-      string properties,
-      PubSubOptions options) {
-    return new DoubleEntryImpl<NtPublisher>(
-        this,
-        NtCore.PublishEx(
-            Handle, NetworkTableType.Double,
-            typeString, properties, options),
-        0);
-  }
-
-  /**
-   * Create a new publisher to the topic, with type string and initial properties.
-   *
-   * <p>The publisher is only active as long as the returned object
-   * is not closed.
-   *
-   * <p>It is not possible to publish two different data types to the same
-   * topic. Conflicts between publishers are typically resolved by the server on
-   * a first-come, first-served basis. Any published values that do not match
-   * the topic's data type are dropped (ignored). To determine if the data type
-   * matches, use the appropriate Topic functions.
-   *
-   * @param typeString type string
-   * @param properties JSON properties
-   * @param options publish options
-   * @return publisher
-   * @throws IllegalArgumentException if properties is not a JSON object
-   */
-  public IDoublePublisher PublishEx(
-      string typeString,
-      ReadOnlySpan<byte> properties,
-      PubSubOptions options) {
-    return new DoubleEntryImpl<NtPublisher>(
-        this,
-        NtCore.PublishEx(
-            Handle, NetworkTableType.Double,
-            typeString, properties, options),
-        0);
-  }
-
-  /**
-   * Create a new publisher to the topic, with type string and initial properties.
-   *
-   * <p>The publisher is only active as long as the returned object
-   * is not closed.
-   *
-   * <p>It is not possible to publish two different data types to the same
-   * topic. Conflicts between publishers are typically resolved by the server on
-   * a first-come, first-served basis. Any published values that do not match
-   * the topic's data type are dropped (ignored). To determine if the data type
-   * matches, use the appropriate Topic functions.
-   *
-   * @param typeString type string
-   * @param properties JSON properties
-   * @param options publish options
-   * @return publisher
-   * @throws IllegalArgumentException if properties is not a JSON object
-   */
-  public IDoublePublisher PublishEx(
-      ReadOnlySpan<byte> typeString,
-      ReadOnlySpan<byte> properties,
-      PubSubOptions options) {
-    return new DoubleEntryImpl<NtPublisher>(
-        this,
-        NtCore.PublishEx(
-            Handle, NetworkTableType.Double,
-            typeString, properties, options),
-        0);
-  }
-
-/**
-   * Create a new entry for the topic.
-   *
-   * <p>Entries act as a combination of a subscriber and a weak publisher. The
-   * subscriber is active as long as the entry is not closed. The publisher is
-   * created when the entry is first written to, and remains active until either
-   * unpublish() is called or the entry is closed.
-   *
-   * <p>It is not possible to use two different data types with the same
-   * topic. Conflicts between publishers are typically resolved by the server on
-   * a first-come, first-served basis. Any published values that do not match
-   * the topic's data type are dropped (ignored), and the entry will show no new
-   * values if the data type does not match. To determine if the data type
-   * matches, use the appropriate Topic functions.
-   *
-   * @param defaultValue default value used when a default is not provided to a
-   *        getter function
-   * @param options publish and/or subscribe options
-   * @return entry
-   */
-  public IDoubleEntry GetEntry(
-      double defaultValue,
-      PubSubOptions options) {
-    return new DoubleEntryImpl<NtEntry>(
-        this,
-        NtCore.GetEntry(
-            Handle, NetworkTableType.Double,
-            "double"u8, options),
-        defaultValue);
-  }
-
-  /**
-   * Create a new entry for the topic, with specified type string.
-   *
-   * <p>Entries act as a combination of a subscriber and a weak publisher. The
-   * subscriber is active as long as the entry is not closed. The publisher is
-   * created when the entry is first written to, and remains active until either
-   * unpublish() is called or the entry is closed.
-   *
-   * <p>It is not possible to use two different data types with the same
-   * topic. Conflicts between publishers are typically resolved by the server on
-   * a first-come, first-served basis. Any published values that do not match
-   * the topic's data type are dropped (ignored), and the entry will show no new
-   * values if the data type does not match. To determine if the data type
-   * matches, use the appropriate Topic functions.
-   *
-   * @param typeString type string
-   * @param defaultValue default value used when a default is not provided to a
-   *        getter function
-   * @param options publish and/or subscribe options
-   * @return entry
-   */
-  public IDoubleEntry GetEntryEx(
-      string typeString,
-      double defaultValue,
-      PubSubOptions options) {
-    return new DoubleEntryImpl<NtEntry>(
-        this,
-        NtCore.GetEntry(
-            Handle, NetworkTableType.Double,
-            typeString, options),
-        defaultValue);
-  }
-
-  /**
-   * Create a new entry for the topic, with specified type string.
-   *
-   * <p>Entries act as a combination of a subscriber and a weak publisher. The
-   * subscriber is active as long as the entry is not closed. The publisher is
-   * created when the entry is first written to, and remains active until either
-   * unpublish() is called or the entry is closed.
-   *
-   * <p>It is not possible to use two different data types with the same
-   * topic. Conflicts between publishers are typically resolved by the server on
-   * a first-come, first-served basis. Any published values that do not match
-   * the topic's data type are dropped (ignored), and the entry will show no new
-   * values if the data type does not match. To determine if the data type
-   * matches, use the appropriate Topic functions.
-   *
-   * @param typeString type string
-   * @param defaultValue default value used when a default is not provided to a
-   *        getter function
-   * @param options publish and/or subscribe options
-   * @return entry
-   */
-  public IDoubleEntry GetEntryEx(
-      ReadOnlySpan<byte> typeString,
-      double defaultValue,
-      PubSubOptions options) {
-    return new DoubleEntryImpl<NtEntry>(
-        this,
-        NtCore.GetEntry(
-            Handle, NetworkTableType.Double,
-            typeString, options),
-        defaultValue);
-  }
+    /// <summary>
+    /// Constructor; use NetworkTableInstance.GetDoubleTopic() instead.
+    /// </summary>
+    /// <param name="inst">Instance</param>
+    /// <param name="handle">Native handle</param>
+    public DoubleTopic(NetworkTableInstance inst, NtTopic handle) : base(inst, handle) { }
 
 
+    /// <summary>
+    /// Create a new subscriver to the topic.
+    /// </summary>
+    /// <remarks>
+    /// The subscriber is only active as long as the returned object is not closed.
+    ///
+    /// Subscribers that do not match the published data type do not return any
+    /// values. To determine if the data type matches, use the appropriate Topic
+    /// functions.
+    /// </remarks>
+    /// <param name="defaultValue">
+    /// default value used when a default is not provided to a getter function
+    /// </param>
+    /// <param name="options">subscribe options</param>
+    /// <returns>subscriber</returns>
+    public IDoubleSubscriber Subscribe(
+        double defaultValue,
+        PubSubOptions options)
+    {
+        return new DoubleEntryImpl<NtSubscriber>(
+            this,
+            NtCore.Subscribe(
+                Handle, NetworkTableType.Double,
+                "double"u8, options),
+            defaultValue);
+    }
+
+    /// <summary>
+    /// Create a new subscriber to the topic, with the specified type string.
+    /// </summary>
+    /// <remarks>
+    /// The subscriber is only active as long as the returned object is not closed.
+    ///
+    /// Subscribers that do not match the published data type do not return any
+    /// values. To determine if the data type matches, use the appropriate Topic
+    /// functions.
+    /// </remarks>
+    /// <param name="typeString">type string</param>
+    /// <param name="defaultValue">
+    /// default value used when a default is not provided to a getter function
+    /// </param>
+    /// <param name="options">subscribe options</param>
+    /// <returns>subscriber</returns>
+    public IDoubleSubscriber SubscribeEx(
+        string typeString,
+        double defaultValue,
+        PubSubOptions options)
+    {
+        return new DoubleEntryImpl<NtSubscriber>(
+            this,
+            NtCore.Subscribe(
+                Handle, NetworkTableType.Double,
+                typeString, options),
+            defaultValue);
+    }
+
+    /// <summary>
+    /// Create a new subscriber to the topic, with the specified type string.
+    /// </summary>
+    /// <remarks>
+    /// The subscriber is only active as long as the returned object is not closed.
+    ///
+    /// Subscribers that do not match the published data type do not return any
+    /// values. To determine if the data type matches, use the appropriate Topic
+    /// functions.
+    /// </remarks>
+    /// <param name="typeString">type string</param>
+    /// <param name="defaultValue">
+    /// default value used when a default is not provided to a getter function
+    /// </param>
+    /// <param name="options">subscribe options</param>
+    /// <returns>subscriber</returns>
+    public IDoubleSubscriber SubscribeEx(
+        ReadOnlySpan<byte> typeString,
+        double defaultValue,
+        PubSubOptions options)
+    {
+        return new DoubleEntryImpl<NtSubscriber>(
+            this,
+            NtCore.Subscribe(
+                Handle, NetworkTableType.Double,
+                typeString, options),
+            defaultValue);
+    }
+
+    /// <summary>
+    /// Create a new publisher to the topic.
+    /// </summary>
+    /// <remarks>
+    /// The publisher is only active as long as the returned object is not closed.
+    ///
+    /// It is not possible to publish two different data types to the same topic.
+    /// Conflicts between publishers are typically resolved by the server on a
+    /// first-come, first-served basis. Any published values that do not match
+    /// the topic's data type are dropped (ignored). To determine if the data
+    /// type matches, use tha appropriate Topic functions.
+    /// </remarks>
+    /// <param name="options">publish options</param>
+    /// <returns>publisher</returns>
+    public IDoublePublisher Publish(
+        PubSubOptions options)
+    {
+        return new DoubleEntryImpl<NtPublisher>(
+            this,
+            NtCore.Publish(
+                Handle, NetworkTableType.Double,
+                "double"u8, options),
+            0);
+    }
+
+    /// <summary>
+    /// Create a new publisher to the topic, with type string and initial properties.
+    /// </summary>
+    /// <remarks>
+    /// The publisher is only active as long as the returned object is not closed.
+    ///
+    /// It is not possible to publish two different data types to the same topic.
+    /// Conflicts between publishers are typically resolved by the server on a
+    /// first-come, first-served basis. Any published values that do not match
+    /// the topic's data type are dropped (ignored). To determine if the data
+    /// type matches, use tha appropriate Topic functions.
+    /// </remarks>
+    /// <param name="typeString">type string</param>
+    /// <param name="properties">JSON properties</param>
+    /// <param name="options">publish options</param>
+    /// <returns>publisher</returns>
+    public IDoublePublisher PublishEx(
+        string typeString, string properties,
+        PubSubOptions options)
+    {
+        return new DoubleEntryImpl<NtPublisher>(
+            this,
+            NtCore.PublishEx(
+                Handle, NetworkTableType.Double,
+                typeString, properties, options),
+            0);
+    }
+
+    /// <summary>
+    /// Create a new publisher to the topic, with type string and initial properties.
+    /// </summary>
+    /// <remarks>
+    /// The publisher is only active as long as the returned object is not closed.
+    ///
+    /// It is not possible to publish two different data types to the same topic.
+    /// Conflicts between publishers are typically resolved by the server on a
+    /// first-come, first-served basis. Any published values that do not match
+    /// the topic's data type are dropped (ignored). To determine if the data
+    /// type matches, use tha appropriate Topic functions.
+    /// </remarks>
+    /// <param name="typeString">type string</param>
+    /// <param name="properties">JSON properties</param>
+    /// <param name="options">publish options</param>
+    /// <returns>publisher</returns>
+    public IDoublePublisher PublishEx(
+        ReadOnlySpan<byte> typeString,
+        string properties,
+        PubSubOptions options)
+    {
+        return new DoubleEntryImpl<NtPublisher>(
+            this,
+            NtCore.PublishEx(
+                Handle, NetworkTableType.Double,
+                typeString, properties, options),
+            0);
+    }
+
+    /// <summary>
+    /// Create a new publisher to the topic, with type string and initial properties.
+    /// </summary>
+    /// <remarks>
+    /// The publisher is only active as long as the returned object is not closed.
+    ///
+    /// It is not possible to publish two different data types to the same topic.
+    /// Conflicts between publishers are typically resolved by the server on a
+    /// first-come, first-served basis. Any published values that do not match
+    /// the topic's data type are dropped (ignored). To determine if the data
+    /// type matches, use tha appropriate Topic functions.
+    /// </remarks>
+    /// <param name="typeString">type string</param>
+    /// <param name="properties">JSON properties</param>
+    /// <param name="options">publish options</param>
+    /// <returns>publisher</returns>
+    public IDoublePublisher PublishEx(
+        string typeString,
+        ReadOnlySpan<byte> properties,
+        PubSubOptions options)
+    {
+        return new DoubleEntryImpl<NtPublisher>(
+            this,
+            NtCore.PublishEx(
+                Handle, NetworkTableType.Double,
+                typeString, properties, options),
+            0);
+    }
+
+    /// <summary>
+    /// Create a new publisher to the topic, with type string and initial properties.
+    /// </summary>
+    /// <remarks>
+    /// The publisher is only active as long as the returned object is not closed.
+    ///
+    /// It is not possible to publish two different data types to the same topic.
+    /// Conflicts between publishers are typically resolved by the server on a
+    /// first-come, first-served basis. Any published values that do not match
+    /// the topic's data type are dropped (ignored). To determine if the data
+    /// type matches, use tha appropriate Topic functions.
+    /// </remarks>
+    /// <param name="typeString">type string</param>
+    /// <param name="properties">JSON properties</param>
+    /// <param name="options">publish options</param>
+    /// <returns>publisher</returns>
+    public IDoublePublisher PublishEx(
+        ReadOnlySpan<byte> typeString,
+        ReadOnlySpan<byte> properties,
+        PubSubOptions options)
+    {
+        return new DoubleEntryImpl<NtPublisher>(
+            this,
+            NtCore.PublishEx(
+                Handle, NetworkTableType.Double,
+                typeString, properties, options),
+            0);
+    }
+
+    /// <summary>
+    /// Create a new entry for the topic.
+    /// </summary>
+    /// <remarks>
+    /// Entries act as a combination of a subscriber and a weak publisher. The
+    /// subscriber is active as long as the entry is not closed. The publisher is
+    /// created when the entry is first written to, and remains active until either
+    /// Unpublish() is called or the entry is closed.
+    ///
+    /// It is not possible to publish two different data types to the same topic.
+    /// Conflicts between publishers are typically resolved by the server on a
+    /// first-come, first-served basis. Any published values that do not match
+    /// the topic's data type are dropped (ignored). To determine if the data
+    /// type matches, use tha appropriate Topic functions.
+    /// </remarks>
+    /// <param name="defaultValue">
+    /// default value used when a default is not provided to a getter function
+    /// </param>
+    /// <param name="options">publish and/or subscribe options</param>
+    /// <returns>entry</returns>
+    public IDoubleEntry GetEntry(
+        double defaultValue,
+        PubSubOptions options)
+    {
+        return new DoubleEntryImpl<NtEntry>(
+            this,
+            NtCore.GetEntry(
+                Handle, NetworkTableType.Double,
+                "double"u8, options),
+            defaultValue);
+    }
+
+    /// <summary>
+    /// Create a new entry for the topic, with the specified type string.
+    /// </summary>
+    /// <remarks>
+    /// Entries act as a combination of a subscriber and a weak publisher. The
+    /// subscriber is active as long as the entry is not closed. The publisher is
+    /// created when the entry is first written to, and remains active until either
+    /// Unpublish() is called or the entry is closed.
+    ///
+    /// It is not possible to publish two different data types to the same topic.
+    /// Conflicts between publishers are typically resolved by the server on a
+    /// first-come, first-served basis. Any published values that do not match
+    /// the topic's data type are dropped (ignored). To determine if the data
+    /// type matches, use tha appropriate Topic functions.
+    /// </remarks>
+    /// <param name="typeString">type string</param>
+    /// <param name="defaultValue">
+    /// default value used when a default is not provided to a getter function
+    /// </param>
+    /// <param name="options">publish and/or subscribe options</param>
+    /// <returns>entry</returns>
+    public IDoubleEntry GetEntryEx(
+        string typeString,
+        double defaultValue,
+        PubSubOptions options)
+    {
+        return new DoubleEntryImpl<NtEntry>(
+            this,
+            NtCore.GetEntry(
+                Handle, NetworkTableType.Double,
+                typeString, options),
+            defaultValue);
+    }
+
+    /// <summary>
+    /// Create a new entry for the topic, with the specified type string.
+    /// </summary>
+    /// <remarks>
+    /// Entries act as a combination of a subscriber and a weak publisher. The
+    /// subscriber is active as long as the entry is not closed. The publisher is
+    /// created when the entry is first written to, and remains active until either
+    /// Unpublish() is called or the entry is closed.
+    ///
+    /// It is not possible to publish two different data types to the same topic.
+    /// Conflicts between publishers are typically resolved by the server on a
+    /// first-come, first-served basis. Any published values that do not match
+    /// the topic's data type are dropped (ignored). To determine if the data
+    /// type matches, use tha appropriate Topic functions.
+    /// </remarks>
+    /// <param name="typeString">type string</param>
+    /// <param name="defaultValue">
+    /// default value used when a default is not provided to a getter function
+    /// </param>
+    /// <param name="options">publish and/or subscribe options</param>
+    /// <returns>entry</returns>
+    public IDoubleEntry GetEntryEx(
+        ReadOnlySpan<byte> typeString,
+        double defaultValue,
+        PubSubOptions options)
+    {
+        return new DoubleEntryImpl<NtEntry>(
+            this,
+            NtCore.GetEntry(
+                Handle, NetworkTableType.Double,
+                typeString, options),
+            defaultValue);
+    }
 
 }

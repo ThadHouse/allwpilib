@@ -10,92 +10,95 @@ using NetworkTables.Natives;
 
 namespace NetworkTables;
 
-/** NetworkTables FloatArray implementation. */
-internal sealed class FloatArrayEntryImpl<T> : EntryBase<T>, IFloatArrayEntry where T : struct, INtEntryHandle {
-  /**
-   * Constructor.
-   *
-   * @param topic Topic
-   * @param handle Native handle
-   * @param defaultValue Default value for Get()
-   */
-  internal FloatArrayEntryImpl(FloatArrayTopic topic, T handle, float[] defaultValue) : base(handle) {
-    Topic = topic;
-    m_defaultValue = defaultValue;
-  }
-
-  public override FloatArrayTopic Topic { get; }
-
-
-  public float[] Get() {
-    NetworkTableValue value = NtCore.GetEntryValue(Handle);
-    if (value.IsFloatArray) {
-      return value.GetFloatArray();
+internal sealed class FloatArrayEntryImpl<T> : EntryBase<T>, IFloatArrayEntry where T : struct, INtEntryHandle
+{
+    internal FloatArrayEntryImpl(FloatArrayTopic topic, T handle, float[] defaultValue) : base(handle)
+    {
+        Topic = topic;
+        m_defaultValue = defaultValue;
     }
-    return m_defaultValue;
-  }
 
+    public override FloatArrayTopic Topic { get; }
 
-  public float[] Get(float[] defaultValue) {
-    NetworkTableValue value = NtCore.GetEntryValue(Handle);
-    if (value.IsFloatArray) {
-      return value.GetFloatArray();
+    public float[] Get()
+    {
+        NetworkTableValue value = NtCore.GetEntryValue(Handle);
+        if (value.IsFloatArray)
+        {
+            return value.GetFloatArray();
+        }
+        return m_defaultValue;
     }
-    return defaultValue;
-  }
 
-
-  public TimestampedObject<float[]> GetAtomic() {
-    NetworkTableValue value = NtCore.GetEntryValue(Handle);
-    float[] baseValue = value.IsFloatArray ? value.GetFloatArray() : m_defaultValue;
-    return new TimestampedObject<float[]>(value.Time, value.ServerTime, baseValue);
-  }
-
-
-  public TimestampedObject<float[]> GetAtomic(float[] defaultValue) {
-    NetworkTableValue value = NtCore.GetEntryValue(Handle);
-    float[] baseValue = value.IsFloatArray ? value.GetFloatArray() : defaultValue;
-    return new TimestampedObject<float[]>(value.Time, value.ServerTime, baseValue);
-  }
-
-
-  public TimestampedObject<float[]>[] ReadQueue() {
-    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
-    TimestampedObject<float[]>[] timestamped = new TimestampedObject<float[]>[values.Length];
-    for(int i = 0; i < values.Length; i++) {
-      timestamped[i] = new TimestampedObject<float[]>(values[i].Time, values[i].ServerTime, values[i].GetFloatArray());
+    public float[] Get(float[] defaultValue)
+    {
+        NetworkTableValue value = NtCore.GetEntryValue(Handle);
+        if (value.IsFloatArray)
+        {
+            return value.GetFloatArray();
+        }
+        return defaultValue;
     }
-    return timestamped;
-  }
 
-
-  public float[][] ReadQueueValues() {
-    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
-    float[][] timestamped = new float[values.Length][];
-    for(int i = 0; i < values.Length; i++) {
-      timestamped[i] = values[i].GetFloatArray();
+    public TimestampedObject<float[]> GetAtomic()
+    {
+        NetworkTableValue value = NtCore.GetEntryValue(Handle);
+        float[] baseValue = value.IsFloatArray ? value.GetFloatArray() : m_defaultValue;
+        return new TimestampedObject<float[]>(value.Time, value.ServerTime, baseValue);
     }
-    return timestamped;
-  }
+
+    public TimestampedObject<float[]> GetAtomic(float[] defaultValue)
+    {
+        NetworkTableValue value = NtCore.GetEntryValue(Handle);
+        float[] baseValue = value.IsFloatArray ? value.GetFloatArray() : defaultValue;
+        return new TimestampedObject<float[]>(value.Time, value.ServerTime, baseValue);
+    }
+
+    public TimestampedObject<float[]>[] ReadQueue()
+    {
+        NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
+        TimestampedObject<float[]>[] timestamped = new TimestampedObject<float[]>[values.Length];
+        for (int i = 0; i < values.Length; i++)
+        {
+            timestamped[i] = new TimestampedObject<float[]>(values[i].Time, values[i].ServerTime, values[i].GetFloatArray());
+        }
+        return timestamped;
+    }
+
+    public float[][] ReadQueueValues()
+    {
+        NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
+        float[][] timestamped = new float[values.Length][];
+        for (int i = 0; i < values.Length; i++)
+        {
+            timestamped[i] = values[i].GetFloatArray();
+        }
+        return timestamped;
+    }
 
 
-  public void Set(ReadOnlySpan<float> value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeFloatArray(value, 0);
-    NtCore.SetEntryValue(Handle, ntValue);
-  }
+    public void Set(ReadOnlySpan<float> value)
+    {
+        RefNetworkTableValue ntValue = RefNetworkTableValue.MakeFloatArray(value, 0);
+        NtCore.SetEntryValue(Handle, ntValue);
+    }
 
-  public void Set(ReadOnlySpan<float> value, long time) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeFloatArray(value, time);
-    NtCore.SetEntryValue(Handle, ntValue);
-  }
+    public void Set(ReadOnlySpan<float> value, long time)
+    {
+        RefNetworkTableValue ntValue = RefNetworkTableValue.MakeFloatArray(value, time);
+        NtCore.SetEntryValue(Handle, ntValue);
+    }
 
-  public void SetDefault(ReadOnlySpan<float> value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeFloatArray(value);
-    NtCore.SetDefaultEntryValue(Handle, ntValue);
-  }
-public void Unpublish() {
-    NtCore.Unpublish(Handle);
-  }
+    public void SetDefault(ReadOnlySpan<float> value)
+    {
+        RefNetworkTableValue ntValue = RefNetworkTableValue.MakeFloatArray(value);
+        NtCore.SetDefaultEntryValue(Handle, ntValue);
+    }
 
-  private readonly float[] m_defaultValue;
+    public void Unpublish()
+    {
+        NtCore.Unpublish(Handle);
+    }
+
+    private readonly float[] m_defaultValue;
 }

@@ -8,38 +8,34 @@ using System;
 
 namespace NetworkTables;
 
-/** NetworkTables Boolean publisher. */
-public interface IBooleanPublisher : IPublisher {
-  /**
-   * Get the corresponding topic.
-   *
-   * @return Topic
-   */
+/// <summary>
+/// NetworkTables Boolean publisher.
+/// </summary>
+public interface IBooleanPublisher : IPublisher
+{
+    /// <summary>
+    /// Gets the corresponding topic.
+    /// </summary>
+    new BooleanTopic Topic { get; }
 
-  new BooleanTopic Topic { get; }
 
+    /// <summary>
+    /// Publish a new value using the current NT time.
+    /// </summary>
+    /// <param name="value">value to publish</param>
+    void Set(bool value);
 
-  /**
-   * Publish a new value using current NT time.
-   *
-   * @param value value to publish
-   */
-  void Set(bool value);
+    /// <summary>
+    /// Publish a new value.
+    /// </summary>
+    /// <param name="value">value to publish</param>
+    /// <param name="time">timestamp; 0 indicates current NT time should be used</param>
+    void Set(bool value, long time);
 
-  /**
-   * Publish a new value.
-   *
-   * @param value value to publish
-   * @param time timestamp; 0 indicates current NT time should be used
-   */
-  void Set(bool value, long time);
-
-  /**
-   * Publish a default value.
-   * On reconnect, a default value will never be used in preference to a
-   * published value.
-   *
-   * @param value value
-   */
-  void SetDefault(bool value);
+    /// <summary>
+    /// Publish a default value. On reconnect, a default value will never be used
+    /// in prference to a published value
+    /// </summary>
+    /// <param name="value">value</param>
+    void SetDefault(bool value);
 }

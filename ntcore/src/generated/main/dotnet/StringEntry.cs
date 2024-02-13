@@ -6,12 +6,13 @@
 
 namespace NetworkTables;
 
-/**
- * NetworkTables String entry.
- *
- * <p>Unlike NetworkTableEntry, the entry goes away when close() is called.
- */
-public interface IStringEntry : IStringSubscriber, IStringPublisher {
-  /** Stops publishing the entry if it's published. */
-  void Unpublish();
+/// <summary>
+/// NetworkTables String entry.
+/// </summary>
+public interface IStringEntry : IStringSubscriber, IStringPublisher
+{
+    /// <summary>
+    /// Stops publishing the entry if its published.
+    /// </summary>
+    void Unpublish();
 }

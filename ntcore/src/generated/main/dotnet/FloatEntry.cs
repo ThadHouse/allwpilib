@@ -6,12 +6,13 @@
 
 namespace NetworkTables;
 
-/**
- * NetworkTables Float entry.
- *
- * <p>Unlike NetworkTableEntry, the entry goes away when close() is called.
- */
-public interface IFloatEntry : IFloatSubscriber, IFloatPublisher {
-  /** Stops publishing the entry if it's published. */
-  void Unpublish();
+/// <summary>
+/// NetworkTables Float entry.
+/// </summary>
+public interface IFloatEntry : IFloatSubscriber, IFloatPublisher
+{
+    /// <summary>
+    /// Stops publishing the entry if its published.
+    /// </summary>
+    void Unpublish();
 }

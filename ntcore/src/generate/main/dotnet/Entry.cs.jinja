@@ -6,12 +6,13 @@
 
 namespace NetworkTables;
 
-/**
- * NetworkTables {{ TypeName }} entry.
- *
- * <p>Unlike NetworkTableEntry, the entry goes away when close() is called.
- */
-public interface I{{ TypeName }}Entry : I{{ TypeName }}Subscriber, I{{ TypeName }}Publisher {
-  /** Stops publishing the entry if it's published. */
-  void Unpublish();
+/// <summary>
+/// NetworkTables {{ TypeName }} entry.
+/// </summary>
+public interface I{{ TypeName }}Entry : I{{ TypeName }}Subscriber, I{{ TypeName }}Publisher
+{
+    /// <summary>
+    /// Stops publishing the entry if its published.
+    /// </summary>
+    void Unpublish();
 }

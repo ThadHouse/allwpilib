@@ -11,76 +11,69 @@ namespace NetworkTables;
 public readonly partial struct NetworkTableValue
 {
 {% for t in types %}
-  /**
-   * Determine if entry value contains a {{ t.dotnet.ValueType }}.
-   *
-   * @return True if the entry value is of {{ t.dotnet.ValueType }} type.
-   */
-  public bool Is{{ t.TypeName }} => Type == NetworkTableType.{{ t.TypeName }};
+    /// <summary>
+    /// Gets if entry value contains a {{ t.dotnet.ValueType }}.
+    /// </summary>
+    public bool Is{{ t.TypeName }} => Type == NetworkTableType.{{ t.TypeName }};
 {% endfor %}
-  /*
-   * Type-Safe Getters
-   */
 {% for t in types %}
-  /**
-   * Get the {{ t.dotnet.ValueType }} value.
-   *
-   * @return The {{ t.dotnet.ValueType }} value.
-   * @throws ClassCastException if the entry value is not of {{ t.dotnet.ValueType }} type.
-   */
-  public {{ t.dotnet.ValueType }} Get{{ t.TypeName }}() {
-    if (Type != NetworkTableType.{{ t.TypeName }}) {
-      throw new InvalidCastException($"cannot convert {Type} to {{ t.dotnet.ValueType }}");
+    /// <summary>
+    /// Get the {{ t.dotnet.ValueType }} value.
+    /// </summary>
+    /// <returns>The {{ t.dotnet.ValueType }} value.</returns>
+    /// <exception cref="InvalidCastException">Thrown if the entry value is not of {{ t.dotnet.ValueType }} type.</exception>
+    public {{ t.dotnet.ValueType }} Get{{ t.TypeName }}()
+    {
+        if (Type != NetworkTableType.{{ t.TypeName }})
+        {
+            throw new InvalidCastException($"cannot convert {Type} to {{ t.dotnet.ValueType }}");
+        }
+        return {{ t.dotnet.GetCall }};
     }
-    return {{ t.dotnet.GetCall }};
-  }
 {% endfor %}
-  /*
-   * Factory functions.
-   */
 {% for t in types %}
 {% if t.dotnet.IsArray %}
-  /**
-   * Creates a {{ t.dotnet.ValueType }} value.
-   *
-   * @param value the value
-   * @return The entry value
-   */
-  public static NetworkTableValue Make{{ t.TypeName }}({{ t.dotnet.ValueType }} value) {
-    return new NetworkTableValue(NetworkTableType.{{ t.TypeName }}, value);
-  }
+    /// <summary>
+    /// Creates a {{ t.dotnet.ValueType }} value.
+    /// </summary>
+    /// <param name="value">the value</param>
+    /// <returns>The entry value</returns>
+    public static NetworkTableValue Make{{ t.TypeName }}({{ t.dotnet.ValueType }} value)
+    {
+        return new NetworkTableValue(NetworkTableType.{{ t.TypeName }}, value);
+    }
 
-  /**
-   * Creates a {{ t.dotnet.ValueType }} value.
-   *
-   * @param value the value
-   * @param time the creation time to use (instead of the current time)
-   * @return The entry value
-   */
-  public static NetworkTableValue Make{{ t.TypeName }}({{ t.dotnet.ValueType }} value, long time) {
-    return new NetworkTableValue(NetworkTableType.{{ t.TypeName }}, value, time);
-  }
+    /// <summary>
+    /// Creates a {{ t.dotnet.ValueType }} value.
+    /// </summary>
+    /// <param name="value">the value</param>
+    /// <param name="time">the creation time to use (instead of the current time)</param>
+    /// <returns>The entry value</returns>
+    public static NetworkTableValue Make{{ t.TypeName }}({{ t.dotnet.ValueType }} value, long time)
+    {
+        return new NetworkTableValue(NetworkTableType.{{ t.TypeName }}, value, time);
+    }
 {% else %}
-  /**
-   * Creates a {{ t.dotnet.ValueType }} value.
-   *
-   * @param value the value
-   * @return The entry value
-   */
-  public static NetworkTableValue Make{{ t.TypeName }}({{ t.dotnet.ValueType }} value) {
-    return new NetworkTableValue(NetworkTableType.{{ t.TypeName }}, value);
-  }
+    /// <summary>
+    /// Creates a {{ t.dotnet.ValueType }} value.
+    /// </summary>
+    /// <param name="value">the value</param>
+    /// <returns>The entry value</returns>
+    public static NetworkTableValue Make{{ t.TypeName }}({{ t.dotnet.ValueType }} value)
+    {
+        return new NetworkTableValue(NetworkTableType.{{ t.TypeName }}, value);
+    }
 
-  /**
-   * Creates a {{ t.dotnet.ValueType }} value.
-   *
-   * @param value the value
-   * @param time the creation time to use (instead of the current time)
-   * @return The entry value
-   */
-  public static NetworkTableValue Make{{ t.TypeName }}({{ t.dotnet.ValueType }} value, long time) {
-    return new NetworkTableValue(NetworkTableType.{{ t.TypeName }}, value, time);
-  }
+    /// <summary>
+    /// Creates a {{ t.dotnet.ValueType }} value.
+    /// </summary>
+    /// <param name="value">the value</param>
+    /// <param name="time">the creation time to use (instead of the current time)</param>
+    /// <returns>The entry value</returns>
+    public static NetworkTableValue Make{{ t.TypeName }}({{ t.dotnet.ValueType }} value, long time)
+    {
+        return new NetworkTableValue(NetworkTableType.{{ t.TypeName }}, value, time);
+    }
 {% endif -%}
 
 {% endfor %}

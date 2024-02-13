@@ -9,6 +9,9 @@ using NetworkTables.Natives;
 
 namespace NetworkTables;
 
+/// <summary>
+/// A NetworkTable entry value used for write purposes
+/// </summary>
 public readonly ref partial struct RefNetworkTableValue
 {
 {% for t in types %}
@@ -29,11 +32,24 @@ public readonly ref partial struct RefNetworkTableValue
         m_{{ t.dotnet.BaseType }}Span = value;
     }
 
-    public static RefNetworkTableValue Make{{ t.TypeName }}(ReadOnlySpan<{{ t.dotnet.BaseType }}> value) {
+    /// <summary>
+    /// Creates a {{ t.dotnet.ValueType }} value.
+    /// </summary>
+    /// <param name="value">the value</param>
+    /// <returns>The entry value</returns>
+    public static RefNetworkTableValue Make{{ t.TypeName }}(ReadOnlySpan<{{ t.dotnet.BaseType }}> value)
+    {
         return new RefNetworkTableValue(value);
     }
 
-    public static RefNetworkTableValue Make{{ t.TypeName }}(ReadOnlySpan<{{ t.dotnet.BaseType }}> value, long time) {
+    /// <summary>
+    /// Creates a {{ t.dotnet.ValueType }} value.
+    /// </summary>
+    /// <param name="value">the value</param>
+    /// <param name="time">the creation time to use (instead of the current time)</param>
+    /// <returns>The entry value</returns>
+    public static RefNetworkTableValue Make{{ t.TypeName }}(ReadOnlySpan<{{ t.dotnet.BaseType }}> value, long time)
+    {
         return new RefNetworkTableValue(value, time);
     }
 {% elif t.TypeName == "String" %}
@@ -52,11 +68,59 @@ public readonly ref partial struct RefNetworkTableValue
         m_stringValue = value;
     }
 
-    public static RefNetworkTableValue Make{{ t.TypeName }}({{ t.dotnet.ValueType }} value) {
+    internal RefNetworkTableValue(ReadOnlySpan<byte> value, bool isString)
+    {
+        Type = NetworkTableType.String;
+        Time = NtCore.Now();
+        m_byteSpan = value;
+    }
+
+    internal RefNetworkTableValue(ReadOnlySpan<byte> value, long time, bool isString)
+    {
+        Type = NetworkTableType.String;
+        Time = time;
+        m_byteSpan = value;
+    }
+
+    /// <summary>
+    /// Creates a {{ t.dotnet.ValueType }} value.
+    /// </summary>
+    /// <param name="value">the value</param>
+    /// <returns>The entry value</returns>
+    public static RefNetworkTableValue Make{{ t.TypeName }}({{ t.dotnet.ValueType }} value)
+    {
         return new RefNetworkTableValue(value);
     }
 
-    public static RefNetworkTableValue Make{{ t.TypeName }}({{ t.dotnet.ValueType }} value, long time) {
+    /// <summary>
+    /// Creates a {{ t.dotnet.ValueType }} value.
+    /// </summary>
+    /// <param name="value">the value</param>
+    /// <param name="time">the creation time to use (instead of the current time)</param>
+    /// <returns>The entry value</returns>
+    public static RefNetworkTableValue Make{{ t.TypeName }}({{ t.dotnet.ValueType }} value, long time)
+    {
+        return new RefNetworkTableValue(value, time);
+    }
+
+    /// <summary>
+    /// Creates a {{ t.dotnet.ValueType }} value from a UFT8 string.
+    /// </summary>
+    /// <param name="value">the value</param>
+    /// <returns>The entry value</returns>
+    public static RefNetworkTableValue Make{{ t.TypeName }}(ReadOnlySpan<byte> value)
+    {
+        return new RefNetworkTableValue(value);
+    }
+
+    /// <summary>
+    /// Creates a {{ t.dotnet.ValueType }} value from a UFT8 string.
+    /// </summary>
+    /// <param name="value">the value</param>
+    /// <param name="time">the creation time to use (instead of the current time)</param>
+    /// <returns>The entry value</returns>
+    public static RefNetworkTableValue Make{{ t.TypeName }}(ReadOnlySpan<byte> value, long time)
+    {
         return new RefNetworkTableValue(value, time);
     }
 {% else %}
@@ -73,11 +137,24 @@ public readonly ref partial struct RefNetworkTableValue
         m_structValue = new(value);
     }
 
-    public static RefNetworkTableValue Make{{ t.TypeName }}({{ t.dotnet.ValueType }} value) {
+    /// <summary>
+    /// Creates a {{ t.dotnet.ValueType }} value.
+    /// </summary>
+    /// <param name="value">the value</param>
+    /// <returns>The entry value</returns>
+    public static RefNetworkTableValue Make{{ t.TypeName }}({{ t.dotnet.ValueType }} value)
+    {
         return new RefNetworkTableValue(value);
     }
 
-    public static RefNetworkTableValue Make{{ t.TypeName }}({{ t.dotnet.ValueType }} value, long time) {
+    /// <summary>
+    /// Creates a {{ t.dotnet.ValueType }} value.
+    /// </summary>
+    /// <param name="value">the value</param>
+    /// <param name="time">the creation time to use (instead of the current time)</param>
+    /// <returns>The entry value</returns>
+    public static RefNetworkTableValue Make{{ t.TypeName }}({{ t.dotnet.ValueType }} value, long time)
+    {
         return new RefNetworkTableValue(value, time);
     }
 {% endif -%}

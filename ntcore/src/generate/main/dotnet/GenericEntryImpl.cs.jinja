@@ -9,55 +9,37 @@ using NetworkTables.Natives;
 
 namespace NetworkTables;
 
-/** NetworkTables generic implementation. */
 internal sealed partial class GenericEntryImpl<THandle>
 {
 {% for t in types %}
-  /**
-   * Gets the entry's value as a {{ t.dotnet.ValueType }}. If the entry does not exist or is of different type, it
-   * will return the default value.
-   *
-   * @param defaultValue the value to be returned if no value is found
-   * @return the entry's value or the given default value
-   */
-
-  public {{ t.dotnet.ValueType }} Get{{ t.TypeName }}({{ t.dotnet.ValueType }} defaultValue) {
-    NetworkTableValue value = NtCore.GetEntryValue(Handle);
-    if (value.Is{{ t.TypeName }}) {
-      return value.Get{{ t.TypeName }}();
+    public {{ t.dotnet.ValueType }} Get{{ t.TypeName }}({{ t.dotnet.ValueType }} defaultValue)
+    {
+        NetworkTableValue value = NtCore.GetEntryValue(Handle);
+        if (value.Is{{ t.TypeName }})
+        {
+            return value.Get{{ t.TypeName }}();
+        }
+        return defaultValue;
     }
-    return defaultValue;
-  }
 
-  /**
-   * Sets the entry's value.
-   *
-   * @param value the value to set
-   * @return False if the entry exists with a different type
-   */
+    public bool Set{{ t.TypeName }}({{ t.dotnet.ValueType }} value)
+    {
+        return Set{{ t.TypeName }}(value, 0);
+    }
 
-  public bool Set{{ t.TypeName }}({{ t.dotnet.ValueType }} value) {
-    return Set{{ t.TypeName }}(value, 0);
-  }
+    public bool Set{{ t.TypeName }}({{ t.dotnet.ValueType }} value, long time)
+    {
+        return NtCore.SetEntryValue(Handle, RefNetworkTableValue.Make{{ t.TypeName }}(value, time));
+    }
 
-  public bool Set{{ t.TypeName }}({{ t.dotnet.ValueType }} value, long time) {
-    return NtCore.SetEntryValue(Handle, RefNetworkTableValue.Make{{ t.TypeName }}(value, time));
-  }
-
-  /**
-   * Sets the entry's value if it does not exist.
-   *
-   * @param defaultValue the default value to set
-   * @return False if the entry exists with a different type
-   */
-
-  public bool SetDefault{{ t.TypeName }}({{ t.dotnet.ValueType }} value) {
-    return NtCore.SetDefaultEntryValue(Handle, RefNetworkTableValue.Make{{ t.TypeName }}(value));
-  }
+    public bool SetDefault{{ t.TypeName }}({{ t.dotnet.ValueType }} value)
+    {
+        return NtCore.SetDefaultEntryValue(Handle, RefNetworkTableValue.Make{{ t.TypeName }}(value));
+    }
 {% endfor %}
 
-
-  public void Unpublish() {
-    NtCore.Unpublish(Handle);
-  }
+    public void Unpublish()
+    {
+        NtCore.Unpublish(Handle);
+    }
 }

@@ -28,6 +28,11 @@ public sealed partial class NetworkTableInstance
         instance.m_topicsByHandle.AddOrUpdate(topic.Handle, TopicByHandleAdder, TopicByHandleUpdater, topic);
         return topic;
     }
+    /// <summary>
+    /// Gets a {{ t.dotnet.ValueType }} topic.
+    /// </summary>
+    /// <param name="name">topic name</param>
+    /// <returns>{{ t.TypeName }}Topic</returns>
     public {{ t.TypeName }}Topic Get{{ t.TypeName }}Topic(string name)
     {
         return ({{ t.TypeName }}Topic)m_topics.AddOrUpdate(name, {{ t.TypeName }}TopicCreator, {{ t.TypeName }}TopicUpdator, this);

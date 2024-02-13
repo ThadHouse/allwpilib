@@ -10,92 +10,95 @@ using NetworkTables.Natives;
 
 namespace NetworkTables;
 
-/** NetworkTables Raw implementation. */
-internal sealed class RawEntryImpl<T> : EntryBase<T>, IRawEntry where T : struct, INtEntryHandle {
-  /**
-   * Constructor.
-   *
-   * @param topic Topic
-   * @param handle Native handle
-   * @param defaultValue Default value for Get()
-   */
-  internal RawEntryImpl(RawTopic topic, T handle, byte[] defaultValue) : base(handle) {
-    Topic = topic;
-    m_defaultValue = defaultValue;
-  }
-
-  public override RawTopic Topic { get; }
-
-
-  public byte[] Get() {
-    NetworkTableValue value = NtCore.GetEntryValue(Handle);
-    if (value.IsRaw) {
-      return value.GetRaw();
+internal sealed class RawEntryImpl<T> : EntryBase<T>, IRawEntry where T : struct, INtEntryHandle
+{
+    internal RawEntryImpl(RawTopic topic, T handle, byte[] defaultValue) : base(handle)
+    {
+        Topic = topic;
+        m_defaultValue = defaultValue;
     }
-    return m_defaultValue;
-  }
 
+    public override RawTopic Topic { get; }
 
-  public byte[] Get(byte[] defaultValue) {
-    NetworkTableValue value = NtCore.GetEntryValue(Handle);
-    if (value.IsRaw) {
-      return value.GetRaw();
+    public byte[] Get()
+    {
+        NetworkTableValue value = NtCore.GetEntryValue(Handle);
+        if (value.IsRaw)
+        {
+            return value.GetRaw();
+        }
+        return m_defaultValue;
     }
-    return defaultValue;
-  }
 
-
-  public TimestampedObject<byte[]> GetAtomic() {
-    NetworkTableValue value = NtCore.GetEntryValue(Handle);
-    byte[] baseValue = value.IsRaw ? value.GetRaw() : m_defaultValue;
-    return new TimestampedObject<byte[]>(value.Time, value.ServerTime, baseValue);
-  }
-
-
-  public TimestampedObject<byte[]> GetAtomic(byte[] defaultValue) {
-    NetworkTableValue value = NtCore.GetEntryValue(Handle);
-    byte[] baseValue = value.IsRaw ? value.GetRaw() : defaultValue;
-    return new TimestampedObject<byte[]>(value.Time, value.ServerTime, baseValue);
-  }
-
-
-  public TimestampedObject<byte[]>[] ReadQueue() {
-    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
-    TimestampedObject<byte[]>[] timestamped = new TimestampedObject<byte[]>[values.Length];
-    for(int i = 0; i < values.Length; i++) {
-      timestamped[i] = new TimestampedObject<byte[]>(values[i].Time, values[i].ServerTime, values[i].GetRaw());
+    public byte[] Get(byte[] defaultValue)
+    {
+        NetworkTableValue value = NtCore.GetEntryValue(Handle);
+        if (value.IsRaw)
+        {
+            return value.GetRaw();
+        }
+        return defaultValue;
     }
-    return timestamped;
-  }
 
-
-  public byte[][] ReadQueueValues() {
-    NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
-    byte[][] timestamped = new byte[values.Length][];
-    for(int i = 0; i < values.Length; i++) {
-      timestamped[i] = values[i].GetRaw();
+    public TimestampedObject<byte[]> GetAtomic()
+    {
+        NetworkTableValue value = NtCore.GetEntryValue(Handle);
+        byte[] baseValue = value.IsRaw ? value.GetRaw() : m_defaultValue;
+        return new TimestampedObject<byte[]>(value.Time, value.ServerTime, baseValue);
     }
-    return timestamped;
-  }
+
+    public TimestampedObject<byte[]> GetAtomic(byte[] defaultValue)
+    {
+        NetworkTableValue value = NtCore.GetEntryValue(Handle);
+        byte[] baseValue = value.IsRaw ? value.GetRaw() : defaultValue;
+        return new TimestampedObject<byte[]>(value.Time, value.ServerTime, baseValue);
+    }
+
+    public TimestampedObject<byte[]>[] ReadQueue()
+    {
+        NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
+        TimestampedObject<byte[]>[] timestamped = new TimestampedObject<byte[]>[values.Length];
+        for (int i = 0; i < values.Length; i++)
+        {
+            timestamped[i] = new TimestampedObject<byte[]>(values[i].Time, values[i].ServerTime, values[i].GetRaw());
+        }
+        return timestamped;
+    }
+
+    public byte[][] ReadQueueValues()
+    {
+        NetworkTableValue[] values = NtCore.ReadQueueValue(Handle);
+        byte[][] timestamped = new byte[values.Length][];
+        for (int i = 0; i < values.Length; i++)
+        {
+            timestamped[i] = values[i].GetRaw();
+        }
+        return timestamped;
+    }
 
 
-  public void Set(ReadOnlySpan<byte> value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeRaw(value, 0);
-    NtCore.SetEntryValue(Handle, ntValue);
-  }
+    public void Set(ReadOnlySpan<byte> value)
+    {
+        RefNetworkTableValue ntValue = RefNetworkTableValue.MakeRaw(value, 0);
+        NtCore.SetEntryValue(Handle, ntValue);
+    }
 
-  public void Set(ReadOnlySpan<byte> value, long time) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeRaw(value, time);
-    NtCore.SetEntryValue(Handle, ntValue);
-  }
+    public void Set(ReadOnlySpan<byte> value, long time)
+    {
+        RefNetworkTableValue ntValue = RefNetworkTableValue.MakeRaw(value, time);
+        NtCore.SetEntryValue(Handle, ntValue);
+    }
 
-  public void SetDefault(ReadOnlySpan<byte> value) {
-    RefNetworkTableValue ntValue = RefNetworkTableValue.MakeRaw(value);
-    NtCore.SetDefaultEntryValue(Handle, ntValue);
-  }
-public void Unpublish() {
-    NtCore.Unpublish(Handle);
-  }
+    public void SetDefault(ReadOnlySpan<byte> value)
+    {
+        RefNetworkTableValue ntValue = RefNetworkTableValue.MakeRaw(value);
+        NtCore.SetDefaultEntryValue(Handle, ntValue);
+    }
 
-  private readonly byte[] m_defaultValue;
+    public void Unpublish()
+    {
+        NtCore.Unpublish(Handle);
+    }
+
+    private readonly byte[] m_defaultValue;
 }

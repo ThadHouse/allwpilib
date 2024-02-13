@@ -6,72 +6,62 @@
 
 namespace NetworkTables;
 
-/** NetworkTables Integer subscriber. */
-public interface IIntegerSubscriber : ISubscriber {
-  /**
-   * Get the corresponding topic.
-   *
-   * @return Topic
-   */
+/// <summary>
+/// NetworkTables Integer subscriver.
+/// </summary>
+public interface IIntegerSubscriber : ISubscriber
+{
+    /// <summary>
+    /// Gets the corresponding topic.
+    /// </summary>
+    new IntegerTopic Topic { get; }
 
-  new IntegerTopic Topic { get; }
+    /// <summary>
+    /// Get the last published value.
+    /// If no value has been published, returns the stored default value.
+    /// </summary>
+    /// <returns>value</returns>
+    long Get();
 
-  /**
-   * Get the last published value.
-   * If no value has been published, returns the stored default value.
-   *
-   * @return value
-   */
-  long Get();
+    /// <summary>
+    /// Get the last published value.
+    /// If no value has been published, returns the passed default value.
+    /// </summary>
+    /// <param name="defaultValue">default value to return if no value has been published</param>
+    /// <returns>value</returns>
+    long Get(long defaultValue);
 
-  /**
-   * Get the last published value.
-   * If no value has been published, returns the passed defaultValue.
-   *
-   * @param defaultValue default value to return if no value has been published
-   * @return value
-   */
-  long Get(long defaultValue);
+    /// <summary>
+    /// Get the last published value along with its timestamp.
+    /// If no value has been published, returns the stored default value and a timestamp of 0.
+    /// </summary>
+    /// <returns>timestamped value</returns>
+    TimestampedObject<long> GetAtomic();
 
-  /**
-   * Get the last published value along with its timestamp
-   * If no value has been published, returns the stored default value and a
-   * timestamp of 0.
-   *
-   * @return timestamped value
-   */
-  TimestampedObject<long> GetAtomic();
+    /// <summary>
+    /// Get the last published value along with its timestamp.
+    /// If no value has been published, returns the passed default value and a timestamp of 0.
+    /// </summary>
+    /// <param name="defaultValue">default value to return if no value has been published</param>
+    /// <returns>timestamped value</returns>
+    TimestampedObject<long> GetAtomic(long defaultValue);
 
-  /**
-   * Get the last published value along with its timestamp
-   * If no value has been published, returns the passed defaultValue and a
-   * timestamp of 0.
-   *
-   * @param defaultValue default value to return if no value has been published
-   * @return timestamped value
-   */
-  TimestampedObject<long> GetAtomic(long defaultValue);
+    /// <summary>
+    /// Get an array of all value changes since the last call to ReadQueue.
+    /// Also provides a timestamp for each value.
+    /// </summary>
+    /// <remarks>
+    /// The "poll storage" subscribe option can be used to set the queue depth.
+    /// </remarks
+    /// <returns>Array of timestamped values; emptry if no new changes</returns>
+    TimestampedObject<long>[] ReadQueue();
 
-  /**
-   * Get an array of all value changes since the last call to readQueue.
-   * Also provides a timestamp for each value.
-   *
-   * <p>The "poll storage" subscribe option can be used to set the queue
-   * depth.
-   *
-   * @return Array of timestamped values; empty array if no new changes have
-   *     been published since the previous call.
-   */
-  TimestampedObject<long>[] ReadQueue();
-
-  /**
-   * Get an array of all value changes since the last call to readQueue.
-   *
-   * <p>The "poll storage" subscribe option can be used to set the queue
-   * depth.
-   *
-   * @return Array of values; empty array if no new changes have been
-   *     published since the previous call.
-   */
-  long[] ReadQueueValues();
+    /// <summary>
+    /// Get an array of all value changes since the last call to ReadQueue.
+    /// </summary>
+    /// <remarks>
+    /// The "poll storage" subscribe option can be used to set the queue depth.
+    /// </remarks
+    /// <returns>Array of values; emptry if no new changes</returns>
+    long[] ReadQueueValues();
 }

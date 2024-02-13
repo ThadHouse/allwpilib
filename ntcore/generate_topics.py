@@ -31,7 +31,9 @@ def main():
 
     # DotNet files
     env = Environment(
-        loader=FileSystemLoader(f"{dirname}/src/generate/main/dotnet"), autoescape=False
+        loader=FileSystemLoader(f"{dirname}/src/generate/main/dotnet"),
+        autoescape=False,
+        keep_trailing_newline=True
     )
     rootPath = f"{dirname}/src/generated/main/dotnet"
     for fn in glob.glob(f"{dirname}/src/generate/main/dotnet/*.jinja"):
