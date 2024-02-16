@@ -14,6 +14,8 @@
     },
     "dotnet": {
       "ValueType": "bool",
+      "ParamType": "bool",
+      "DefaultParamType": "bool",
       "EmptyValue": "false",
       "GetCall": "m_structValue.boolValue",
       "BaseType": "bool"
@@ -52,6 +54,8 @@
     },
     "dotnet": {
       "ValueType": "long",
+      "ParamType": "long",
+      "DefaultParamType": "long",
       "EmptyValue": "0",
       "GetCall": "m_structValue.longValue",
       "BaseType": "long"
@@ -90,6 +94,8 @@
     },
     "dotnet": {
       "ValueType": "float",
+      "ParamType": "float",
+      "DefaultParamType": "float",
       "EmptyValue": "0",
       "GetCall": "m_structValue.floatValue",
       "BaseType": "float"
@@ -130,6 +136,8 @@
     },
     "dotnet": {
       "ValueType": "double",
+      "ParamType": "double",
+      "DefaultParamType": "double",
       "EmptyValue": "0",
       "GetCall": "m_structValue.doubleValue",
       "BaseType": "double"
@@ -170,12 +178,6 @@
       "SmallRetType": "std::string_view",
       "SmallElemType": "char"
     },
-    "dotnet": {
-      "ValueType": "string",
-      "EmptyValue": "\"\"",
-      "GetCall": "(string)m_objectValue!",
-      "BaseType": "string"
-    },
     "java": {
       "ValueType": "String",
       "EmptyValue": "\"\"",
@@ -212,8 +214,11 @@
     },
     "dotnet": {
       "ValueType": "byte[]",
+      "ParamType": "ReadOnlySpan<byte>",
+      "DefaultParamType": "byte[]",
       "EmptyValue": "[]",
-      "GetCall": "(byte[])m_objectValue!",
+      "GetCall": "m_objectValue as byte[] ?? []",
+      "NullToNonNull": " ?? []",
       "BaseType": "byte",
       "IsArray": true
     },
@@ -254,8 +259,11 @@
     },
     "dotnet": {
       "ValueType": "bool[]",
+      "ParamType": "ReadOnlySpan<bool>",
+      "DefaultParamType": "bool[]",
       "EmptyValue": "[]",
-      "GetCall": "(bool[])m_objectValue!",
+      "GetCall": "m_objectValue as bool[] ?? []",
+      "NullToNonNull": " ?? []",
       "BaseType": "bool",
       "IsArray": true
     },
@@ -297,8 +305,11 @@
     },
     "dotnet": {
       "ValueType": "long[]",
+      "ParamType": "ReadOnlySpan<long>",
+      "DefaultParamType": "long[]",
       "EmptyValue": "[]",
-      "GetCall": "(long[])m_objectValue!",
+      "GetCall": "m_objectValue as long[] ?? []",
+      "NullToNonNull": " ?? []",
       "BaseType": "long",
       "IsArray": true
     },
@@ -340,8 +351,11 @@
     },
     "dotnet": {
       "ValueType": "float[]",
+      "ParamType": "ReadOnlySpan<float>",
+      "DefaultParamType": "float[]",
       "EmptyValue": "[]",
-      "GetCall": "(float[])m_objectValue!",
+      "GetCall": "m_objectValue as float[] ?? []",
+      "NullToNonNull": " ?? []",
       "BaseType": "float",
       "IsArray": true
     },
@@ -383,8 +397,11 @@
     },
     "dotnet": {
       "ValueType": "double[]",
+      "ParamType": "ReadOnlySpan<double>",
+      "DefaultParamType": "double[]",
       "EmptyValue": "[]",
-      "GetCall": "(double[])m_objectValue!",
+      "GetCall": "m_objectValue as double[] ?? []",
+      "NullToNonNull": " ?? []",
       "BaseType": "double",
       "IsArray": true
     },
@@ -421,13 +438,6 @@
       "DefaultValueCopy": "defaultValue.begin(), defaultValue.end()",
       "TYPE_NAME": "STRING_ARRAY",
       "INCLUDES": "#include <utility>"
-    },
-    "dotnet": {
-      "ValueType": "string[]",
-      "EmptyValue": "[]",
-      "GetCall": "(string[])m_objectValue!",
-      "BaseType": "string",
-      "IsArray": true
     },
     "java": {
       "ValueType": "String[]",

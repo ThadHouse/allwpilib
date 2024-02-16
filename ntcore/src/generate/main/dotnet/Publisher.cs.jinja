@@ -18,45 +18,23 @@ public interface I{{ TypeName }}Publisher : IPublisher
     /// </summary>
     new {{ TypeName }}Topic Topic { get; }
 
-{% if dotnet.IsArray %}
     /// <summary>
     /// Publish a new value using the current NT time.
     /// </summary>
     /// <param name="value">value to publish</param>
-    void Set(ReadOnlySpan<{{ dotnet.BaseType }}> value);
+    void Set({{ dotnet.ParamType }} value);
 
     /// <summary>
     /// Publish a new value.
     /// </summary>
     /// <param name="value">value to publish</param>
     /// <param name="time">timestamp; 0 indicates current NT time should be used</param>
-    void Set(ReadOnlySpan<{{ dotnet.BaseType }}> value, long time);
+    void Set({{ dotnet.ParamType }} value, long time);
 
     /// <summary>
     /// Publish a default value. On reconnect, a default value will never be used
     /// in prference to a published value
     /// </summary>
     /// <param name="value">value</param>
-    void SetDefault(ReadOnlySpan<{{ dotnet.BaseType }}> value);
-{% else %}
-    /// <summary>
-    /// Publish a new value using the current NT time.
-    /// </summary>
-    /// <param name="value">value to publish</param>
-    void Set({{ dotnet.ValueType }} value);
-
-    /// <summary>
-    /// Publish a new value.
-    /// </summary>
-    /// <param name="value">value to publish</param>
-    /// <param name="time">timestamp; 0 indicates current NT time should be used</param>
-    void Set({{ dotnet.ValueType }} value, long time);
-
-    /// <summary>
-    /// Publish a default value. On reconnect, a default value will never be used
-    /// in prference to a published value
-    /// </summary>
-    /// <param name="value">value</param>
-    void SetDefault({{ dotnet.ValueType }} value);
-{% endif -%}
+    void SetDefault({{ dotnet.ParamType }} value);
 }

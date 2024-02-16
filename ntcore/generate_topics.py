@@ -29,6 +29,21 @@ def main():
     with open(f"{dirname}/src/generate/types.json") as f:
         types = json.load(f)
 
+    with open(f"{dirname}/src/generate/types.json") as f:
+        types_without_strings = json.load(f)
+
+    for i, t in enumerate(types_without_strings):
+        if t["TypeName"] == "String":
+            string_remove = i
+
+    types_without_strings.pop(string_remove)
+
+    for i, t in enumerate(types_without_strings):
+        if t["TypeName"] == "StringArray":
+            string_remove = i
+
+    types_without_strings.pop(string_remove)
+
     # DotNet files
     env = Environment(
         loader=FileSystemLoader(f"{dirname}/src/generate/main/dotnet"),
@@ -42,10 +57,10 @@ def main():
         if os.path.basename(fn).startswith("NetworkTable") or os.path.basename(fn).startswith("RefNetworkTable") or os.path.basename(
             fn
         ).startswith("Generic"):
-            output = template.render(types=types)
+            output = template.render(types=types_without_strings)
             Output(rootPath, outfn, output)
         else:
-            for replacements in types:
+            for replacements in types_without_strings:
                 output = template.render(replacements)
                 if outfn == "Timestamped.cs":
                     outfn2 = f"Timestamped{replacements['TypeName']}.cs"

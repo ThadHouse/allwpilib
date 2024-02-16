@@ -55,7 +55,7 @@ public class {{ TypeName }}Topic : Topic
     /// <param name="options">subscribe options</param>
     /// <returns>subscriber</returns>
     public I{{ TypeName }}Subscriber Subscribe(
-        {{ dotnet.ValueType }} defaultValue,
+        {{ dotnet.DefaultParamType }} defaultValue,
         PubSubOptions options)
     {
         return new {{ TypeName }}EntryImpl<NtSubscriber>(
@@ -63,7 +63,7 @@ public class {{ TypeName }}Topic : Topic
             NtCore.Subscribe(
                 Handle, NetworkTableType.{{ TypeName }},
                 {{ TypeString }}u8, options),
-            defaultValue);
+            defaultValue{{ dotnet.NullToNonNull }});
     }
 
     /// <summary>
@@ -84,7 +84,7 @@ public class {{ TypeName }}Topic : Topic
     /// <returns>subscriber</returns>
     public I{{ TypeName }}Subscriber SubscribeEx(
         string typeString,
-        {{ dotnet.ValueType }} defaultValue,
+        {{ dotnet.DefaultParamType }} defaultValue,
         PubSubOptions options)
     {
         return new {{ TypeName }}EntryImpl<NtSubscriber>(
@@ -92,7 +92,7 @@ public class {{ TypeName }}Topic : Topic
             NtCore.Subscribe(
                 Handle, NetworkTableType.{{ TypeName }},
                 typeString, options),
-            defaultValue);
+            defaultValue{{ dotnet.NullToNonNull }});
     }
 
     /// <summary>
@@ -113,7 +113,7 @@ public class {{ TypeName }}Topic : Topic
     /// <returns>subscriber</returns>
     public I{{ TypeName }}Subscriber SubscribeEx(
         ReadOnlySpan<byte> typeString,
-        {{ dotnet.ValueType }} defaultValue,
+        {{ dotnet.DefaultParamType }} defaultValue,
         PubSubOptions options)
     {
         return new {{ TypeName }}EntryImpl<NtSubscriber>(
@@ -121,7 +121,7 @@ public class {{ TypeName }}Topic : Topic
             NtCore.Subscribe(
                 Handle, NetworkTableType.{{ TypeName }},
                 typeString, options),
-            defaultValue);
+            defaultValue{{ dotnet.NullToNonNull }});
     }
 
     /// <summary>
@@ -285,7 +285,7 @@ public class {{ TypeName }}Topic : Topic
     /// <param name="options">publish and/or subscribe options</param>
     /// <returns>entry</returns>
     public I{{ TypeName }}Entry GetEntry(
-        {{ dotnet.ValueType }} defaultValue,
+        {{ dotnet.DefaultParamType }} defaultValue,
         PubSubOptions options)
     {
         return new {{ TypeName }}EntryImpl<NtEntry>(
@@ -293,7 +293,7 @@ public class {{ TypeName }}Topic : Topic
             NtCore.GetEntry(
                 Handle, NetworkTableType.{{ TypeName }},
                 {{ TypeString }}u8, options),
-            defaultValue);
+            defaultValue{{ dotnet.NullToNonNull }});
     }
 
     /// <summary>
@@ -319,7 +319,7 @@ public class {{ TypeName }}Topic : Topic
     /// <returns>entry</returns>
     public I{{ TypeName }}Entry GetEntryEx(
         string typeString,
-        {{ dotnet.ValueType }} defaultValue,
+        {{ dotnet.DefaultParamType }} defaultValue,
         PubSubOptions options)
     {
         return new {{ TypeName }}EntryImpl<NtEntry>(
@@ -327,7 +327,7 @@ public class {{ TypeName }}Topic : Topic
             NtCore.GetEntry(
                 Handle, NetworkTableType.{{ TypeName }},
                 typeString, options),
-            defaultValue);
+            defaultValue{{ dotnet.NullToNonNull }});
     }
 
     /// <summary>
@@ -353,7 +353,7 @@ public class {{ TypeName }}Topic : Topic
     /// <returns>entry</returns>
     public I{{ TypeName }}Entry GetEntryEx(
         ReadOnlySpan<byte> typeString,
-        {{ dotnet.ValueType }} defaultValue,
+        {{ dotnet.DefaultParamType }} defaultValue,
         PubSubOptions options)
     {
         return new {{ TypeName }}EntryImpl<NtEntry>(
@@ -361,7 +361,7 @@ public class {{ TypeName }}Topic : Topic
             NtCore.GetEntry(
                 Handle, NetworkTableType.{{ TypeName }},
                 typeString, options),
-            defaultValue);
+            defaultValue{{ dotnet.NullToNonNull }});
     }
 {% else %}
     /// <summary>
@@ -382,7 +382,7 @@ public class {{ TypeName }}Topic : Topic
     /// <returns>subscriber</returns>
     public I{{ TypeName }}Subscriber Subscribe(
         string typeString,
-        {{ dotnet.ValueType }} defaultValue,
+        {{ dotnet.DefaultParamType }} defaultValue,
         PubSubOptions options)
     {
         return new {{ TypeName }}EntryImpl<NtSubscriber>(
@@ -390,7 +390,7 @@ public class {{ TypeName }}Topic : Topic
             NtCore.Subscribe(
                 Handle, NetworkTableType.{{ TypeName }},
                 typeString, options),
-            defaultValue);
+            defaultValue{{ dotnet.NullToNonNull }});
     }
 
     /// <summary>
@@ -411,7 +411,7 @@ public class {{ TypeName }}Topic : Topic
     /// <returns>subscriber</returns>
     public I{{ TypeName }}Subscriber Subscribe(
         ReadOnlySpan<byte> typeString,
-        {{ dotnet.ValueType }} defaultValue,
+        {{ dotnet.DefaultParamType }} defaultValue,
         PubSubOptions options)
     {
         return new {{ TypeName }}EntryImpl<NtSubscriber>(
@@ -419,7 +419,7 @@ public class {{ TypeName }}Topic : Topic
             NtCore.Subscribe(
                 Handle, NetworkTableType.{{ TypeName }},
                 typeString, options),
-            defaultValue);
+            defaultValue{{ dotnet.NullToNonNull }});
     }
 
     /// <summary>
@@ -614,7 +614,7 @@ public class {{ TypeName }}Topic : Topic
     /// <returns>entry</returns>
     public I{{ TypeName }}Entry GetEntry(
         string typeString,
-        {{ dotnet.ValueType }} defaultValue,
+        {{ dotnet.DefaultParamType }} defaultValue,
         PubSubOptions options)
     {
         return new {{ TypeName }}EntryImpl<NtEntry>(
@@ -622,7 +622,7 @@ public class {{ TypeName }}Topic : Topic
             NtCore.GetEntry(
                 Handle, NetworkTableType.{{ TypeName }},
                 typeString, options),
-            defaultValue);
+            defaultValue{{ dotnet.NullToNonNull }});
     }
 
     /// <summary>
@@ -648,7 +648,7 @@ public class {{ TypeName }}Topic : Topic
     /// <returns>entry</returns>
     public I{{ TypeName }}Entry GetEntry(
         ReadOnlySpan<byte> typeString,
-        {{ dotnet.ValueType }} defaultValue,
+        {{ dotnet.DefaultParamType }} defaultValue,
         PubSubOptions options)
     {
         return new {{ TypeName }}EntryImpl<NtEntry>(
@@ -656,7 +656,7 @@ public class {{ TypeName }}Topic : Topic
             NtCore.GetEntry(
                 Handle, NetworkTableType.{{ TypeName }},
                 typeString, options),
-            defaultValue);
+            defaultValue{{ dotnet.NullToNonNull }});
     }
 {% endif %}
 }

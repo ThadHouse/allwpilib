@@ -76,43 +76,24 @@ internal sealed class {{ TypeName }}EntryImpl<T> : EntryBase<T>, I{{ TypeName }}
         return timestamped;
     }
 
-{% if dotnet.IsArray %}
-    public void Set(ReadOnlySpan<{{ dotnet.BaseType }}> value)
+    public void Set({{ dotnet.ParamType }} value)
     {
         RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value, 0);
         NtCore.SetEntryValue(Handle, ntValue);
     }
 
-    public void Set(ReadOnlySpan<{{ dotnet.BaseType }}> value, long time)
+    public void Set({{ dotnet.ParamType }} value, long time)
     {
         RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value, time);
         NtCore.SetEntryValue(Handle, ntValue);
     }
 
-    public void SetDefault(ReadOnlySpan<{{ dotnet.BaseType }}> value)
+    public void SetDefault({{ dotnet.ParamType }} value)
     {
         RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value);
         NtCore.SetDefaultEntryValue(Handle, ntValue);
     }
-{% else %}
-    public void Set({{ dotnet.ValueType }} value)
-    {
-        RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value, 0);
-        NtCore.SetEntryValue(Handle, ntValue);
-    }
 
-    public void Set({{ dotnet.ValueType }} value, long time)
-    {
-        RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value, time);
-        NtCore.SetEntryValue(Handle, ntValue);
-    }
-
-    public void SetDefault({{ dotnet.ValueType }} value)
-    {
-        RefNetworkTableValue ntValue = RefNetworkTableValue.Make{{ TypeName }}(value);
-        NtCore.SetDefaultEntryValue(Handle, ntValue);
-    }
-{% endif %}
     public void Unpublish()
     {
         NtCore.Unpublish(Handle);

@@ -15,6 +15,6 @@ public partial interface IGenericSubscriber
     /// </summary>
     /// <param name="defaultValue">the value to be returned if no value is found</param>
     /// <returns>the entry's value or the given default value</returns>
-    {{ t.dotnet.ValueType }} Get{{ t.TypeName }}({{ t.dotnet.ValueType }} defaultValue);
+    {{ t.dotnet.ValueType }} Get{{ t.TypeName }}({{ t.dotnet.DefaultParamType }} defaultValue);
 {% endfor %}
 }
