@@ -47,10 +47,10 @@ std::optional<frc::MecanumDriveKinematics> wpi::Protobuf<
 
 bool wpi::Protobuf<frc::MecanumDriveKinematics>::Pack(
     wpi::ProtoOutputStream& stream, const frc::MecanumDriveKinematics& value) {
-  wpi::PackCallback<frc::Translation2d> frontLeft{&value.GetFrontLeft()};
-  wpi::PackCallback<frc::Translation2d> frontRight{&value.GetFrontRight()};
-  wpi::PackCallback<frc::Translation2d> rearLeft{&value.GetRearLeft()};
-  wpi::PackCallback<frc::Translation2d> rearRight{&value.GetRearRight()};
+  wpi::PackCallback frontLeft{&value.GetFrontLeft()};
+  wpi::PackCallback frontRight{&value.GetFrontRight()};
+  wpi::PackCallback rearLeft{&value.GetRearLeft()};
+  wpi::PackCallback rearRight{&value.GetRearRight()};
   wpi_proto_ProtobufMecanumDriveKinematics msg{
       .front_left = frontLeft.Callback(),
       .front_right = frontRight.Callback(),
