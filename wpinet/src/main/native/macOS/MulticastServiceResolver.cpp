@@ -21,6 +21,8 @@
 #include "ResolverThread.h"
 #include "dns_sd.h"
 
+#include "sys/event.h"
+
 using namespace wpi;
 
 struct DnsResolveState {
@@ -30,9 +32,7 @@ struct DnsResolveState {
     data.serviceName = serviceNameView;
   }
 
-  DNSServiceRef ResolveRef = nullptr;
   MulticastServiceResolver::Impl* pImpl;
-
   MulticastServiceResolver::ServiceData data;
 };
 
@@ -40,8 +40,14 @@ struct MulticastServiceResolver::Impl {
   std::string serviceType;
   MulticastServiceResolver* resolver;
   std::shared_ptr<ResolverThread> thread = ResolverThread::Get();
-  std::vector<std::unique_ptr<DnsResolveState>> ResolveStates;
+  std::vector<std::unique_ptr<DnsResolveState>> resolveStates;
   DNSServiceRef serviceRef = nullptr;
+  dnssd_sock_t threadShutdownHandle;
+
+  void removeState(DnsResolveState* context) {
+    std::erase_if(resolveStates,
+                  [context](auto& a) { return a.get() == context; });
+  }
 
   void onFound(ServiceData&& data) {
     resolver->PushData(std::forward<ServiceData>(data));
@@ -59,17 +65,21 @@ MulticastServiceResolver::~MulticastServiceResolver() noexcept {
   Stop();
 }
 
-void ServiceGetAddrInfoReply(DNSServiceRef sdRef, DNSServiceFlags flags,
-                             uint32_t interfaceIndex,
-                             DNSServiceErrorType errorCode,
-                             const char* hostname,
-                             const struct sockaddr* address, uint32_t ttl,
-                             void* context) {
-  if (errorCode != kDNSServiceErr_NoError) {
-    return;
-  }
+static void ServiceGetAddrInfoReply(DNSServiceRef sdRef, DNSServiceFlags flags,
+                                    uint32_t interfaceIndex,
+                                    DNSServiceErrorType errorCode,
+                                    const char* hostname,
+                                    const struct sockaddr* address,
+                                    uint32_t ttl, void* context) {
+  // We're done with the service ref. Deallocate it
+  DNSServiceRefDeallocate(sdRef);
 
   DnsResolveState* resolveState = static_cast<DnsResolveState*>(context);
+
+  if (errorCode != kDNSServiceErr_NoError) {
+    resolveState->pImpl->removeState(resolveState);
+    return;
+  }
 
   resolveState->data.hostName = hostname;
   resolveState->data.ipv4Address =
@@ -77,13 +87,7 @@ void ServiceGetAddrInfoReply(DNSServiceRef sdRef, DNSServiceFlags flags,
 
   resolveState->pImpl->onFound(std::move(resolveState->data));
 
-  resolveState->pImpl->thread->RemoveServiceRefInThread(
-      resolveState->ResolveRef);
-
-  resolveState->pImpl->ResolveStates.erase(std::find_if(
-      resolveState->pImpl->ResolveStates.begin(),
-      resolveState->pImpl->ResolveStates.end(),
-      [resolveState](auto& a) { return a.get() == resolveState; }));
+  resolveState->pImpl->removeState(resolveState);
 }
 
 void ServiceResolveReply(DNSServiceRef sdRef, DNSServiceFlags flags,
@@ -92,15 +96,15 @@ void ServiceResolveReply(DNSServiceRef sdRef, DNSServiceFlags flags,
                          uint16_t port, /* In network byte order */
                          uint16_t txtLen, const unsigned char* txtRecord,
                          void* context) {
+  DNSServiceRefDeallocate(sdRef);
+
+  DnsResolveState* resolveState = static_cast<DnsResolveState*>(context);
+
   if (errorCode != kDNSServiceErr_NoError) {
+    resolveState->pImpl->removeState(resolveState);
     return;
   }
 
-  DnsResolveState* resolveState = static_cast<DnsResolveState*>(context);
-  resolveState->pImpl->thread->RemoveServiceRefInThread(
-      resolveState->ResolveRef);
-  DNSServiceRefDeallocate(resolveState->ResolveRef);
-  resolveState->ResolveRef = nullptr;
   resolveState->data.port = ntohs(port);
 
   int txtCount = TXTRecordGetCount(txtLen, txtRecord);
@@ -124,21 +128,14 @@ void ServiceResolveReply(DNSServiceRef sdRef, DNSServiceFlags flags,
     }
   }
 
+  DNSServiceRef copyRef = resolveState->pImpl->serviceRef;
+
   errorCode = DNSServiceGetAddrInfo(
-      &resolveState->ResolveRef, flags, interfaceIndex,
+      &copyRef, kDNSServiceFlagsShareConnection, interfaceIndex,
       kDNSServiceProtocol_IPv4, hosttarget, ServiceGetAddrInfoReply, context);
 
-  if (errorCode == kDNSServiceErr_NoError) {
-    dnssd_sock_t socket = DNSServiceRefSockFD(resolveState->ResolveRef);
-    resolveState->pImpl->thread->AddServiceRef(resolveState->ResolveRef,
-                                               socket);
-  } else {
-    resolveState->pImpl->thread->RemoveServiceRefInThread(
-        resolveState->ResolveRef);
-    resolveState->pImpl->ResolveStates.erase(std::find_if(
-        resolveState->pImpl->ResolveStates.begin(),
-        resolveState->pImpl->ResolveStates.end(),
-        [resolveState](auto& a) { return a.get() == resolveState; }));
+  if (errorCode != kDNSServiceErr_NoError) {
+    resolveState->pImpl->removeState(resolveState);
   }
 }
 
@@ -147,6 +144,8 @@ static void DnsCompletion(DNSServiceRef sdRef, DNSServiceFlags flags,
                           DNSServiceErrorType errorCode,
                           const char* serviceName, const char* regtype,
                           const char* replyDomain, void* context) {
+  // Don't free the browse ref, its the default one.
+
   if (errorCode != kDNSServiceErr_NoError) {
     return;
   }
@@ -156,22 +155,18 @@ static void DnsCompletion(DNSServiceRef sdRef, DNSServiceFlags flags,
 
   MulticastServiceResolver::Impl* impl =
       static_cast<MulticastServiceResolver::Impl*>(context);
-  auto& resolveState = impl->ResolveStates.emplace_back(
+
+  DNSServiceRef copyRef = impl->serviceRef;
+
+  auto& resolveState = impl->resolveStates.emplace_back(
       std::make_unique<DnsResolveState>(impl, serviceName));
 
-  errorCode = DNSServiceResolve(&resolveState->ResolveRef, 0, interfaceIndex,
-                                serviceName, regtype, replyDomain,
-                                ServiceResolveReply, resolveState.get());
+  errorCode = DNSServiceResolve(
+      &copyRef, kDNSServiceFlagsShareConnection, interfaceIndex, serviceName,
+      regtype, replyDomain, ServiceResolveReply, resolveState.get());
 
-  if (errorCode == kDNSServiceErr_NoError) {
-    dnssd_sock_t socket = DNSServiceRefSockFD(resolveState->ResolveRef);
-    resolveState->pImpl->thread->AddServiceRef(resolveState->ResolveRef,
-                                               socket);
-  } else {
-    resolveState->pImpl->ResolveStates.erase(std::find_if(
-        resolveState->pImpl->ResolveStates.begin(),
-        resolveState->pImpl->ResolveStates.end(),
-        [r = resolveState.get()](auto& a) { return a.get() == r; }));
+  if (errorCode != kDNSServiceErr_NoError) {
+    impl->removeState(resolveState.get());
   }
 }
 
@@ -184,38 +179,44 @@ void MulticastServiceResolver::Start() {
     return;
   }
 
-  DNSServiceErrorType status =
-      DNSServiceBrowse(&pImpl->serviceRef, 0, 0, pImpl->serviceType.c_str(),
-                       "local", DnsCompletion, pImpl.get());
-  if (status == kDNSServiceErr_NoError) {
-    dnssd_sock_t socket = DNSServiceRefSockFD(pImpl->serviceRef);
-    pImpl->thread->AddServiceRef(pImpl->serviceRef, socket);
+  DNSServiceErrorType status = DNSServiceCreateConnection(&pImpl->serviceRef);
+  if (status != kDNSServiceErr_NoError) {
+    return;
   }
+
+  // Fire up a browse
+  DNSServiceRef copyRef = pImpl->serviceRef;
+
+  status = DNSServiceBrowse(&copyRef, kDNSServiceFlagsShareConnection, 0,
+                            pImpl->serviceType.c_str(), "local", DnsCompletion,
+                            pImpl.get());
+  if (status != kDNSServiceErr_NoError) {
+    // Because the thread never starts, we need to clean up the service ref.
+    DNSServiceRefDeallocate(pImpl->serviceRef);
+    pImpl->serviceRef = nullptr;
+    return;
+  }
+
+  auto shutdownHandle = pImpl->thread->AddServiceRef(pImpl->serviceRef);
+  if (!shutdownHandle.has_value()) {
+    // Because the thread never starts, we need to clean up the service ref.
+    DNSServiceRefDeallocate(pImpl->serviceRef);
+    pImpl->serviceRef = nullptr;
+  }
+
+  pImpl->threadShutdownHandle = *shutdownHandle;
 }
 
 void MulticastServiceResolver::Stop() {
   if (!pImpl->serviceRef) {
     return;
   }
-  wpi::SmallVector<WPI_EventHandle, 8> cleanupEvents;
-  for (auto&& i : pImpl->ResolveStates) {
-    cleanupEvents.push_back(
-        pImpl->thread->RemoveServiceRefOutsideThread(i->ResolveRef));
-  }
-  cleanupEvents.push_back(
-      pImpl->thread->RemoveServiceRefOutsideThread(pImpl->serviceRef));
-  wpi::SmallVector<WPI_Handle, 8> signaledBuf;
-  signaledBuf.resize(cleanupEvents.size());
-  while (!cleanupEvents.empty()) {
-    auto signaled = wpi::WaitForObjects(cleanupEvents, signaledBuf);
-    for (auto&& s : signaled) {
-      cleanupEvents.erase(
-          std::find(cleanupEvents.begin(), cleanupEvents.end(), s));
-    }
-  }
 
-  pImpl->ResolveStates.clear();
+  // RemoveServiceRef will block until its actually removed.
+  // It will deallocate the service ref too.
+  pImpl->thread->RemoveServiceRef(pImpl->threadShutdownHandle, pImpl->serviceRef);
   pImpl->serviceRef = nullptr;
+  pImpl->resolveStates.clear();
 }
 
 #endif  // defined(__APPLE__)

@@ -29,21 +29,23 @@ class ResolverThread {
   explicit ResolverThread(const private_init&);
   ~ResolverThread() noexcept;
 
-  void AddServiceRef(DNSServiceRef serviceRef, dnssd_sock_t socket);
-  void RemoveServiceRefInThread(DNSServiceRef serviceRef);
-  WPI_EventHandle RemoveServiceRefOutsideThread(DNSServiceRef serviceRef);
+  std::optional<dnssd_sock_t> AddServiceRef(DNSServiceRef serviceRef);
+
+  void RemoveServiceRef(dnssd_sock_t serviceShutdownHandle, DNSServiceRef serviceRef);
 
   static std::shared_ptr<ResolverThread> Get();
 
  private:
   void ThreadMain();
-  bool CleanupRefs();
+
+  bool AddQueueRef(DNSServiceRef serviceRef, dnssd_sock_t sock);
+  void RemoveQueueRef();
 
   wpi::mutex serviceRefMutex;
-  std::vector<std::pair<DNSServiceRef, WPI_EventHandle>> serviceRefsToRemove;
-  std::vector<std::pair<DNSServiceRef, dnssd_sock_t>> serviceRefs;
   std::thread thread;
-  std::atomic_bool running;
+  int queue{-1};
+  int numReferences{0};
+  static constexpr uintptr_t shutdownHandle = 0x100000042;
 };
 }  // namespace wpi
 

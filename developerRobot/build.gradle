@@ -272,28 +272,28 @@ model {
 
                                 def installTask = it.tasks.install
 
-                                def doFirstTask = {
-                                    def extensions = '';
-                                    installTask.installDirectory.get().getAsFile().eachFileRecurse {
-                                        def name = it.name
-                                        if (!(name.endsWith('.dll') || name.endsWith('.so') || name.endsWith('.dylib'))) {
-                                            return
-                                        }
-                                        def file = it
-                                        simProjects.each {
-                                            if (name.startsWith(it) || name.startsWith("lib$it".toString())) {
-                                                extensions += file.absolutePath + File.pathSeparator
-                                            }
-                                        }
-                                    }
-                                    if (extensions != '') {
-                                        run.environment 'HALSIM_EXTENSIONS', extensions
-                                        runTask.environment 'HALSIM_EXTENSIONS', extensions
-                                    }
-                                }
+                                // def doFirstTask = {
+                                //     def extensions = '';
+                                //     installTask.installDirectory.get().getAsFile().eachFileRecurse {
+                                //         def name = it.name
+                                //         if (!(name.endsWith('.dll') || name.endsWith('.so') || name.endsWith('.dylib'))) {
+                                //             return
+                                //         }
+                                //         def file = it
+                                //         simProjects.each {
+                                //             if (name.startsWith(it) || name.startsWith("lib$it".toString())) {
+                                //                 extensions += file.absolutePath + File.pathSeparator
+                                //             }
+                                //         }
+                                //     }
+                                //     if (extensions != '') {
+                                //         run.environment 'HALSIM_EXTENSIONS', extensions
+                                //         runTask.environment 'HALSIM_EXTENSIONS', extensions
+                                //     }
+                                // }
 
-                                runTask.doFirst doFirstTask
-                                run.doFirst doFirstTask
+                                // runTask.doFirst doFirstTask
+                                // run.doFirst doFirstTask
 
                                 found = true
                             }
