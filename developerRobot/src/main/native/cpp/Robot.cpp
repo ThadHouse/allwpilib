@@ -4,13 +4,20 @@
 
 #include <frc/TimedRobot.h>
 
+#include "wpinet/MulticastServiceResolver.h"
+
 class Robot : public frc::TimedRobot {
  public:
+  wpi::MulticastServiceResolver* Res;
+
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
    */
-  Robot() {}
+  Robot() {
+    Res = new wpi::MulticastServiceResolver{"_ni._tcp"};
+    Res->Start();
+  }
 
   /**
    * This function is run once each time the robot enters autonomous mode
@@ -40,7 +47,16 @@ class Robot : public frc::TimedRobot {
   /**
    * This function is called periodically during all modes
    */
-  void RobotPeriodic() override {}
+  void RobotPeriodic() override {
+    auto items = Res->GetData();
+    if (!items.empty()) {
+      fmt::println("Stopping");
+      std::fflush(stdout);
+      Res->Stop();
+      fmt::println("Stopped");
+      std::fflush(stdout);
+    }
+  }
 };
 
 int main() {

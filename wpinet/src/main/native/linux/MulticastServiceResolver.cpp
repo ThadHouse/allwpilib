@@ -23,9 +23,14 @@ struct MulticastServiceResolver::Impl {
   AvahiServiceBrowser* browser;
   std::string serviceType;
   MulticastServiceResolver* resolver;
+  std::function<void(ServiceData)> onResolve;
 
   void onFound(ServiceData&& data) {
-    resolver->PushData(std::forward<ServiceData>(data));
+    if (onResolve) {
+      onResolve(std::forward<ServiceData>(data));
+    } else {
+      resolver->PushData(std::forward<ServiceData>(data));
+    }
   }
 };
 
@@ -138,17 +143,36 @@ void MulticastServiceResolver::Start() {
                               ClientCallback, pImpl.get(), nullptr);
 }
 
-void MulticastServiceResolver::Stop() {
+void MulticastServiceResolver::Start(
+    std::function<void(ServiceData&&)> onResolve) {
   if (!pImpl->table.IsValid()) {
     return;
   }
   std::scoped_lock lock{*pImpl->thread};
   if (pImpl->client) {
-    if (pImpl->browser) {
-      pImpl->table.service_browser_free(pImpl->browser);
-      pImpl->browser = nullptr;
-    }
-    pImpl->table.client_free(pImpl->client);
-    pImpl->client = nullptr;
+    return;
   }
+
+  pImpl->onResolve = std::move(onResolve);
+
+  pImpl->client =
+      pImpl->table.client_new(pImpl->thread->GetPoll(), AVAHI_CLIENT_NO_FAIL,
+                              ClientCallback, pImpl.get(), nullptr);
+}
+
+void MulticastServiceResolver::Stop() {
+  if (!pImpl->table.IsValid()) {
+    return;
+  }
+  std::scoped_lock lock{*pImpl->thread};
+  if (!pImpl->client) {
+    return;
+  }
+  if (pImpl->browser) {
+    pImpl->table.service_browser_free(pImpl->browser);
+    pImpl->browser = nullptr;
+  }
+  pImpl->table.client_free(pImpl->client);
+  pImpl->client = nullptr;
+  pImpl->onResolve = {};
 }

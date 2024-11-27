@@ -33,9 +33,19 @@ class MulticastServiceResolver {
     std::vector<std::pair<std::string, std::string>> txt;
   };
   /**
-   * Starts multicast service resolver.
+   * Starts multicast service resolver. Data will come through the event handle.
    */
   void Start();
+
+  /**
+   * Starts multicast service resolver. Data will come through the callback, not
+   * the event handle.
+   *
+   * Do not call Stop from the callback, this will at best result in a deadlock,
+   * and at worst a crash.
+   */
+  void Start(std::function<void(ServiceData&&)> onResolve);
+
   /**
    * Stops multicast service resolver.
    */

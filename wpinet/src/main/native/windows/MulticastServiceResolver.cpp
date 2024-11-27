@@ -17,6 +17,8 @@
 #include <wpi/SmallVector.h>
 #include <wpi/StringExtras.h>
 
+#include "fmt/format.h"
+
 #include "DynamicDns.h"
 
 #pragma comment(lib, "dnsapi")
@@ -30,8 +32,14 @@ struct MulticastServiceResolver::Impl {
 
   MulticastServiceResolver* resolver;
 
+  std::function<void(ServiceData)> onResolve;
+
   void onFound(ServiceData&& data) {
-    resolver->PushData(std::forward<ServiceData>(data));
+    if (onResolve) {
+      onResolve(std::forward<ServiceData>(data));
+    } else {
+      resolver->PushData(std::forward<ServiceData>(data));
+    }
   }
 };
 
@@ -68,6 +76,7 @@ bool MulticastServiceResolver::HasImplementation() const {
 static _Function_class_(DNS_QUERY_COMPLETION_ROUTINE) VOID WINAPI
     DnsCompletion(_In_ PVOID pQueryContext,
                   _Inout_ PDNS_QUERY_RESULT pQueryResults) {
+  std::fflush(stdout);
   MulticastServiceResolver::Impl* impl =
       reinterpret_cast<MulticastServiceResolver::Impl*>(pQueryContext);
 
@@ -195,6 +204,27 @@ void MulticastServiceResolver::Start() {
   pImpl->dynamicDns.DnsServiceBrowsePtr(&request, &pImpl->serviceCancel);
 }
 
+void MulticastServiceResolver::Start(
+    std::function<void(ServiceData&&)> onResolve) {
+  if (pImpl->serviceCancel.reserved != nullptr) {
+    return;
+  }
+
+  if (!pImpl->dynamicDns.CanDnsResolve) {
+    return;
+  }
+
+  pImpl->onResolve = std::move(onResolve);
+
+  DNS_SERVICE_BROWSE_REQUEST request = {};
+  request.InterfaceIndex = 0;
+  request.pQueryContext = pImpl.get();
+  request.QueryName = pImpl->serviceType.c_str();
+  request.Version = 2;
+  request.pBrowseCallbackV2 = DnsCompletion;
+  pImpl->dynamicDns.DnsServiceBrowsePtr(&request, &pImpl->serviceCancel);
+}
+
 void MulticastServiceResolver::Stop() {
   if (!pImpl->dynamicDns.CanDnsResolve) {
     return;
@@ -206,4 +236,5 @@ void MulticastServiceResolver::Stop() {
 
   pImpl->dynamicDns.DnsServiceBrowseCancelPtr(&pImpl->serviceCancel);
   pImpl->serviceCancel.reserved = nullptr;
+  pImpl->onResolve = {};
 }
