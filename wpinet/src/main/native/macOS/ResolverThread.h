@@ -29,23 +29,26 @@ class ResolverThread {
   explicit ResolverThread(const private_init&);
   ~ResolverThread() noexcept;
 
-  std::optional<dnssd_sock_t> AddServiceRef(DNSServiceRef serviceRef);
+  void AddServiceRef(std::function<void(DNSServiceRef)> onAdd);
 
-  void RemoveServiceRef(dnssd_sock_t serviceShutdownHandle, DNSServiceRef serviceRef);
+  void RemoveServiceRef(std::function<void()> onRemove);
 
   static std::shared_ptr<ResolverThread> Get();
 
  private:
   void ThreadMain();
 
-  bool AddQueueRef(DNSServiceRef serviceRef, dnssd_sock_t sock);
+  bool AddQueueRef();
   void RemoveQueueRef();
 
   wpi::mutex serviceRefMutex;
   std::thread thread;
   int queue{-1};
   int numReferences{0};
+  DNSServiceRef globalRef{nullptr};
   static constexpr uintptr_t shutdownHandle = 0x100000042;
+  static constexpr uintptr_t addHandle = 0x100000043;
+  static constexpr uintptr_t removeHandle = 0x100000044;
 };
 }  // namespace wpi
 

@@ -24,29 +24,49 @@ ResolverThread::~ResolverThread() noexcept {
   // If there are refs, we can't do anything.
 }
 
-bool ResolverThread::AddQueueRef(DNSServiceRef serviceRef, dnssd_sock_t sock) {
+bool ResolverThread::AddQueueRef() {
   std::scoped_lock lock{serviceRefMutex};
   numReferences++;
-  bool needsThreadCreated = numReferences == 1;
   if (numReferences == 1) {
     // Create queue
     queue = kqueue();
     if (queue < 0) {
+      numReferences--;
       return false;
     }
-  }
 
-  // We add the event here so we never have to deal with the scenario of having an empty kqueue.
-  struct kevent sockEvent = {};
-  EV_SET(&sockEvent, sock, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, serviceRef);
-  int result = kevent(queue, &sockEvent, 1, nullptr, 0, nullptr);
-  if (result < 0) {
-    close(queue);
-    queue = -1;
-    return false;
-  }
+    globalRef = nullptr;
+    DNSServiceErrorType status = DNSServiceCreateConnection(&globalRef);
+    if (status != kDNSServiceErr_NoError) {
+      globalRef = nullptr;
+      close(queue);
+      queue = -1;
+      numReferences--;
+      return false;
+    }
 
-  if (needsThreadCreated) {
+    dnssd_sock_t sock = DNSServiceRefSockFD(globalRef);
+    if (sock == -1) {
+      DNSServiceRefDeallocate(globalRef);
+      globalRef = nullptr;
+      close(queue);
+      queue = -1;
+      numReferences--;
+      return false;
+    }
+
+    struct kevent sockEvent = {};
+    EV_SET(&sockEvent, sock, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, nullptr);
+    int result = kevent(queue, &sockEvent, 1, nullptr, 0, nullptr);
+    if (result < 0) {
+      DNSServiceRefDeallocate(globalRef);
+      globalRef = nullptr;
+      close(queue);
+      queue = -1;
+      numReferences--;
+      return false;
+    }
+
     thread = std::thread([this] { ThreadMain(); });
   }
 
@@ -69,33 +89,44 @@ void ResolverThread::RemoveQueueRef() {
     if (thread.joinable()) {
       thread.join();
     }
+
+    DNSServiceRefDeallocate(globalRef);
+    globalRef = nullptr;
   }
 }
 
-std::optional<dnssd_sock_t> ResolverThread::AddServiceRef(
-    DNSServiceRef serviceRef) {
-  dnssd_sock_t sock = DNSServiceRefSockFD(serviceRef);
-  if (sock == -1) {
-    return {};
+using AddRefDataStore =
+    std::pair<wpi::Event&, std::function<void(DNSServiceRef)>&>;
+
+void ResolverThread::AddServiceRef(std::function<void(DNSServiceRef)> onAdd) {
+  if (!AddQueueRef()) {
+    return;
   }
 
-  if (!AddQueueRef(serviceRef, sock)) {
-    return {};
-  }
+  wpi::Event addEvent{true, false};
+  AddRefDataStore dataStore{addEvent, onAdd};
 
-  return sock;
+  // Fire into the queue
+  struct kevent addKEvent = {};
+  EV_SET(&addKEvent, addHandle, EVFILT_USER, EV_ADD | EV_ONESHOT, NOTE_TRIGGER,
+         0, &dataStore);
+  // If we get an error here, we don't have anything we can do.
+  // We will either deadlock or create a massive use after free.
+  // We're choosing the deadlock.
+  (void)kevent(queue, &addKEvent, 1, nullptr, 0, nullptr);
+
+  wpi::WaitForObject(addEvent.GetHandle());
 }
 
-using ShutdownDataStore = std::pair<wpi::Event&, DNSServiceRef>;
+using ShutdownDataStore = std::pair<wpi::Event&, std::function<void()>&>;
 
-void ResolverThread::RemoveServiceRef(dnssd_sock_t serviceShutdownHandle,
-                                      DNSServiceRef serviceRef) {
+void ResolverThread::RemoveServiceRef(std::function<void()> onRemove) {
   wpi::Event shutdownEvent{true, false};
-  ShutdownDataStore dataStore{shutdownEvent, serviceRef};
+  ShutdownDataStore dataStore{shutdownEvent, onRemove};
 
   // Fire into the queue
   struct kevent stopEvent = {};
-  EV_SET(&stopEvent, serviceShutdownHandle, EVFILT_USER, EV_ADD | EV_ONESHOT,
+  EV_SET(&stopEvent, removeHandle, EVFILT_USER, EV_ADD | EV_ONESHOT,
          NOTE_TRIGGER, 0, &dataStore);
   // If we get an error here, we don't have anything we can do.
   // We will either deadlock or create a massive use after free.
@@ -126,68 +157,25 @@ void ResolverThread::ThreadMain() {
         if (event.ident == shutdownHandle) {
           // This thread is being shut down. We're done here.
           return;
+        } else if (event.ident == addHandle) {
+          AddRefDataStore& dataStore =
+              *reinterpret_cast<AddRefDataStore*>(event.udata);
+          // Call up to delete any references
+          dataStore.second(globalRef);
+          dataStore.first.Set();
+        } else if (event.ident == removeHandle) {
+          ShutdownDataStore& dataStore =
+              *reinterpret_cast<ShutdownDataStore*>(event.udata);
+          // Call up to delete any references
+          dataStore.second();
+          dataStore.first.Set();
         }
-
-        ShutdownDataStore& dataStore =
-            *reinterpret_cast<ShutdownDataStore*>(event.udata);
-        dnssd_sock_t sock = event.ident;
-
-        // Delete the event from the queue
-        struct kevent deleteEvent = {};
-        EV_SET(&deleteEvent, sock, EVFILT_READ, EV_DELETE, 0, 0, nullptr);
-        (void)kevent(queue, &deleteEvent, 1, nullptr, 0, nullptr);
-
-        // Deallocate the service ref
-        DNSServiceRefDeallocate(dataStore.second);
-
-        // If we happen to have this service ref in any other events, remove it.
-        for (int j = 0; j < numEvents; j++) {
-          if (event.filter == EVFILT_READ &&
-              event.ident == static_cast<uintptr_t>(sock)) {
-            event.filter = 0;
-          }
-        }
-
-        dataStore.first.Set();
-
       } else if (event.filter == EVFILT_READ) {
         // We're getting a read event. Just process it.
-        DNSServiceProcessResult(reinterpret_cast<DNSServiceRef>(event.udata));
+        DNSServiceProcessResult(globalRef);
       }
     }
   }
-
-  // std::vector<pollfd> readSockets;
-  // std::vector<DNSServiceRef> serviceRefs;
-
-  // while (running) {
-  //   readSockets.clear();
-  //   serviceRefs.clear();
-
-  //   for (auto&& i : this->serviceRefs) {
-  //     readSockets.emplace_back(pollfd{i.second, POLLIN, 0});
-  //     serviceRefs.emplace_back(i.first);
-  //   }
-
-  //   int res = poll(readSockets.begin().base(), readSockets.size(), 100);
-
-  //   if (res > 0) {
-  //     for (size_t i = 0; i < readSockets.size(); i++) {
-  //       if (readSockets[i].revents == POLLIN) {
-  //         DNSServiceProcessResult(serviceRefs[i]);
-  //       }
-  //     }
-  //   } else if (res == 0) {
-  //     if (!running) {
-  //       CleanupRefs();
-  //       break;
-  //     }
-  //   }
-
-  //   if (CleanupRefs()) {
-  //     break;
-  //   }
-  // }
 }
 
 static wpi::mutex ThreadLoopLock;

@@ -32,8 +32,19 @@ struct DnsResolveState {
     data.serviceName = serviceNameView;
   }
 
-  MulticastServiceResolver::Impl* pImpl;
+  ~DnsResolveState() {
+    if (resolveRef) {
+      DNSServiceRefDeallocate(resolveRef);
+    }
+    if (addrInfoRef) {
+      DNSServiceRefDeallocate(addrInfoRef);
+    }
+  }
+
+  MulticastServiceResolver::Impl* pImpl{nullptr};
   MulticastServiceResolver::ServiceData data;
+  DNSServiceRef resolveRef{nullptr};
+  DNSServiceRef addrInfoRef{nullptr};
 };
 
 struct MulticastServiceResolver::Impl {
@@ -42,7 +53,7 @@ struct MulticastServiceResolver::Impl {
   std::shared_ptr<ResolverThread> thread = ResolverThread::Get();
   std::vector<std::unique_ptr<DnsResolveState>> resolveStates;
   DNSServiceRef serviceRef = nullptr;
-  dnssd_sock_t threadShutdownHandle;
+  DNSServiceRef globalServiceRef = nullptr;
 
   void removeState(DnsResolveState* context) {
     std::erase_if(resolveStates,
@@ -71,9 +82,6 @@ static void ServiceGetAddrInfoReply(DNSServiceRef sdRef, DNSServiceFlags flags,
                                     const char* hostname,
                                     const struct sockaddr* address,
                                     uint32_t ttl, void* context) {
-  // We're done with the service ref. Deallocate it
-  DNSServiceRefDeallocate(sdRef);
-
   DnsResolveState* resolveState = static_cast<DnsResolveState*>(context);
 
   if (errorCode != kDNSServiceErr_NoError) {
@@ -96,8 +104,6 @@ void ServiceResolveReply(DNSServiceRef sdRef, DNSServiceFlags flags,
                          uint16_t port, /* In network byte order */
                          uint16_t txtLen, const unsigned char* txtRecord,
                          void* context) {
-  DNSServiceRefDeallocate(sdRef);
-
   DnsResolveState* resolveState = static_cast<DnsResolveState*>(context);
 
   if (errorCode != kDNSServiceErr_NoError) {
@@ -128,13 +134,15 @@ void ServiceResolveReply(DNSServiceRef sdRef, DNSServiceFlags flags,
     }
   }
 
-  DNSServiceRef copyRef = resolveState->pImpl->serviceRef;
+  resolveState->addrInfoRef = resolveState->pImpl->globalServiceRef;
 
   errorCode = DNSServiceGetAddrInfo(
-      &copyRef, kDNSServiceFlagsShareConnection, interfaceIndex,
-      kDNSServiceProtocol_IPv4, hosttarget, ServiceGetAddrInfoReply, context);
+      &resolveState->addrInfoRef, kDNSServiceFlagsShareConnection,
+      interfaceIndex, kDNSServiceProtocol_IPv4, hosttarget,
+      ServiceGetAddrInfoReply, context);
 
   if (errorCode != kDNSServiceErr_NoError) {
+    resolveState->addrInfoRef = nullptr;
     resolveState->pImpl->removeState(resolveState);
   }
 }
@@ -144,8 +152,6 @@ static void DnsCompletion(DNSServiceRef sdRef, DNSServiceFlags flags,
                           DNSServiceErrorType errorCode,
                           const char* serviceName, const char* regtype,
                           const char* replyDomain, void* context) {
-  // Don't free the browse ref, its the default one.
-
   if (errorCode != kDNSServiceErr_NoError) {
     return;
   }
@@ -156,16 +162,19 @@ static void DnsCompletion(DNSServiceRef sdRef, DNSServiceFlags flags,
   MulticastServiceResolver::Impl* impl =
       static_cast<MulticastServiceResolver::Impl*>(context);
 
-  DNSServiceRef copyRef = impl->serviceRef;
-
   auto& resolveState = impl->resolveStates.emplace_back(
       std::make_unique<DnsResolveState>(impl, serviceName));
 
-  errorCode = DNSServiceResolve(
-      &copyRef, kDNSServiceFlagsShareConnection, interfaceIndex, serviceName,
-      regtype, replyDomain, ServiceResolveReply, resolveState.get());
+  resolveState->resolveRef = impl->globalServiceRef;
+
+  errorCode = DNSServiceResolve(&resolveState->resolveRef,
+                                kDNSServiceFlagsShareConnection, interfaceIndex,
+                                serviceName, regtype, replyDomain,
+                                ServiceResolveReply, resolveState.get());
 
   if (errorCode != kDNSServiceErr_NoError) {
+    // If errored, clear out the resolve ref, and then clear out the resolver
+    resolveState->resolveRef = nullptr;
     impl->removeState(resolveState.get());
   }
 }
@@ -179,32 +188,18 @@ void MulticastServiceResolver::Start() {
     return;
   }
 
-  DNSServiceErrorType status = DNSServiceCreateConnection(&pImpl->serviceRef);
-  if (status != kDNSServiceErr_NoError) {
-    return;
-  }
-
   // Fire up a browse
-  DNSServiceRef copyRef = pImpl->serviceRef;
-
-  status = DNSServiceBrowse(&copyRef, kDNSServiceFlagsShareConnection, 0,
-                            pImpl->serviceType.c_str(), "local", DnsCompletion,
-                            pImpl.get());
-  if (status != kDNSServiceErr_NoError) {
-    // Because the thread never starts, we need to clean up the service ref.
-    DNSServiceRefDeallocate(pImpl->serviceRef);
-    pImpl->serviceRef = nullptr;
-    return;
-  }
-
-  auto shutdownHandle = pImpl->thread->AddServiceRef(pImpl->serviceRef);
-  if (!shutdownHandle.has_value()) {
-    // Because the thread never starts, we need to clean up the service ref.
-    DNSServiceRefDeallocate(pImpl->serviceRef);
-    pImpl->serviceRef = nullptr;
-  }
-
-  pImpl->threadShutdownHandle = *shutdownHandle;
+  pImpl->thread->AddServiceRef([this](DNSServiceRef serviceRef) -> void {
+    pImpl->serviceRef = serviceRef;
+    pImpl->globalServiceRef = serviceRef;
+    DNSServiceErrorType status = DNSServiceBrowse(
+        &pImpl->serviceRef, kDNSServiceFlagsShareConnection, 0,
+        pImpl->serviceType.c_str(), "local", DnsCompletion, pImpl.get());
+    if (status != kDNSServiceErr_NoError) {
+      pImpl->serviceRef = nullptr;
+    }
+  });
+  return;
 }
 
 void MulticastServiceResolver::Stop() {
@@ -214,9 +209,11 @@ void MulticastServiceResolver::Stop() {
 
   // RemoveServiceRef will block until its actually removed.
   // It will deallocate the service ref too.
-  pImpl->thread->RemoveServiceRef(pImpl->threadShutdownHandle, pImpl->serviceRef);
+  pImpl->thread->RemoveServiceRef([this] {
+    DNSServiceRefDeallocate(pImpl->serviceRef);
+    pImpl->resolveStates.clear();
+  });
   pImpl->serviceRef = nullptr;
-  pImpl->resolveStates.clear();
 }
 
 #endif  // defined(__APPLE__)
