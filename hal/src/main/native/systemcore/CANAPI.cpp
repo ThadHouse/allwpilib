@@ -4,6 +4,8 @@
 
 #include "hal/CANAPI.h"
 
+#include "CANLowLevel.h"
+
 #include <ctime>
 #include <memory>
 
@@ -26,13 +28,12 @@ struct Receives {
 };
 
 struct CANStorage {
+  std::shared_ptr<CanStream> stream;
   HAL_CANManufacturer manufacturer;
   HAL_CANDeviceType deviceType;
   uint8_t deviceId;
   wpi::mutex periodicSendsMutex;
   wpi::SmallDenseMap<int32_t, int32_t> periodicSends;
-  wpi::mutex receivesMutex;
-  wpi::SmallDenseMap<int32_t, Receives> receives;
 };
 }  // namespace
 
@@ -59,7 +60,7 @@ static int32_t CreateCANId(CANStorage* storage, int32_t apiId) {
 extern "C" {
 
 uint32_t HAL_GetCANPacketBaseTime(void) {
-  return wpi::Now() / 1000;
+  return wpi::Now();
 }
 
 HAL_CANHandle HAL_InitializeCAN(HAL_CANManufacturer manufacturer,
@@ -72,6 +73,13 @@ HAL_CANHandle HAL_InitializeCAN(HAL_CANManufacturer manufacturer,
 
   if (handle == HAL_kInvalidHandle) {
     *status = NO_AVAILABLE_RESOURCES;
+    return HAL_kInvalidHandle;
+  }
+
+  can->stream = CanStream::Construct(0, manufacturer, deviceType, deviceId);
+  if (!can->stream) {
+    *status = PARAMETER_OUT_OF_RANGE;
+    canHandles->Free(handle);
     return HAL_kInvalidHandle;
   }
 
@@ -168,21 +176,23 @@ void HAL_ReadCANPacketNew(HAL_CANHandle handle, int32_t apiId, uint8_t* data,
     return;
   }
 
-  uint32_t messageId = CreateCANId(can.get(), apiId);
-  uint8_t dataSize = 0;
-  uint32_t ts = 0;
-  HAL_CAN_ReceiveMessage(&messageId, 0x1FFFFFFF, data, &dataSize, &ts, status);
-
-  if (*status == 0) {
-    std::scoped_lock lock(can->receivesMutex);
-    auto& msg = can->receives[messageId];
-    msg.length = dataSize;
-    msg.lastTimeStamp = ts;
-    // The NetComm call placed in data, copy into the msg
-    std::memcpy(msg.data, data, dataSize);
+  std::optional<CanFrameStore> maybeMessage = can->stream->ReadFrame(apiId);
+  if (!maybeMessage.has_value() || maybeMessage->timestamp == 0 ||
+      maybeMessage->hasBeenRead) {
+    *status = HAL_ERR_CANSessionMux_MessageNotFound;
+    return;
   }
-  *length = dataSize;
-  *receivedTimestamp = ts;
+
+  if (maybeMessage->frame.flags & CANFD_FDF) {
+    printf("FD frames not supported yet\n");
+    *status = INCOMPATIBLE_STATE;
+    return;
+  }
+
+  std::memcpy(data, maybeMessage->frame.data, maybeMessage->frame.len);
+  *length = maybeMessage->frame.len;
+  *receivedTimestamp = maybeMessage->timestamp;
+  *status = 0;
 }
 
 void HAL_ReadCANPacketLatest(HAL_CANHandle handle, int32_t apiId, uint8_t* data,
@@ -194,31 +204,22 @@ void HAL_ReadCANPacketLatest(HAL_CANHandle handle, int32_t apiId, uint8_t* data,
     return;
   }
 
-  uint32_t messageId = CreateCANId(can.get(), apiId);
-  uint8_t dataSize = 0;
-  uint32_t ts = 0;
-  HAL_CAN_ReceiveMessage(&messageId, 0x1FFFFFFF, data, &dataSize, &ts, status);
-
-  std::scoped_lock lock(can->receivesMutex);
-  if (*status == 0) {
-    // fresh update
-    auto& msg = can->receives[messageId];
-    msg.length = dataSize;
-    *length = dataSize;
-    msg.lastTimeStamp = ts;
-    *receivedTimestamp = ts;
-    // The NetComm call placed in data, copy into the msg
-    std::memcpy(msg.data, data, dataSize);
-  } else {
-    auto i = can->receives.find(messageId);
-    if (i != can->receives.end()) {
-      // Read the data from the stored message into the output
-      std::memcpy(data, i->second.data, i->second.length);
-      *length = i->second.length;
-      *receivedTimestamp = i->second.lastTimeStamp;
-      *status = 0;
-    }
+  std::optional<CanFrameStore> maybeMessage = can->stream->ReadFrame(apiId);
+  if (!maybeMessage.has_value() || maybeMessage->timestamp == 0) {
+    *status = HAL_ERR_CANSessionMux_MessageNotFound;
+    return;
   }
+
+  if (maybeMessage->frame.flags & CANFD_FDF) {
+    printf("FD frames not supported yet\n");
+    *status = INCOMPATIBLE_STATE;
+    return;
+  }
+
+  std::memcpy(data, maybeMessage->frame.data, maybeMessage->frame.len);
+  *length = maybeMessage->frame.len;
+  *receivedTimestamp = maybeMessage->timestamp;
+  *status = 0;
 }
 
 void HAL_ReadCANPacketTimeout(HAL_CANHandle handle, int32_t apiId,
@@ -231,38 +232,30 @@ void HAL_ReadCANPacketTimeout(HAL_CANHandle handle, int32_t apiId,
     return;
   }
 
-  uint32_t messageId = CreateCANId(can.get(), apiId);
-  uint8_t dataSize = 0;
-  uint32_t ts = 0;
-  HAL_CAN_ReceiveMessage(&messageId, 0x1FFFFFFF, data, &dataSize, &ts, status);
-
-  std::scoped_lock lock(can->receivesMutex);
-  if (*status == 0) {
-    // fresh update
-    auto& msg = can->receives[messageId];
-    msg.length = dataSize;
-    *length = dataSize;
-    msg.lastTimeStamp = ts;
-    *receivedTimestamp = ts;
-    // The NetComm call placed in data, copy into the msg
-    std::memcpy(msg.data, data, dataSize);
-  } else {
-    auto i = can->receives.find(messageId);
-    if (i != can->receives.end()) {
-      // Found, check if new enough
-      uint32_t now = HAL_GetCANPacketBaseTime();
-      if (now - i->second.lastTimeStamp > static_cast<uint32_t>(timeoutMs)) {
-        // Timeout, return bad status
-        *status = HAL_CAN_TIMEOUT;
-        return;
-      }
-      // Read the data from the stored message into the output
-      std::memcpy(data, i->second.data, i->second.length);
-      *length = i->second.length;
-      *receivedTimestamp = i->second.lastTimeStamp;
-      *status = 0;
-    }
+  std::optional<CanFrameStore> maybeMessage = can->stream->ReadFrame(apiId);
+  if (!maybeMessage.has_value() || maybeMessage->timestamp == 0) {
+    *status = HAL_ERR_CANSessionMux_MessageNotFound;
+    return;
   }
+
+  if (maybeMessage->frame.flags & CANFD_FDF) {
+    printf("FD frames not supported yet\n");
+    *status = INCOMPATIBLE_STATE;
+    return;
+  }
+
+  auto now = wpi::Now();
+
+  if (now - maybeMessage->timestamp > static_cast<uint64_t>(timeoutMs) * 1000) {
+    *status = HAL_CAN_TIMEOUT;
+    return;
+  }
+
+  std::memcpy(data, maybeMessage->frame.data, maybeMessage->frame.len);
+  *length = maybeMessage->frame.len;
+  *receivedTimestamp = maybeMessage->timestamp;
+  *status = 0;
+  return;
 }
 
 uint32_t HAL_StartCANStream(HAL_CANHandle handle, int32_t apiId, int32_t depth,
