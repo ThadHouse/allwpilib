@@ -294,14 +294,16 @@ int32_t CanStream::WriteFrame(const CanFrame& frame, uint16_t apiId,
   return WriteDirectFrame(frame, busId, arbId, periodMs);
 }
 
+// TODO(thadhouse) What is the netcomm behavior here if a
+// periodic frame is sent a new packet with no repeat set.
 int32_t CanStream::WriteDirectFrame(const CanFrame& frame, uint8_t busId,
                                     uint32_t arbId, int32_t periodMs) {
   if (busId >= NUM_CAN_BUSES) {
     return PARAMETER_OUT_OF_RANGE;
   }
 
-  // Require 11 bit flag and "error" flag to be clear
-  if ((arbId & ~MatchingBitMask) != 0) {
+  // Require all extra bits to not be set
+  if ((arbId & ~CAN_EFF_MASK) != 0) {
     return PARAMETER_OUT_OF_RANGE;
   }
 
@@ -323,16 +325,20 @@ int32_t CanStream::WriteDirectFrame(const CanFrame& frame, uint8_t busId,
 
   canfd_frame osFrame;
   std::memset(&osFrame, 0, sizeof(osFrame));
-  osFrame.can_id = arbId;
+  osFrame.can_id = arbId | CAN_EFF_FLAG;
   osFrame.flags = isFd ? CANFD_FDF | CANFD_BRS : 0;
   osFrame.len =
       (std::min)(frame.length, static_cast<uint8_t>(sizeof(osFrame.data)));
   std::memcpy(osFrame.data, frame.data, osFrame.len);
 
+  if (frame.isRtr) {
+    osFrame.can_id |= CAN_RTR_FLAG;
+  }
+
   int mtu = isFd ? CANFD_MTU : CAN_MTU;
   {
     std::scoped_lock lock{canState->writeMutex[busId]};
-    int result = send(canState->socketHandle[busId], &frame, mtu, 0);
+    int result = send(canState->socketHandle[busId], &osFrame, mtu, 0);
     if (result != mtu) {
       // TODO(thadhouse) better error
       return HAL_ERR_CANSessionMux_InvalidBuffer;

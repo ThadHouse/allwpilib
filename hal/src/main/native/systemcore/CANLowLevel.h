@@ -16,7 +16,7 @@ namespace hal {
 struct CanFrame {
   bool isFd{false};
   bool isRtr{false};
-  uint8_t length;
+  uint8_t length{0};
   uint8_t data[CANFD_MAX_DLEN] __attribute__((aligned(8)));
 };
 

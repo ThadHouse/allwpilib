@@ -77,6 +77,12 @@ deploy {
                     password = 'systemcore'
                     ipv6 = false
                 }
+                sshUsb(SshDeployLocation) {
+                    address = "172.28.0.1"
+                    user = 'systemcore'
+                    password = 'systemcore'
+                    ipv6 = false
+                }
             }
 
             timeout = 7
