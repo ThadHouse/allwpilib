@@ -38,20 +38,21 @@ namespace {
 
 static constexpr uint32_t MatchingBitMask = CAN_EFF_MASK | CAN_RTR_FLAG;
 
-static_assert(CAN_RTR_FLAG == HAL_CAN_IS_FRAME_REMOTE);
-static_assert(CAN_EFF_FLAG == HAL_CAN_IS_FRAME_11BIT);
-
-uint32_t MapMessageIdToSocketCan(uint32_t id) {
-  // Message and RTR map directly
-  uint32_t toRet = id & MatchingBitMask;
-
-  // Reverse the 11 bit flag
-  if ((id & HAL_CAN_IS_FRAME_11BIT) == 0) {
-    toRet |= CAN_EFF_FLAG;
-  }
-
-  return toRet;
+// Everything but the API Id
+static constexpr uint32_t ReceiveCheckMask = 0x1FFF003F;
+static constexpr uint32_t ToArbId(HAL_CANManufacturer manufacturer,
+                                  HAL_CANDeviceType deviceType, uint16_t apiId,
+                                  uint8_t deviceId) {
+  uint32_t createdId = 0;
+  createdId |= (static_cast<uint32_t>(deviceType) & 0x1F) << 24;
+  createdId |= (static_cast<uint32_t>(manufacturer) & 0xFF) << 16;
+  createdId |= (static_cast<uint32_t>(apiId) & 0x3FF) << 6;
+  createdId |= (deviceId & 0x3F);
+  return createdId;
 }
+
+static_assert(CAN_RTR_FLAG == HAL_CAN_IS_FRAME_REMOTE);
+static_assert(sizeof(canfd_frame::data) == sizeof(hal::CanFrame::data));
 
 struct SocketCanState {
   wpi::EventLoopRunner readLoopRunner;
@@ -68,9 +69,9 @@ struct SocketCanState {
   // packet to time
   wpi::DenseMap<uint32_t, std::array<uint16_t, NUM_CAN_BUSES>> packetToTime;
 
-  // Filter to just specific device type and manufacturer ids
-  wpi::SmallDenseMap<uint16_t, std::array<std::weak_ptr<hal::CanStream>, 64>>
-      filteredMfgDevType[NUM_CAN_BUSES];
+  wpi::SmallDenseMap<uint32_t,
+                     wpi::SmallVector<std::weak_ptr<hal::CanStream>, 4>>
+      receiveStreams[NUM_CAN_BUSES];
 
   void HandleReceivedFrame(uint8_t busId, const canfd_frame& frame,
                            uint64_t timestamp);
@@ -96,11 +97,20 @@ void InitializeCAN() {
 
 bool SocketCanState::InitializeBuses() {
   bool success = true;
+
+  writeLoopRunner.ExecSync([this](wpi::uv::Loop&) {
+    int32_t status = 0;
+    HAL_SetCurrentThreadPriority(true, 30, &status);
+    if (status != 0) {
+      std::printf("Failed to set CAN write thread priority\n");
+    }
+  });
+
   readLoopRunner.ExecSync([this, &success](wpi::uv::Loop& loop) {
     int32_t status = 0;
     HAL_SetCurrentThreadPriority(true, 50, &status);
     if (status != 0) {
-      std::printf("Failed to set CAN thread priority\n");
+      std::printf("Failed to set CAN read thread priority\n");
     }
 
     for (int i = 0; i < NUM_CAN_BUSES; i++) {
@@ -221,16 +231,13 @@ void SocketCanState::AddPeriodic(wpi::uv::Loop& loop, uint8_t busId,
 void SocketCanState::HandleReceivedFrame(uint8_t busId,
                                          const canfd_frame& frame,
                                          uint64_t timestamp) {
-  uint16_t mfgTypeMask = (frame.can_id >> 16) & 0x1FFF;
-  uint8_t deviceId = frame.can_id & 0x3F;
-  uint16_t api = (frame.can_id >> 6) & 0x3FF;
-  auto stream = filteredMfgDevType[busId][mfgTypeMask][deviceId].lock();
-
-  if (!stream) {
-    return;
+  uint32_t filterId = frame.can_id & ReceiveCheckMask;
+  uint16_t apiId = (frame.can_id >> 6) & 0x3FF;
+  for (auto&& weakStream : receiveStreams[busId][filterId]) {
+    if (auto stream = weakStream.lock()) {
+      stream->InsertNewFrame(apiId, frame, timestamp);
+    }
   }
-
-  stream->InsertNewFrame(api, frame, timestamp);
 }
 
 namespace hal {
@@ -245,104 +252,14 @@ extern "C" {
 
 void HAL_CAN_SendMessage(uint32_t messageID, const uint8_t* data,
                          uint8_t dataSize, int32_t periodMs, int32_t* status) {
-  // TODO(thadhouse) this will become a parameter
-  // isFd will also be a part of this parameter
-  uint8_t busId = 0;
-
-  if (busId >= NUM_CAN_BUSES) {
-    *status = PARAMETER_OUT_OF_RANGE;
-    return;
-  }
-
-  bool isFd = false;
-  messageID = MapMessageIdToSocketCan(messageID);
-
-  if (periodMs == HAL_CAN_SEND_PERIOD_STOP_REPEATING) {
-    canState->writeLoopRunner.ExecSync([messageID, busId](wpi::uv::Loop&) {
-      canState->RemovePeriodic(busId, messageID);
-    });
-
-    *status = 0;
-    return;
-  }
-
-  canfd_frame frame;
-  std::memset(&frame, 0, sizeof(frame));
-  frame.can_id = messageID;
-  frame.flags = isFd ? CANFD_FDF | CANFD_BRS : 0;
-  if (dataSize) {
-    auto size = (std::min)(dataSize, static_cast<uint8_t>(sizeof(frame.data)));
-    std::memcpy(frame.data, data, size);
-    frame.len = size;
-  }
-
-  int mtu = isFd ? CANFD_MTU : CAN_MTU;
-  {
-    std::scoped_lock lock{canState->writeMutex[busId]};
-    int result = send(canState->socketHandle[busId], &frame, mtu, 0);
-    if (result != mtu) {
-      // TODO(thadhouse) better error
-      *status = HAL_ERR_CANSessionMux_InvalidBuffer;
-      return;
-    }
-  }
-
-  if (periodMs > 0) {
-    canState->writeLoopRunner.ExecAsync(
-        [busId, periodMs, frame](wpi::uv::Loop& loop) {
-          canState->AddPeriodic(loop, busId, periodMs, frame);
-        });
-  }
+  *status = HAL_HANDLE_ERROR;
+  return;
 }
 void HAL_CAN_ReceiveMessage(uint32_t* messageID, uint32_t messageIDMask,
                             uint8_t* data, uint8_t* dataSize,
                             uint32_t* timeStamp, int32_t* status) {
   *status = HAL_ERR_CANSessionMux_MessageNotFound;
   return;
-  // uint8_t busId = 0;
-
-  // if (busId >= NUM_CAN_BUSES) {
-  //   *status = PARAMETER_OUT_OF_RANGE;
-  //   return;
-  // }
-
-  // std::scoped_lock lock{canState->readMutex[busId]};
-
-  // // TODO(thadhouse) this is going to be wrong, but we're going to assume
-  // that
-  // // any lookup without the 11 bit mask set wants to look for a 29 bit frame.
-  // // Also, only do fast lookups for 29 bit frames
-
-  // // Fast case is the following.
-  // // Mask doesn't include 11 bit flag
-  // // Mask doesn't include RTR flag
-  // // Mask is full
-  // if (messageIDMask == CAN_EFF_MASK) {
-  //   //  We're doing a fast lookup
-  //   auto& msg = canState->readFrames[busId][*messageID];
-  //   if (msg.timestamp == 0) {
-  //     *status = HAL_ERR_CANSessionMux_MessageNotFound;
-  //     return;
-  //   }
-  //   if ((msg.frame.flags & CANFD_FDF) || msg.frame.len > 8) {
-  //     std::printf("FD frames not supported for read right now\n");
-  //     *status = HAL_ERR_CANSessionMux_InvalidBuffer;
-  //     return;
-  //   }
-  //   // TODO(thadhouse) this time needs to be fixed up.
-  //   *timeStamp = msg.timestamp / 1000;
-  //   std::memcpy(data, msg.frame.data, msg.frame.len);
-  //   *dataSize = msg.frame.len;
-  //   *status = 0;
-  //   msg.timestamp = 0;
-  //   return;
-  // }
-
-  // std::printf("Slow lookup not supported yet\n");
-
-  // // Add support for slow lookup later
-  // *status = HAL_ERR_CANSessionMux_NotAllowed;
-  // return;
 }
 void HAL_CAN_OpenStreamSession(uint32_t* sessionHandle, uint32_t messageID,
                                uint32_t messageIDMask, uint32_t maxMessages,
@@ -368,47 +285,177 @@ void HAL_CAN_GetCANStatus(float* percentBusUtilization, uint32_t* busOffCount,
 }  // extern "C"
 
 using namespace hal;
-std::shared_ptr<CanStream> CanStream::Construct(
+
+CanStream::~CanStream() = default;
+
+int32_t CanStream::WriteFrame(const CanFrame& frame, uint16_t apiId,
+                              int32_t periodMs) {
+  auto arbId = ToArbId(manufacturer, deviceType, apiId, deviceId);
+  return WriteDirectFrame(frame, busId, arbId, periodMs);
+}
+
+int32_t CanStream::WriteDirectFrame(const CanFrame& frame, uint8_t busId,
+                                    uint32_t arbId, int32_t periodMs) {
+  if (busId >= NUM_CAN_BUSES) {
+    return PARAMETER_OUT_OF_RANGE;
+  }
+
+  // Require 11 bit flag and "error" flag to be clear
+  if ((arbId & ~MatchingBitMask) != 0) {
+    return PARAMETER_OUT_OF_RANGE;
+  }
+
+  if (periodMs == HAL_CAN_SEND_PERIOD_STOP_REPEATING) {
+    canState->writeLoopRunner.ExecSync([busId, arbId](wpi::uv::Loop&) {
+      canState->RemovePeriodic(busId, arbId);
+    });
+
+    return 0;
+  }
+
+  if (frame.isFd && frame.length > CANFD_MAX_DLEN) {
+    return PARAMETER_OUT_OF_RANGE;
+  } else if (!frame.isFd && frame.length > CAN_MAX_DLEN) {
+    return PARAMETER_OUT_OF_RANGE;
+  }
+
+  bool isFd = frame.isFd;
+
+  canfd_frame osFrame;
+  std::memset(&osFrame, 0, sizeof(osFrame));
+  osFrame.can_id = arbId;
+  osFrame.flags = isFd ? CANFD_FDF | CANFD_BRS : 0;
+  osFrame.len =
+      (std::min)(frame.length, static_cast<uint8_t>(sizeof(osFrame.data)));
+  std::memcpy(osFrame.data, frame.data, osFrame.len);
+
+  int mtu = isFd ? CANFD_MTU : CAN_MTU;
+  {
+    std::scoped_lock lock{canState->writeMutex[busId]};
+    int result = send(canState->socketHandle[busId], &frame, mtu, 0);
+    if (result != mtu) {
+      // TODO(thadhouse) better error
+      return HAL_ERR_CANSessionMux_InvalidBuffer;
+    }
+  }
+
+  if (periodMs > 0) {
+    canState->writeLoopRunner.ExecAsync(
+        [busId, periodMs, osFrame](wpi::uv::Loop& loop) {
+          canState->AddPeriodic(loop, busId, periodMs, osFrame);
+        });
+  }
+
+  return 0;
+}
+
+std::shared_ptr<MappedCanStream> CanStream::ConstructMapped(
     uint8_t busId, HAL_CANManufacturer manufacturer,
     HAL_CANDeviceType deviceType, uint8_t deviceId) {
   if (busId >= NUM_CAN_BUSES) {
     return nullptr;
   }
-  auto ptr = std::make_shared<CanStream>(private_init{});
-  ptr->busId = busId;
+  auto ptr = std::make_shared<MappedCanStream>(
+      private_init{}, busId, manufacturer, deviceType, deviceId);
   std::weak_ptr<CanStream> weak = ptr;
-  // Mask off device ID so its safe to use as an array index
-  canState->readLoopRunner.ExecAsync(
-      [busId, manufacturer, deviceType, deviceId = deviceId & 0x1F,
-       weak = std::move(weak)](wpi::uv::Loop&) mutable {
-        uint16_t mfgTypeMask = (deviceType & 0x1F) << 8 | (manufacturer & 0xFF);
-        canState->filteredMfgDevType[busId][mfgTypeMask][deviceId] =
-            std::move(weak);
+  uint32_t arbIdFilter = ToArbId(manufacturer, deviceType, 0, deviceId);
+  canState->readLoopRunner.ExecSync(
+      [busId, arbIdFilter, weak = std::move(weak)](wpi::uv::Loop&) mutable {
+        auto& streams = canState->receiveStreams[busId][arbIdFilter];
+
+        for (auto&& i : streams) {
+          if (i.expired()) {
+            i = std::move(weak);
+            return;
+          }
+        }
+        streams.emplace_back(std::move(weak));
       });
   return ptr;
 }
 
-void CanStream::InsertNewFrame(uint16_t api, const canfd_frame& frame,
-                               uint64_t timestamp) {
-  if (api > 0x3FF) {
+std::shared_ptr<AllCanStream> CanStream::ConstructAll(
+    uint8_t busId, HAL_CANManufacturer manufacturer,
+    HAL_CANDeviceType deviceType, uint8_t deviceId) {
+  if (busId >= NUM_CAN_BUSES) {
+    return nullptr;
+  }
+  auto ptr = std::make_shared<AllCanStream>(private_init{}, busId, manufacturer,
+                                            deviceType, deviceId);
+  std::weak_ptr<CanStream> weak = ptr;
+  uint32_t arbIdFilter = ToArbId(manufacturer, deviceType, 0, deviceId);
+  canState->readLoopRunner.ExecSync(
+      [busId, arbIdFilter, weak = std::move(weak)](wpi::uv::Loop&) mutable {
+        auto& streams = canState->receiveStreams[busId][arbIdFilter];
+
+        for (auto&& i : streams) {
+          if (i.expired()) {
+            i = std::move(weak);
+            return;
+          }
+        }
+        streams.emplace_back(std::move(weak));
+      });
+  return ptr;
+}
+
+static void OsToHalFrame(const canfd_frame& osFrame, hal::CanFrame* frame) {
+  frame->isFd = (osFrame.flags & CANFD_FDF) != 0;
+  frame->isRtr = (osFrame.can_id & CAN_RTR_FLAG) != 0;
+  frame->length =
+      (std::min)(osFrame.len, static_cast<uint8_t>(sizeof(osFrame.data)));
+  std::memcpy(frame->data, osFrame.data, frame->length);
+}
+
+void MappedCanStream::InsertNewFrame(uint16_t apiId, const canfd_frame& frame,
+                                     uint64_t timestamp) {
+  if (apiId > 0x3FF) {
+    printf("Bugbug invalid can id\n");
+    return;
+  }
+  // Don't insert RTR frames into the map
+  if (frame.can_id & CAN_RTR_FLAG) {
+    return;
+  }
+  std::scoped_lock lock{dataMutex};
+  auto& msg = frames[apiId];
+  OsToHalFrame(frame, &msg.frame);
+  msg.timestamp = timestamp;
+  msg.hasBeenRead = false;
+}
+
+std::optional<ReceivedCanFrame> MappedCanStream::ReadFrame(uint16_t apiId) {
+  if (apiId > 0x3FF) {
+    return {};
+  }
+  std::scoped_lock lock{dataMutex};
+  auto& msg = frames[apiId & 0x3FF];
+  ReceivedCanFrame copy = msg;
+  msg.hasBeenRead = true;
+  return copy;
+}
+
+void AllCanStream::InsertNewFrame(uint16_t apiId, const canfd_frame& frame,
+                                  uint64_t timestamp) {
+  if (apiId > 0x3FF) {
     printf("Bugbug invalid can id\n");
     return;
   }
   std::scoped_lock lock{dataMutex};
-  auto& msg = frames[api];
-  msg.frame = frame;
+  auto& msg = frames.emplace_back();
+  OsToHalFrame(frame, &msg.frame);
   msg.timestamp = timestamp;
   msg.hasBeenRead = false;
   newDataEvent.Set();
 }
 
-std::optional<CanFrameStore> CanStream::ReadFrame(uint16_t api) {
-  if (api > 0x3FF) {
+std::vector<ReceivedCanFrame> AllCanStream::GetFrames() {
+  std::scoped_lock lock{dataMutex};
+  newDataEvent.Reset();
+  if (frames.empty()) {
     return {};
   }
-  std::scoped_lock lock{dataMutex};
-  auto& msg = frames[api & 0x3FF];
-  CanFrameStore copy = msg;
-  msg.hasBeenRead = true;
-  return copy;
+  std::vector<ReceivedCanFrame> ret;
+  frames.swap(ret);
+  return ret;
 }

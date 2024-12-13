@@ -28,7 +28,7 @@ struct Receives {
 };
 
 struct CANStorage {
-  std::shared_ptr<CanStream> stream;
+  std::shared_ptr<MappedCanStream> stream;
   HAL_CANManufacturer manufacturer;
   HAL_CANDeviceType deviceType;
   uint8_t deviceId;
@@ -76,7 +76,8 @@ HAL_CANHandle HAL_InitializeCAN(HAL_CANManufacturer manufacturer,
     return HAL_kInvalidHandle;
   }
 
-  can->stream = CanStream::Construct(0, manufacturer, deviceType, deviceId);
+  can->stream =
+      CanStream::ConstructMapped(0, manufacturer, deviceType, deviceId);
   if (!can->stream) {
     *status = PARAMETER_OUT_OF_RANGE;
     canHandles->Free(handle);
@@ -176,21 +177,21 @@ void HAL_ReadCANPacketNew(HAL_CANHandle handle, int32_t apiId, uint8_t* data,
     return;
   }
 
-  std::optional<CanFrameStore> maybeMessage = can->stream->ReadFrame(apiId);
+  std::optional<ReceivedCanFrame> maybeMessage = can->stream->ReadFrame(apiId);
   if (!maybeMessage.has_value() || maybeMessage->timestamp == 0 ||
       maybeMessage->hasBeenRead) {
     *status = HAL_ERR_CANSessionMux_MessageNotFound;
     return;
   }
 
-  if (maybeMessage->frame.flags & CANFD_FDF) {
+  if (maybeMessage->frame.isFd) {
     printf("FD frames not supported yet\n");
     *status = INCOMPATIBLE_STATE;
     return;
   }
 
-  std::memcpy(data, maybeMessage->frame.data, maybeMessage->frame.len);
-  *length = maybeMessage->frame.len;
+  std::memcpy(data, maybeMessage->frame.data, maybeMessage->frame.length);
+  *length = maybeMessage->frame.length;
   *receivedTimestamp = maybeMessage->timestamp;
   *status = 0;
 }
@@ -204,20 +205,20 @@ void HAL_ReadCANPacketLatest(HAL_CANHandle handle, int32_t apiId, uint8_t* data,
     return;
   }
 
-  std::optional<CanFrameStore> maybeMessage = can->stream->ReadFrame(apiId);
+  std::optional<ReceivedCanFrame> maybeMessage = can->stream->ReadFrame(apiId);
   if (!maybeMessage.has_value() || maybeMessage->timestamp == 0) {
     *status = HAL_ERR_CANSessionMux_MessageNotFound;
     return;
   }
 
-  if (maybeMessage->frame.flags & CANFD_FDF) {
+  if (maybeMessage->frame.isFd) {
     printf("FD frames not supported yet\n");
     *status = INCOMPATIBLE_STATE;
     return;
   }
 
-  std::memcpy(data, maybeMessage->frame.data, maybeMessage->frame.len);
-  *length = maybeMessage->frame.len;
+  std::memcpy(data, maybeMessage->frame.data, maybeMessage->frame.length);
+  *length = maybeMessage->frame.length;
   *receivedTimestamp = maybeMessage->timestamp;
   *status = 0;
 }
@@ -232,13 +233,13 @@ void HAL_ReadCANPacketTimeout(HAL_CANHandle handle, int32_t apiId,
     return;
   }
 
-  std::optional<CanFrameStore> maybeMessage = can->stream->ReadFrame(apiId);
+  std::optional<ReceivedCanFrame> maybeMessage = can->stream->ReadFrame(apiId);
   if (!maybeMessage.has_value() || maybeMessage->timestamp == 0) {
     *status = HAL_ERR_CANSessionMux_MessageNotFound;
     return;
   }
 
-  if (maybeMessage->frame.flags & CANFD_FDF) {
+  if (maybeMessage->frame.isFd) {
     printf("FD frames not supported yet\n");
     *status = INCOMPATIBLE_STATE;
     return;
@@ -251,8 +252,8 @@ void HAL_ReadCANPacketTimeout(HAL_CANHandle handle, int32_t apiId,
     return;
   }
 
-  std::memcpy(data, maybeMessage->frame.data, maybeMessage->frame.len);
-  *length = maybeMessage->frame.len;
+  std::memcpy(data, maybeMessage->frame.data, maybeMessage->frame.length);
+  *length = maybeMessage->frame.length;
   *receivedTimestamp = maybeMessage->timestamp;
   *status = 0;
   return;
