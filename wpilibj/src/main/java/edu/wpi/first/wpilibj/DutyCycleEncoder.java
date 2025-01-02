@@ -43,7 +43,8 @@ public class DutyCycleEncoder implements Sendable, AutoCloseable {
   public DutyCycleEncoder(int channel, double fullRange, double expectedZero) {
     m_digitalInput = new DigitalInput(channel);
     m_ownsDutyCycle = true;
-    m_dutyCycle = new DutyCycle(m_digitalInput);
+    m_dutyCycle = null;
+    //m_dutyCycle = new DutyCycle(m_digitalInput);
     init(fullRange, expectedZero);
   }
 
@@ -70,7 +71,8 @@ public class DutyCycleEncoder implements Sendable, AutoCloseable {
   @SuppressWarnings("this-escape")
   public DutyCycleEncoder(DigitalSource source, double fullRange, double expectedZero) {
     m_ownsDutyCycle = true;
-    m_dutyCycle = new DutyCycle(source);
+    m_dutyCycle = null;
+    //m_dutyCycle = new DutyCycle(source);
     init(fullRange, expectedZero);
   }
 

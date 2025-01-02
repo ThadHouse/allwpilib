@@ -96,6 +96,22 @@ int32_t SmartIo::GetDigitalInput(bool* value) {
   return 0;
 }
 
+int32_t SmartIo::GetPwmInputFrequency(uint16_t* frequency) {
+  if (currentMode != SmartIoMode::PwmInput) {
+    return INCOMPATIBLE_STATE;
+  }
+  *frequency = frequencySubscriber.Get();
+  return 0;
+}
+
+int32_t SmartIo::GetPwmInputHighTime(uint16_t* highTime) {
+  if (currentMode != SmartIoMode::PwmInput) {
+    return INCOMPATIBLE_STATE;
+  }
+  *highTime = getSubscriber.Get();
+  return 0;
+}
+
 int32_t SmartIo::SetPwmOutputPeriod(PwmOutputPeriod period) {
   if (currentMode != SmartIoMode::PwmOutput) {
     return INCOMPATIBLE_STATE;

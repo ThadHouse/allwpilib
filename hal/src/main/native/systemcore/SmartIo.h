@@ -58,6 +58,9 @@ struct SmartIo {
   int32_t SetDigitalOutput(bool value);
   int32_t GetDigitalInput(bool* value);
 
+  int32_t GetPwmInputFrequency(uint16_t* frequency);
+  int32_t GetPwmInputHighTime(uint16_t* highTime);
+
   int32_t SetPwmOutputPeriod(PwmOutputPeriod period);
 
   int32_t SetPwmMicroseconds(uint16_t microseconds);

@@ -39,11 +39,11 @@ DutyCycle::DutyCycle(std::shared_ptr<DigitalSource> source)
 
 void DutyCycle::InitDutyCycle() {
   int32_t status = 0;
-  m_handle =
-      HAL_InitializeDutyCycle(m_source->GetPortHandleForRouting(),
-                              static_cast<HAL_AnalogTriggerType>(
-                                  m_source->GetAnalogTriggerTypeForRouting()),
-                              &status);
+  // m_handle =
+  //     HAL_InitializeDutyCycle(m_source->GetPortHandleForRouting(),
+  //                             static_cast<HAL_AnalogTriggerType>(
+  //                                 m_source->GetAnalogTriggerTypeForRouting()),
+  //                             &status);
   FRC_CheckErrorStatus(status, "Channel {}", GetSourceChannel());
   int index = GetFPGAIndex();
   HAL_Report(HALUsageReporting::kResourceType_DutyCycle, index + 1);

@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.hal.PWMJNI;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
+import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
@@ -14,7 +15,8 @@ import edu.wpi.first.wpilibj.motorcontrol.SparkMini;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends TimedRobot {
-  DigitalInput di = new DigitalInput(1);
+  DutyCycle dc = new DutyCycle(1);
+  //DigitalInput di = new DigitalInput(1);
   //DigitalOutput dio = new DigitalOutput(0);
   SparkMini spark = new SparkMini(2);
   SparkMini spark2 = new SparkMini(3);
@@ -60,7 +62,8 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during all modes. */
   @Override
   public void robotPeriodic() {
-    SmartDashboard.putBoolean("Input", di.get());
+    SmartDashboard.putNumber("Input", dc.getHighTimeNanoseconds());
+    SmartDashboard.putNumber("Freq", dc.getFrequency());
 
     spark.set(xbox.getLeftX());
     spark2.set(xbox.getLeftX());

@@ -24,24 +24,21 @@ public class DutyCycle implements Sendable, AutoCloseable {
   // Explicitly package private
   final int m_handle;
 
-  private final DigitalSource m_source;
+  private final int m_channel;
 
   /**
-   * Constructs a DutyCycle input from a DigitalSource input.
+   * Constructs a DutyCycle input from a channel.
    *
-   * <p>This class does not own the inputted source.
-   *
-   * @param digitalSource The DigitalSource to use.
+   * @param channel The channel number.
    */
   @SuppressWarnings("this-escape")
-  public DutyCycle(DigitalSource digitalSource) {
+  public DutyCycle(int channel) {
+    m_channel = channel;
     m_handle =
         DutyCycleJNI.initialize(
-            digitalSource.getPortHandleForRouting(),
-            digitalSource.getAnalogTriggerTypeForRouting());
+          HAL.getPort((byte) channel));
 
-    m_source = digitalSource;
-    int index = getFPGAIndex();
+    int index = channel;
     HAL.report(tResourceType.kResourceType_DutyCycle, index + 1);
     SendableRegistry.addLW(this, "Duty Cycle", index);
   }
@@ -109,7 +106,7 @@ public class DutyCycle implements Sendable, AutoCloseable {
    * @return the source channel
    */
   public int getSourceChannel() {
-    return m_source.getChannel();
+    return m_channel;
   }
 
   @Override
