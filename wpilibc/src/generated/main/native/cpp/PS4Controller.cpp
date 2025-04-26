@@ -292,8 +292,8 @@ void PS4Controller::InitSendable(wpi::SendableBuilder& builder) {
   builder.AddBooleanProperty("Triangle", [this] { return GetTriangleButton(); }, nullptr);
   builder.AddBooleanProperty("L1", [this] { return GetL1Button(); }, nullptr);
   builder.AddBooleanProperty("R1", [this] { return GetR1Button(); }, nullptr);
-  builder.AddBooleanProperty("L2", [this] { return GetL2Button(); }, nullptr);
-  builder.AddBooleanProperty("R2", [this] { return GetR2Button(); }, nullptr);
+  builder.AddBooleanProperty("L2B", [this] { return GetL2Button(); }, nullptr);
+  builder.AddBooleanProperty("R2B", [this] { return GetR2Button(); }, nullptr);
   builder.AddBooleanProperty("Share", [this] { return GetShareButton(); }, nullptr);
   builder.AddBooleanProperty("Options", [this] { return GetOptionsButton(); }, nullptr);
   builder.AddBooleanProperty("L3", [this] { return GetL3Button(); }, nullptr);

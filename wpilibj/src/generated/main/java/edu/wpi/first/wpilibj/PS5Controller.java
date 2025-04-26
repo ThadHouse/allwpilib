@@ -770,8 +770,8 @@ public class PS5Controller extends GenericHID implements Sendable {
     builder.addBooleanProperty("Triangle", this::getTriangleButton, null);
     builder.addBooleanProperty("L1", this::getL1Button, null);
     builder.addBooleanProperty("R1", this::getR1Button, null);
-    builder.addBooleanProperty("L2", this::getL2Button, null);
-    builder.addBooleanProperty("R2", this::getR2Button, null);
+    builder.addBooleanProperty("L2B", this::getL2Button, null);
+    builder.addBooleanProperty("R2B", this::getR2Button, null);
     builder.addBooleanProperty("Create", this::getCreateButton, null);
     builder.addBooleanProperty("Options", this::getOptionsButton, null);
     builder.addBooleanProperty("L3", this::getL3Button, null);
