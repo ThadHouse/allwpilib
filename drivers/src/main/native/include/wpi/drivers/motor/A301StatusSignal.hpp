@@ -50,7 +50,7 @@ class A301StatusSignal {
    *
    * @return true when the value is valid
    */
-  bool IsValid() const { return GetError() == A301Error::kOk; }
+  bool IsValid() const { return GetError() == A301Error::OK; }
 
   /**
    * Returns the REVLib-compatible error associated with the read.

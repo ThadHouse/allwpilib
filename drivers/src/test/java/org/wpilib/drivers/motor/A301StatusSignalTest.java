@@ -13,10 +13,10 @@ import org.junit.jupiter.api.Test;
 class A301StatusSignalTest {
   @Test
   void convertsRevLibCompatibleErrors() {
-    assertEquals(A301Error.kOk, A301Error.fromInt(0));
-    assertEquals(A301Error.kTimeout, A301Error.fromHalStatus(-1154));
-    assertEquals(A301Error.kParamInvalid, A301Error.fromHalStatus(-1028));
-    assertEquals(A301Error.kInvalid, A301Error.fromInt(Integer.MAX_VALUE));
+    assertEquals(A301Error.OK, A301Error.fromInt(0));
+    assertEquals(A301Error.TIMEOUT, A301Error.fromHalStatus(-1154));
+    assertEquals(A301Error.PARAM_INVALID, A301Error.fromHalStatus(-1028));
+    assertEquals(A301Error.INVALID, A301Error.fromInt(Integer.MAX_VALUE));
   }
 
   @Test
@@ -24,14 +24,14 @@ class A301StatusSignalTest {
     var signal = A301StatusSignal.of(4, 0, 301L);
 
     assertTrue(signal.isValid());
-    assertEquals(A301Error.kOk, signal.getError());
+    assertEquals(A301Error.OK, signal.getError());
     assertEquals(4, signal.get());
     assertEquals(4, signal.get(8));
     assertEquals(301L, signal.getTimestamp());
 
     var mapped = signal.map(value -> value * 2);
     assertEquals(8, mapped.get());
-    assertEquals(A301Error.kOk, mapped.getError());
+    assertEquals(A301Error.OK, mapped.getError());
     assertEquals(301L, mapped.getTimestamp());
   }
 
@@ -40,13 +40,13 @@ class A301StatusSignalTest {
     var signal = A301StatusSignal.of(4, -1154, 302L);
 
     assertFalse(signal.isValid());
-    assertEquals(A301Error.kTimeout, signal.getError());
+    assertEquals(A301Error.TIMEOUT, signal.getError());
     assertEquals(4, signal.get());
     assertEquals(8, signal.get(8));
 
     var mapped = signal.map(value -> value * 2);
     assertEquals(8, mapped.get());
-    assertEquals(A301Error.kTimeout, mapped.getError());
+    assertEquals(A301Error.TIMEOUT, mapped.getError());
     assertEquals(302L, mapped.getTimestamp());
   }
 }

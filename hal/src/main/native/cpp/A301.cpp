@@ -29,86 +29,95 @@ using namespace wpi::hal;
 
 namespace {
 
-constexpr uint32_t kVelocitySetpointId = 0x02030000;
-constexpr uint32_t kDutyCycleSetpointId = 0x02030080;
-constexpr uint32_t kRelativePositionSetpointId = 0x02030100;
-constexpr uint32_t kCurrentSetpointId = 0x02030180;
-constexpr uint32_t kAbsolutePositionSetpointId = 0x02030200;
-constexpr uint32_t kClearFaultsId = 0x02031b80;
-constexpr uint32_t kGetFirmwareVersionId = 0x02032600;
-constexpr uint32_t kSetRelativeEncoderPositionId = 0x02032800;
-constexpr uint32_t kSetAbsoluteEncoderPositionId = 0x02032880;
-constexpr uint32_t kSetContinuousInputId = 0x02032900;
-constexpr uint32_t kSetAbsoluteRangeOffsetId = 0x02032980;
-constexpr uint32_t kSetIdleModeId = 0x02033d00;
-constexpr uint32_t kSetStatusPeriodId = 0x02034400;
-constexpr uint32_t kSetStatusPeriodResponseId = 0x02034440;
-constexpr uint32_t kGetIdleModeId = 0x02035100;
-constexpr uint32_t kGetIdleModeResponseId = 0x02035140;
-constexpr uint32_t kGetContinuousInputId = 0x02035180;
-constexpr uint32_t kGetContinuousInputResponseId = 0x020351c0;
-constexpr uint32_t kGetAbsoluteRangeOffsetId = 0x02035200;
-constexpr uint32_t kGetAbsoluteRangeOffsetResponseId = 0x02035240;
-constexpr uint32_t kGetStatusPeriodId = 0x02036000;
-constexpr uint32_t kGetStatusPeriodResponseId = 0x02036040;
-constexpr uint32_t kStatus0Id = 0x0203b800;
-constexpr uint32_t kStatus1Id = 0x0203b840;
-constexpr uint32_t kStatus2Id = 0x0203b880;
-constexpr uint32_t kStatus3Id = 0x0203b8c0;
+constexpr uint32_t HAL_VELOCITY_SETPOINT_ID = 0x02030000;
+constexpr uint32_t HAL_DUTY_CYCLE_SETPOINT_ID = 0x02030080;
+constexpr uint32_t HAL_RELATIVE_POSITION_SETPOINT_ID = 0x02030100;
+constexpr uint32_t HAL_CURRENT_SETPOINT_ID = 0x02030180;
+constexpr uint32_t HAL_ABSOLUTE_POSITION_SETPOINT_ID = 0x02030200;
+constexpr uint32_t HAL_CLEAR_FAULTS_ID = 0x02031b80;
+constexpr uint32_t HAL_GET_FIRMWARE_VERSION_ID = 0x02032600;
+constexpr uint32_t HAL_SET_RELATIVE_ENCODER_POSITION_ID = 0x02032800;
+constexpr uint32_t HAL_SET_ABSOLUTE_ENCODER_POSITION_ID = 0x02032880;
+constexpr uint32_t HAL_SET_CONTINUOUS_INPUT_ID = 0x02032900;
+constexpr uint32_t HAL_SET_ABSOLUTE_RANGE_OFFSET_ID = 0x02032980;
+constexpr uint32_t HAL_SET_IDLE_MODE_ID = 0x02033d00;
+constexpr uint32_t HAL_SET_STATUS_PERIOD_ID = 0x02034400;
+constexpr uint32_t HAL_SET_STATUS_PERIOD_RESPONSE_ID = 0x02034440;
+constexpr uint32_t HAL_GET_IDLE_MODE_ID = 0x02035100;
+constexpr uint32_t HAL_GET_IDLE_MODE_RESPONSE_ID = 0x02035140;
+constexpr uint32_t HAL_GET_CONTINUOUS_INPUT_ID = 0x02035180;
+constexpr uint32_t HAL_GET_CONTINUOUS_INPUT_RESPONSE_ID = 0x020351c0;
+constexpr uint32_t HAL_GET_ABSOLUTE_RANGE_OFFSET_ID = 0x02035200;
+constexpr uint32_t HAL_GET_ABSOLUTE_RANGE_OFFSET_RESPONSE_ID = 0x02035240;
+constexpr uint32_t HAL_GET_STATUS_PERIOD_ID = 0x02036000;
+constexpr uint32_t HAL_GET_STATUS_PERIOD_RESPONSE_ID = 0x02036040;
+constexpr uint32_t HAL_STATUS_0_ID = 0x0203b800;
+constexpr uint32_t HAL_STATUS_1_ID = 0x0203b840;
+constexpr uint32_t HAL_STATUS_2_ID = 0x0203b880;
+constexpr uint32_t HAL_STATUS_3_ID = 0x0203b8c0;
 
 constexpr int32_t ApiFromExtId(uint32_t id) {
   return (id >> 6) & 0x3ff;
 }
 
-constexpr int32_t kVelocitySetpointApi = ApiFromExtId(kVelocitySetpointId);
-constexpr int32_t kDutyCycleSetpointApi = ApiFromExtId(kDutyCycleSetpointId);
-constexpr int32_t kRelativePositionSetpointApi =
-    ApiFromExtId(kRelativePositionSetpointId);
-constexpr int32_t kCurrentSetpointApi = ApiFromExtId(kCurrentSetpointId);
-constexpr int32_t kAbsolutePositionSetpointApi =
-    ApiFromExtId(kAbsolutePositionSetpointId);
-constexpr int32_t kClearFaultsApi = ApiFromExtId(kClearFaultsId);
-constexpr int32_t kGetFirmwareVersionApi = ApiFromExtId(kGetFirmwareVersionId);
-constexpr int32_t kSetRelativeEncoderPositionApi =
-    ApiFromExtId(kSetRelativeEncoderPositionId);
-constexpr int32_t kSetAbsoluteEncoderPositionApi =
-    ApiFromExtId(kSetAbsoluteEncoderPositionId);
-constexpr int32_t kSetContinuousInputApi = ApiFromExtId(kSetContinuousInputId);
-constexpr int32_t kSetAbsoluteRangeOffsetApi =
-    ApiFromExtId(kSetAbsoluteRangeOffsetId);
-constexpr int32_t kSetIdleModeApi = ApiFromExtId(kSetIdleModeId);
-constexpr int32_t kSetStatusPeriodApi = ApiFromExtId(kSetStatusPeriodId);
-constexpr int32_t kSetStatusPeriodResponseApi =
-    ApiFromExtId(kSetStatusPeriodResponseId);
-constexpr int32_t kGetIdleModeApi = ApiFromExtId(kGetIdleModeId);
-constexpr int32_t kGetIdleModeResponseApi =
-    ApiFromExtId(kGetIdleModeResponseId);
-constexpr int32_t kGetContinuousInputApi = ApiFromExtId(kGetContinuousInputId);
-constexpr int32_t kGetContinuousInputResponseApi =
-    ApiFromExtId(kGetContinuousInputResponseId);
-constexpr int32_t kGetAbsoluteRangeOffsetApi =
-    ApiFromExtId(kGetAbsoluteRangeOffsetId);
-constexpr int32_t kGetAbsoluteRangeOffsetResponseApi =
-    ApiFromExtId(kGetAbsoluteRangeOffsetResponseId);
-constexpr int32_t kGetStatusPeriodApi = ApiFromExtId(kGetStatusPeriodId);
-constexpr int32_t kGetStatusPeriodResponseApi =
-    ApiFromExtId(kGetStatusPeriodResponseId);
-constexpr int32_t kStatus0Api = ApiFromExtId(kStatus0Id);
-constexpr int32_t kStatus1Api = ApiFromExtId(kStatus1Id);
-constexpr int32_t kStatus2Api = ApiFromExtId(kStatus2Id);
-constexpr int32_t kStatus3Api = ApiFromExtId(kStatus3Id);
+constexpr int32_t HAL_VELOCITY_SETPOINT_API =
+    ApiFromExtId(HAL_VELOCITY_SETPOINT_ID);
+constexpr int32_t HAL_DUTY_CYCLE_SETPOINT_API =
+    ApiFromExtId(HAL_DUTY_CYCLE_SETPOINT_ID);
+constexpr int32_t HAL_RELATIVE_POSITION_SETPOINT_API =
+    ApiFromExtId(HAL_RELATIVE_POSITION_SETPOINT_ID);
+constexpr int32_t HAL_CURRENT_SETPOINT_API =
+    ApiFromExtId(HAL_CURRENT_SETPOINT_ID);
+constexpr int32_t HAL_ABSOLUTE_POSITION_SETPOINT_API =
+    ApiFromExtId(HAL_ABSOLUTE_POSITION_SETPOINT_ID);
+constexpr int32_t HAL_CLEAR_FAULTS_API = ApiFromExtId(HAL_CLEAR_FAULTS_ID);
+constexpr int32_t HAL_GET_FIRMWARE_VERSION_API =
+    ApiFromExtId(HAL_GET_FIRMWARE_VERSION_ID);
+constexpr int32_t HAL_SET_RELATIVE_ENCODER_POSITION_API =
+    ApiFromExtId(HAL_SET_RELATIVE_ENCODER_POSITION_ID);
+constexpr int32_t HAL_SET_ABSOLUTE_ENCODER_POSITION_API =
+    ApiFromExtId(HAL_SET_ABSOLUTE_ENCODER_POSITION_ID);
+constexpr int32_t HAL_SET_CONTINUOUS_INPUT_API =
+    ApiFromExtId(HAL_SET_CONTINUOUS_INPUT_ID);
+constexpr int32_t HAL_SET_ABSOLUTE_RANGE_OFFSET_API =
+    ApiFromExtId(HAL_SET_ABSOLUTE_RANGE_OFFSET_ID);
+constexpr int32_t HAL_SET_IDLE_MODE_API = ApiFromExtId(HAL_SET_IDLE_MODE_ID);
+constexpr int32_t HAL_SET_STATUS_PERIOD_API =
+    ApiFromExtId(HAL_SET_STATUS_PERIOD_ID);
+constexpr int32_t HAL_SET_STATUS_PERIOD_RESPONSE_API =
+    ApiFromExtId(HAL_SET_STATUS_PERIOD_RESPONSE_ID);
+constexpr int32_t HAL_GET_IDLE_MODE_API = ApiFromExtId(HAL_GET_IDLE_MODE_ID);
+constexpr int32_t HAL_GET_IDLE_MODE_RESPONSE_API =
+    ApiFromExtId(HAL_GET_IDLE_MODE_RESPONSE_ID);
+constexpr int32_t HAL_GET_CONTINUOUS_INPUT_API =
+    ApiFromExtId(HAL_GET_CONTINUOUS_INPUT_ID);
+constexpr int32_t HAL_GET_CONTINUOUS_INPUT_RESPONSE_API =
+    ApiFromExtId(HAL_GET_CONTINUOUS_INPUT_RESPONSE_ID);
+constexpr int32_t HAL_GET_ABSOLUTE_RANGE_OFFSET_API =
+    ApiFromExtId(HAL_GET_ABSOLUTE_RANGE_OFFSET_ID);
+constexpr int32_t HAL_GET_ABSOLUTE_RANGE_OFFSET_RESPONSE_API =
+    ApiFromExtId(HAL_GET_ABSOLUTE_RANGE_OFFSET_RESPONSE_ID);
+constexpr int32_t HAL_GET_STATUS_PERIOD_API =
+    ApiFromExtId(HAL_GET_STATUS_PERIOD_ID);
+constexpr int32_t HAL_GET_STATUS_PERIOD_RESPONSE_API =
+    ApiFromExtId(HAL_GET_STATUS_PERIOD_RESPONSE_ID);
+constexpr int32_t HAL_STATUS_0_API = ApiFromExtId(HAL_STATUS_0_ID);
+constexpr int32_t HAL_STATUS_1_API = ApiFromExtId(HAL_STATUS_1_ID);
+constexpr int32_t HAL_STATUS_2_API = ApiFromExtId(HAL_STATUS_2_ID);
+constexpr int32_t HAL_STATUS_3_API = ApiFromExtId(HAL_STATUS_3_ID);
 
-constexpr int32_t kControlPeriodMs = 20;
-constexpr int32_t kDefaultReadTimeoutMs = 20;
-constexpr int32_t kConfigurationReadTimeoutMs = 500;
-constexpr int32_t kMaxReadRetries = 5;
-constexpr int32_t kMinimumPeriodicTimeoutMs = 500;
-constexpr int32_t kMaxStatusPeriodMs = 1000;
-constexpr int32_t kFirstMotioncoreBus = 5;
+constexpr int32_t HAL_CONTROL_PERIOD_MS = 20;
+constexpr int32_t HAL_DEFAULT_READ_TIMEOUT_MS = 20;
+constexpr int32_t HAL_CONFIGURATION_READ_TIMEOUT_MS = 500;
+constexpr int32_t HAL_MAX_READ_RETRIES = 5;
+constexpr int32_t HAL_MINIMUM_PERIODIC_TIMEOUT_MS = 500;
+constexpr int32_t HAL_MAX_STATUS_PERIOD_MS = 1000;
+constexpr int32_t HAL_FIRST_MOTIONCORE_BUS = 5;
 
-constexpr std::array<int32_t, 5> kControlApis{
-    kDutyCycleSetpointApi, kVelocitySetpointApi, kRelativePositionSetpointApi,
-    kCurrentSetpointApi, kAbsolutePositionSetpointApi};
+constexpr std::array<int32_t, 5> HAL_CONTROL_APIS{
+    HAL_DUTY_CYCLE_SETPOINT_API, HAL_VELOCITY_SETPOINT_API,
+    HAL_RELATIVE_POSITION_SETPOINT_API, HAL_CURRENT_SETPOINT_API,
+    HAL_ABSOLUTE_POSITION_SETPOINT_API};
 
 struct A301Obj {
   ~A301Obj();
@@ -118,7 +127,7 @@ struct A301Obj {
   HAL_CANHandle canHandle;
   std::array<int32_t, 4> statusPeriods{10, 250, 20, 20};
   bool inverted = false;
-  int32_t activeSetpointApi = kDutyCycleSetpointApi;
+  int32_t activeSetpointApi = HAL_DUTY_CYCLE_SETPOINT_API;
   wpi::util::mutex stateMutex;
   wpi::util::mutex configurationMutex;
   std::string previousAllocation;
@@ -191,8 +200,8 @@ void WritePacket(const A301Obj& a301, int32_t api, const uint8_t* data,
 void WritePacketRepeating(const A301Obj& a301, int32_t api, const uint8_t* data,
                           uint8_t size, int32_t* status) {
   auto message = MakeMessage(data, size);
-  HAL_WriteCANPacketRepeating(a301.canHandle, api, &message, kControlPeriodMs,
-                              status);
+  HAL_WriteCANPacketRepeating(a301.canHandle, api, &message,
+                              HAL_CONTROL_PERIOD_MS, status);
 }
 
 std::array<uint8_t, 64> WriteAndReadPacket(A301Obj& a301, int32_t writeApi,
@@ -209,7 +218,7 @@ std::array<uint8_t, 64> WriteAndReadPacket(A301Obj& a301, int32_t writeApi,
   HAL_ReadCANPacketNew(a301.canHandle, readApi, &oldMessage, &oldStatus);
 
   int32_t lastSendStatus = 0;
-  for (int32_t retry = 0; retry <= kMaxReadRetries; ++retry) {
+  for (int32_t retry = 0; retry <= HAL_MAX_READ_RETRIES; ++retry) {
     if (rtr) {
       HAL_CANMessage message{};
       message.dataSize = expectedReadSize;
@@ -264,8 +273,8 @@ std::array<uint8_t, 8> ReadPeriodicPacket(A301Obj& a301, int32_t api,
     return data;
   }
 
-  int32_t timeoutMs =
-      std::max(static_cast<int32_t>(periodMs * 2.1), kMinimumPeriodicTimeoutMs);
+  int32_t timeoutMs = std::max(static_cast<int32_t>(periodMs * 2.1),
+                               HAL_MINIMUM_PERIODIC_TIMEOUT_MS);
   uint64_t now = wpi::util::Now();
   if (now >= message.timeStamp &&
       now - message.timeStamp > static_cast<uint64_t>(timeoutMs) * 1000) {
@@ -305,10 +314,10 @@ int32_t HAL_DetectA301DeviceId(int32_t busId, int32_t* status) {
   wpi::hal::init::CheckInit();
   *status = 0;
 
-  constexpr uint32_t kDeviceIdMask = 0x3f;
-  constexpr uint32_t kAllExceptDeviceIdMask = 0x1fffffc0;
+  constexpr uint32_t HAL_DEVICE_ID_MASK = 0x3f;
+  constexpr uint32_t HAL_ALL_EXCEPT_DEVICE_ID_MASK = 0x1fffffc0;
   HAL_CANStreamHandle stream = HAL_CAN_OpenStreamSession(
-      busId, kStatus0Id, kAllExceptDeviceIdMask, 1, status);
+      busId, HAL_STATUS_0_ID, HAL_ALL_EXCEPT_DEVICE_ID_MASK, 1, status);
   if (*status != 0) {
     return -1;
   }
@@ -325,7 +334,7 @@ int32_t HAL_DetectA301DeviceId(int32_t busId, int32_t* status) {
         messagesRead == 1) {
       HAL_CAN_CloseStreamSession(stream);
       *status = 0;
-      return message.messageId & kDeviceIdMask;
+      return message.messageId & HAL_DEVICE_ID_MASK;
     }
     lastStatus =
         readStatus != 0 ? readStatus : HAL_ERR_CANSessionMux_MessageNotFound;
@@ -345,7 +354,7 @@ HAL_A301Handle HAL_InitializeA301(int32_t busId, int32_t deviceId,
   wpi::hal::init::CheckInit();
   *status = 0;
 
-  if (busId >= kFirstMotioncoreBus) {
+  if (busId >= HAL_FIRST_MOTIONCORE_BUS) {
     int32_t detectStatus = 0;
     int32_t detectedId = HAL_DetectA301DeviceId(busId, &detectStatus);
     if (detectStatus == 0) {
@@ -390,14 +399,14 @@ HAL_A301Handle HAL_InitializeA301(int32_t busId, int32_t deviceId,
     return HAL_INVALID_HANDLE;
   }
 
-  for (int32_t api : kControlApis) {
+  for (int32_t api : HAL_CONTROL_APIS) {
     int32_t stopStatus = 0;
     HAL_StopCANPacketRepeating(canHandle, api, &stopStatus);
   }
 
   std::array<uint8_t, 8> zeroSetpoint{};
   int32_t setpointStatus = 0;
-  WritePacketRepeating(*a301, kDutyCycleSetpointApi, zeroSetpoint.data(),
+  WritePacketRepeating(*a301, HAL_DUTY_CYCLE_SETPOINT_API, zeroSetpoint.data(),
                        zeroSetpoint.size(), &setpointStatus);
   return handle;
 }
@@ -434,9 +443,9 @@ void HAL_GetA301FirmwareVersion(HAL_A301Handle handle,
     return;
   }
 
-  auto data = WriteAndReadPacket(*a301, kGetFirmwareVersionApi, nullptr, 0,
-                                 kGetFirmwareVersionApi, 8,
-                                 kDefaultReadTimeoutMs, true, status);
+  auto data = WriteAndReadPacket(*a301, HAL_GET_FIRMWARE_VERSION_API, nullptr,
+                                 0, HAL_GET_FIRMWARE_VERSION_API, 8,
+                                 HAL_DEFAULT_READ_TIMEOUT_MS, true, status);
   version->major = data[0];
   version->minor = data[1];
   version->patch = (static_cast<uint16_t>(data[2]) << 8) | data[3];
@@ -466,7 +475,7 @@ void HAL_GetA301PeriodicStatus0(HAL_A301Handle handle,
     inverted = a301->inverted;
     periodMs = a301->statusPeriods[0];
   }
-  auto data = ReadPeriodicPacket(*a301, kStatus0Api, periodMs,
+  auto data = ReadPeriodicPacket(*a301, HAL_STATUS_0_API, periodMs,
                                  &frame->timestamp, status);
   int16_t appliedOutput = static_cast<int16_t>(LoadU16LE(data.data()));
   uint16_t voltage = static_cast<uint16_t>(data[2]) |
@@ -500,7 +509,7 @@ void HAL_GetA301PeriodicStatus1(HAL_A301Handle handle,
   if (*status != 0) {
     return;
   }
-  auto data = ReadPeriodicPacket(*a301, kStatus1Api, periodMs,
+  auto data = ReadPeriodicPacket(*a301, HAL_STATUS_1_API, periodMs,
                                  &frame->timestamp, status);
   frame->otherFault = Bit(data[0], 0);
   frame->motorTypeFault = Bit(data[0], 1);
@@ -563,7 +572,7 @@ void HAL_GetA301PeriodicStatus2(HAL_A301Handle handle,
     inverted = a301->inverted;
     periodMs = a301->statusPeriods[2];
   }
-  auto data = ReadPeriodicPacket(*a301, kStatus2Api, periodMs,
+  auto data = ReadPeriodicPacket(*a301, HAL_STATUS_2_API, periodMs,
                                  &frame->timestamp, status);
   frame->encoderVelocity = LoadFloatLE(data.data()) * (inverted ? -1.0 : 1.0);
   frame->relativeEncoderPosition = LoadFloatLE(data.data() + 4);
@@ -586,7 +595,7 @@ void HAL_GetA301PeriodicStatus3(HAL_A301Handle handle,
   if (*status != 0) {
     return;
   }
-  auto data = ReadPeriodicPacket(*a301, kStatus3Api, periodMs,
+  auto data = ReadPeriodicPacket(*a301, HAL_STATUS_3_API, periodMs,
                                  &frame->timestamp, status);
   frame->absoluteEncoderPosition = LoadFloatLE(data.data() + 4);
 }
@@ -599,8 +608,8 @@ void HAL_SetA301RelativeEncoderPosition(HAL_A301Handle handle, double position,
   }
   std::array<uint8_t, 4> data{};
   StoreFloatLE(data.data(), position);
-  WritePacket(*a301, kSetRelativeEncoderPositionApi, data.data(), data.size(),
-              status);
+  WritePacket(*a301, HAL_SET_RELATIVE_ENCODER_POSITION_API, data.data(),
+              data.size(), status);
 }
 
 void HAL_SetA301AbsoluteEncoderPosition(HAL_A301Handle handle, double position,
@@ -611,8 +620,8 @@ void HAL_SetA301AbsoluteEncoderPosition(HAL_A301Handle handle, double position,
   }
   std::array<uint8_t, 4> data{};
   StoreFloatLE(data.data(), position);
-  WritePacket(*a301, kSetAbsoluteEncoderPositionApi, data.data(), data.size(),
-              status);
+  WritePacket(*a301, HAL_SET_ABSOLUTE_ENCODER_POSITION_API, data.data(),
+              data.size(), status);
 }
 
 void HAL_SetA301Setpoint(HAL_A301Handle handle, double value,
@@ -624,12 +633,12 @@ void HAL_SetA301Setpoint(HAL_A301Handle handle, double value,
   }
 
   auto controlIndex = static_cast<int32_t>(controlType);
-  constexpr std::array<int32_t, 6> kControlTypeApis{
-      kDutyCycleSetpointApi,        kVelocitySetpointApi,
-      kDutyCycleSetpointApi,        kRelativePositionSetpointApi,
-      kAbsolutePositionSetpointApi, kCurrentSetpointApi};
+  constexpr std::array<int32_t, 6> HAL_CONTROL_TYPE_APIS{
+      HAL_DUTY_CYCLE_SETPOINT_API,        HAL_VELOCITY_SETPOINT_API,
+      HAL_DUTY_CYCLE_SETPOINT_API,        HAL_RELATIVE_POSITION_SETPOINT_API,
+      HAL_ABSOLUTE_POSITION_SETPOINT_API, HAL_CURRENT_SETPOINT_API};
   if (controlIndex < 0 ||
-      controlIndex >= static_cast<int32_t>(kControlTypeApis.size())) {
+      controlIndex >= static_cast<int32_t>(HAL_CONTROL_TYPE_APIS.size())) {
     *status = HAL_PARAMETER_OUT_OF_RANGE;
     return;
   }
@@ -638,7 +647,7 @@ void HAL_SetA301Setpoint(HAL_A301Handle handle, double value,
     value /= 12.0;
   }
 
-  int32_t api = kControlTypeApis[controlIndex];
+  int32_t api = HAL_CONTROL_TYPE_APIS[controlIndex];
   std::array<uint8_t, 8> data{};
   {
     std::scoped_lock lock{a301->stateMutex};
@@ -677,7 +686,7 @@ void HAL_SetA301IdleMode(HAL_A301Handle handle, HAL_A301IdleMode idleMode,
     return;
   }
   uint8_t data[] = {static_cast<uint8_t>(idleMode)};
-  WritePacket(*a301, kSetIdleModeApi, data, sizeof(data), status);
+  WritePacket(*a301, HAL_SET_IDLE_MODE_API, data, sizeof(data), status);
 }
 
 HAL_A301IdleMode HAL_GetA301IdleMode(HAL_A301Handle handle, int32_t* status) {
@@ -685,9 +694,9 @@ HAL_A301IdleMode HAL_GetA301IdleMode(HAL_A301Handle handle, int32_t* status) {
   if (!a301) {
     return HAL_A301_IDLE_MODE_COAST;
   }
-  auto data = WriteAndReadPacket(*a301, kGetIdleModeApi, nullptr, 0,
-                                 kGetIdleModeResponseApi, 1,
-                                 kConfigurationReadTimeoutMs, false, status);
+  auto data = WriteAndReadPacket(
+      *a301, HAL_GET_IDLE_MODE_API, nullptr, 0, HAL_GET_IDLE_MODE_RESPONSE_API,
+      1, HAL_CONFIGURATION_READ_TIMEOUT_MS, false, status);
   return static_cast<HAL_A301IdleMode>(data[0]);
 }
 
@@ -699,7 +708,7 @@ void HAL_SetA301AbsolutePositionContinuousInput(HAL_A301Handle handle,
     return;
   }
   uint8_t data[] = {static_cast<uint8_t>(enabled != 0)};
-  WritePacket(*a301, kSetContinuousInputApi, data, sizeof(data), status);
+  WritePacket(*a301, HAL_SET_CONTINUOUS_INPUT_API, data, sizeof(data), status);
 }
 
 HAL_Bool HAL_GetA301AbsolutePositionContinuousInput(HAL_A301Handle handle,
@@ -708,9 +717,10 @@ HAL_Bool HAL_GetA301AbsolutePositionContinuousInput(HAL_A301Handle handle,
   if (!a301) {
     return false;
   }
-  auto data = WriteAndReadPacket(*a301, kGetContinuousInputApi, nullptr, 0,
-                                 kGetContinuousInputResponseApi, 1,
-                                 kConfigurationReadTimeoutMs, false, status);
+  auto data =
+      WriteAndReadPacket(*a301, HAL_GET_CONTINUOUS_INPUT_API, nullptr, 0,
+                         HAL_GET_CONTINUOUS_INPUT_RESPONSE_API, 1,
+                         HAL_CONFIGURATION_READ_TIMEOUT_MS, false, status);
   return data[0] & 1;
 }
 
@@ -732,8 +742,8 @@ void HAL_SetA301AbsoluteEncoderRangeOffset(HAL_A301Handle handle, double offset,
   }
   std::array<uint8_t, 4> data{};
   StoreFloatLE(data.data(), offset);
-  WritePacket(*a301, kSetAbsoluteRangeOffsetApi, data.data(), data.size(),
-              status);
+  WritePacket(*a301, HAL_SET_ABSOLUTE_RANGE_OFFSET_API, data.data(),
+              data.size(), status);
 }
 
 double HAL_GetA301AbsoluteEncoderRangeOffset(HAL_A301Handle handle,
@@ -742,9 +752,10 @@ double HAL_GetA301AbsoluteEncoderRangeOffset(HAL_A301Handle handle,
   if (!a301) {
     return 0.0;
   }
-  auto data = WriteAndReadPacket(*a301, kGetAbsoluteRangeOffsetApi, nullptr, 0,
-                                 kGetAbsoluteRangeOffsetResponseApi, 4,
-                                 kConfigurationReadTimeoutMs, false, status);
+  auto data =
+      WriteAndReadPacket(*a301, HAL_GET_ABSOLUTE_RANGE_OFFSET_API, nullptr, 0,
+                         HAL_GET_ABSOLUTE_RANGE_OFFSET_RESPONSE_API, 4,
+                         HAL_CONFIGURATION_READ_TIMEOUT_MS, false, status);
   double offset = LoadFloatLE(data.data());
   {
     std::scoped_lock lock{a301->stateMutex};
@@ -779,7 +790,7 @@ void HAL_ClearA301Faults(HAL_A301Handle handle, int32_t* status) {
   if (!a301) {
     return;
   }
-  WritePacket(*a301, kClearFaultsApi, nullptr, 0, status);
+  WritePacket(*a301, HAL_CLEAR_FAULTS_API, nullptr, 0, status);
 }
 
 void HAL_SetA301StatusFramePeriod(HAL_A301Handle handle,
@@ -796,15 +807,15 @@ void HAL_SetA301StatusFramePeriod(HAL_A301Handle handle,
     *status = HAL_PARAMETER_OUT_OF_RANGE;
     return;
   }
-  periodMs = std::min(periodMs, kMaxStatusPeriodMs);
+  periodMs = std::min(periodMs, HAL_MAX_STATUS_PERIOD_MS);
 
   std::array<uint8_t, 5> request{};
   request[0] = frameIndex;
   StoreU32LE(request.data() + 1, periodMs);
   auto response =
-      WriteAndReadPacket(*a301, kSetStatusPeriodApi, request.data(),
-                         request.size(), kSetStatusPeriodResponseApi, 6,
-                         kConfigurationReadTimeoutMs, false, status);
+      WriteAndReadPacket(*a301, HAL_SET_STATUS_PERIOD_API, request.data(),
+                         request.size(), HAL_SET_STATUS_PERIOD_RESPONSE_API, 6,
+                         HAL_CONFIGURATION_READ_TIMEOUT_MS, false, status);
   if (*status != 0) {
     return;
   }
@@ -835,9 +846,9 @@ int32_t HAL_GetA301StatusFramePeriod(HAL_A301Handle handle,
 
   uint8_t request[] = {static_cast<uint8_t>(frameIndex)};
   auto response =
-      WriteAndReadPacket(*a301, kGetStatusPeriodApi, request, sizeof(request),
-                         kGetStatusPeriodResponseApi, 5,
-                         kConfigurationReadTimeoutMs, false, status);
+      WriteAndReadPacket(*a301, HAL_GET_STATUS_PERIOD_API, request,
+                         sizeof(request), HAL_GET_STATUS_PERIOD_RESPONSE_API, 5,
+                         HAL_CONFIGURATION_READ_TIMEOUT_MS, false, status);
   if (*status != 0) {
     return 0;
   }

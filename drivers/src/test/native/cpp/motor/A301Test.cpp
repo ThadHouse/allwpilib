@@ -21,27 +21,27 @@ TEST_CASE("A301 high-level API", "[drivers][a301]") {
   a301.SetVoltage(wpi::units::volt_t{6.0});
   CHECK(a301.GetThrottle() == Catch::Approx(0.5));
 
-  CHECK(a301.SetVelocity(125.0) == A301Error::kOk);
-  CHECK(a301.SetRelativePosition(3.0) == A301Error::kOk);
-  CHECK(a301.SetRelativePositionWithSpeed(3.0, 50.0) == A301Error::kOk);
-  CHECK(a301.SetAbsolutePosition(0.25) == A301Error::kOk);
-  CHECK(a301.SetAbsolutePositionWithSpeed(0.25, 50.0) == A301Error::kOk);
-  CHECK(a301.SetCurrent(10.0) == A301Error::kOk);
-  CHECK(a301.SetRelativeEncoderPosition(2.0) == A301Error::kOk);
-  CHECK(a301.SetAbsoluteEncoderPosition(0.1) == A301Error::kOk);
-  CHECK(a301.SetIdleMode(A301::IdleMode::kBrake) == A301Error::kOk);
-  CHECK(a301.EnableAbsolutePositionContinuousInput() == A301Error::kOk);
-  CHECK(a301.DisableAbsolutePositionContinuousInput() == A301Error::kOk);
-  CHECK(a301.ClearFaults() == A301Error::kOk);
+  CHECK(a301.SetVelocity(125.0) == A301Error::OK);
+  CHECK(a301.SetRelativePosition(3.0) == A301Error::OK);
+  CHECK(a301.SetRelativePositionWithSpeed(3.0, 50.0) == A301Error::OK);
+  CHECK(a301.SetAbsolutePosition(0.25) == A301Error::OK);
+  CHECK(a301.SetAbsolutePositionWithSpeed(0.25, 50.0) == A301Error::OK);
+  CHECK(a301.SetCurrent(10.0) == A301Error::OK);
+  CHECK(a301.SetRelativeEncoderPosition(2.0) == A301Error::OK);
+  CHECK(a301.SetAbsoluteEncoderPosition(0.1) == A301Error::OK);
+  CHECK(a301.SetIdleMode(A301::IdleMode::BRAKE) == A301Error::OK);
+  CHECK(a301.EnableAbsolutePositionContinuousInput() == A301Error::OK);
+  CHECK(a301.DisableAbsolutePositionContinuousInput() == A301Error::OK);
+  CHECK(a301.ClearFaults() == A301Error::OK);
 
   a301.SetInverted(true);
   CHECK(a301.GetInverted());
-  CHECK(a301.SetAbsoluteEncoderRangeOffset(0.25) == A301Error::kOk);
-  CHECK(a301.SetAbsoluteEncoderRangeOffset(0.75) == A301Error::kParamInvalid);
+  CHECK(a301.SetAbsoluteEncoderRangeOffset(0.25) == A301Error::OK);
+  CHECK(a301.SetAbsoluteEncoderRangeOffset(0.75) == A301Error::PARAM_INVALID);
 
   auto voltage = a301.GetBusVoltage();
   CHECK_FALSE(voltage.IsValid());
-  CHECK(voltage.GetError() == A301Error::kTimeout);
+  CHECK(voltage.GetError() == A301Error::TIMEOUT);
 
   a301.Disable();
   CHECK(a301.GetThrottle() == Catch::Approx(0.0));
@@ -59,5 +59,5 @@ TEST_CASE("A301 status signal maps HAL errors", "[drivers][a301]") {
   A301StatusSignal<int> timeout{4, HAL_CAN_TIMEOUT, 302};
   CHECK_FALSE(timeout.IsValid());
   CHECK(timeout.Get(8) == 8);
-  CHECK(timeout.GetError() == A301Error::kTimeout);
+  CHECK(timeout.GetError() == A301Error::TIMEOUT);
 }

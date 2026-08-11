@@ -31,27 +31,27 @@ class A301Test {
     a301.setVoltage(6.0);
     assertEquals(0.5, a301.getThrottle());
 
-    assertEquals(A301Error.kOk, a301.setVelocity(125.0));
-    assertEquals(A301Error.kOk, a301.setRelativePosition(3.0));
-    assertEquals(A301Error.kOk, a301.setRelativePositionWithSpeed(3.0, 50.0));
-    assertEquals(A301Error.kOk, a301.setAbsolutePosition(0.25));
-    assertEquals(A301Error.kOk, a301.setAbsolutePositionWithSpeed(0.25, 50.0));
-    assertEquals(A301Error.kOk, a301.setCurrent(10.0));
-    assertEquals(A301Error.kOk, a301.setRelativeEncoderPosition(2.0));
-    assertEquals(A301Error.kOk, a301.setAbsoluteEncoderPosition(0.1));
-    assertEquals(A301Error.kOk, a301.setIdleMode(A301.IdleMode.BRAKE));
-    assertEquals(A301Error.kOk, a301.enableAbsolutePositionContinuousInput());
-    assertEquals(A301Error.kOk, a301.disableAbsolutePositionContinuousInput());
-    assertEquals(A301Error.kOk, a301.clearFaults());
+    assertEquals(A301Error.OK, a301.setVelocity(125.0));
+    assertEquals(A301Error.OK, a301.setRelativePosition(3.0));
+    assertEquals(A301Error.OK, a301.setRelativePositionWithSpeed(3.0, 50.0));
+    assertEquals(A301Error.OK, a301.setAbsolutePosition(0.25));
+    assertEquals(A301Error.OK, a301.setAbsolutePositionWithSpeed(0.25, 50.0));
+    assertEquals(A301Error.OK, a301.setCurrent(10.0));
+    assertEquals(A301Error.OK, a301.setRelativeEncoderPosition(2.0));
+    assertEquals(A301Error.OK, a301.setAbsoluteEncoderPosition(0.1));
+    assertEquals(A301Error.OK, a301.setIdleMode(A301.IdleMode.BRAKE));
+    assertEquals(A301Error.OK, a301.enableAbsolutePositionContinuousInput());
+    assertEquals(A301Error.OK, a301.disableAbsolutePositionContinuousInput());
+    assertEquals(A301Error.OK, a301.clearFaults());
 
     a301.setInverted(true);
     assertTrue(a301.getInverted());
-    assertEquals(A301Error.kOk, a301.setAbsoluteEncoderRangeOffset(0.25));
-    assertEquals(A301Error.kParamInvalid, a301.setAbsoluteEncoderRangeOffset(0.75));
+    assertEquals(A301Error.OK, a301.setAbsoluteEncoderRangeOffset(0.25));
+    assertEquals(A301Error.PARAM_INVALID, a301.setAbsoluteEncoderRangeOffset(0.75));
 
     A301StatusSignal<Double> voltage = a301.getBusVoltage();
     assertFalse(voltage.isValid());
-    assertEquals(A301Error.kTimeout, voltage.getError());
+    assertEquals(A301Error.TIMEOUT, voltage.getError());
 
     a301.disable();
     assertEquals(0.0, a301.getThrottle());

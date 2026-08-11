@@ -69,7 +69,7 @@ classes:
       AbsoluteEncoderPositionPeriodMs:
       GetAbsoluteEncoderPositionPeriodMs:
     attributes:
-      kDefaultDeviceId:
+      DEFAULT_DEVICE_ID:
     enums:
       PeriodicFrame:
       GearboxRPM:

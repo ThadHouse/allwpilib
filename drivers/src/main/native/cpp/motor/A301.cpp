@@ -80,7 +80,7 @@ A301::Warnings::Warnings(uint16_t warnings) : rawBits{warnings} {
   motorLoopSpeed = (warnings & BitMask(9)) != 0;
 }
 
-A301::A301(CANBusMap bus) : A301{bus, kDefaultDeviceId} {}
+A301::A301(CANBusMap bus) : A301{bus, DEFAULT_DEVICE_ID} {}
 
 A301::A301(CANBusMap bus, int deviceId) {
   auto stack = wpi::util::GetStackTrace(1);
@@ -202,11 +202,11 @@ A301::DoubleStatusSignal A301::GetMotorTemperature() const {
 
 A301::GearboxRPMStatusSignal A301::GetGearboxRPM() const {
   auto signal = GetPeriodicStatus0();
-  GearboxRPM rpm = GearboxRPM::kUnknown;
+  GearboxRPM rpm = GearboxRPM::UNKNOWN;
   if (signal.Get().gearboxRPM == HAL_A301_GEARBOX_RPM_215) {
-    rpm = GearboxRPM::kRPM215;
+    rpm = GearboxRPM::RPM_215;
   } else if (signal.Get().gearboxRPM == HAL_A301_GEARBOX_RPM_500) {
-    rpm = GearboxRPM::kRPM500;
+    rpm = GearboxRPM::RPM_500;
   }
   return {rpm, signal.GetStatus(), signal.GetTimestamp()};
 }
@@ -358,75 +358,75 @@ int A301::GetStatusFramePeriod(PeriodicFrame frame) const {
 }
 
 A301& A301::FaultsPeriodMs(int periodMs) {
-  return SetStatusFramePeriod(PeriodicFrame::kStatus1, periodMs);
+  return SetStatusFramePeriod(PeriodicFrame::STATUS_1, periodMs);
 }
 
 int A301::GetFaultsPeriodMs() const {
-  return GetStatusFramePeriod(PeriodicFrame::kStatus1);
+  return GetStatusFramePeriod(PeriodicFrame::STATUS_1);
 }
 
 A301& A301::WarningsPeriodMs(int periodMs) {
-  return SetStatusFramePeriod(PeriodicFrame::kStatus1, periodMs);
+  return SetStatusFramePeriod(PeriodicFrame::STATUS_1, periodMs);
 }
 
 int A301::GetWarningsPeriodMs() const {
-  return GetStatusFramePeriod(PeriodicFrame::kStatus1);
+  return GetStatusFramePeriod(PeriodicFrame::STATUS_1);
 }
 
 A301& A301::BusVoltagePeriodMs(int periodMs) {
-  return SetStatusFramePeriod(PeriodicFrame::kStatus0, periodMs);
+  return SetStatusFramePeriod(PeriodicFrame::STATUS_0, periodMs);
 }
 
 int A301::GetBusVoltagePeriodMs() const {
-  return GetStatusFramePeriod(PeriodicFrame::kStatus0);
+  return GetStatusFramePeriod(PeriodicFrame::STATUS_0);
 }
 
 A301& A301::AppliedOutputPeriodMs(int periodMs) {
-  return SetStatusFramePeriod(PeriodicFrame::kStatus0, periodMs);
+  return SetStatusFramePeriod(PeriodicFrame::STATUS_0, periodMs);
 }
 
 int A301::GetAppliedOutputPeriodMs() const {
-  return GetStatusFramePeriod(PeriodicFrame::kStatus0);
+  return GetStatusFramePeriod(PeriodicFrame::STATUS_0);
 }
 
 A301& A301::MotorCurrentPeriodMs(int periodMs) {
-  return SetStatusFramePeriod(PeriodicFrame::kStatus0, periodMs);
+  return SetStatusFramePeriod(PeriodicFrame::STATUS_0, periodMs);
 }
 
 int A301::GetMotorCurrentPeriodMs() const {
-  return GetStatusFramePeriod(PeriodicFrame::kStatus0);
+  return GetStatusFramePeriod(PeriodicFrame::STATUS_0);
 }
 
 A301& A301::MotorTemperaturePeriodMs(int periodMs) {
-  return SetStatusFramePeriod(PeriodicFrame::kStatus0, periodMs);
+  return SetStatusFramePeriod(PeriodicFrame::STATUS_0, periodMs);
 }
 
 int A301::GetMotorTemperaturePeriodMs() const {
-  return GetStatusFramePeriod(PeriodicFrame::kStatus0);
+  return GetStatusFramePeriod(PeriodicFrame::STATUS_0);
 }
 
 A301& A301::RelativeEncoderPositionPeriodMs(int periodMs) {
-  return SetStatusFramePeriod(PeriodicFrame::kStatus2, periodMs);
+  return SetStatusFramePeriod(PeriodicFrame::STATUS_2, periodMs);
 }
 
 int A301::GetRelativeEncoderPositionPeriodMs() const {
-  return GetStatusFramePeriod(PeriodicFrame::kStatus2);
+  return GetStatusFramePeriod(PeriodicFrame::STATUS_2);
 }
 
 A301& A301::EncoderVelocityPeriodMs(int periodMs) {
-  return SetStatusFramePeriod(PeriodicFrame::kStatus2, periodMs);
+  return SetStatusFramePeriod(PeriodicFrame::STATUS_2, periodMs);
 }
 
 int A301::GetEncoderVelocityPeriodMs() const {
-  return GetStatusFramePeriod(PeriodicFrame::kStatus2);
+  return GetStatusFramePeriod(PeriodicFrame::STATUS_2);
 }
 
 A301& A301::AbsoluteEncoderPositionPeriodMs(int periodMs) {
-  return SetStatusFramePeriod(PeriodicFrame::kStatus3, periodMs);
+  return SetStatusFramePeriod(PeriodicFrame::STATUS_3, periodMs);
 }
 
 int A301::GetAbsoluteEncoderPositionPeriodMs() const {
-  return GetStatusFramePeriod(PeriodicFrame::kStatus3);
+  return GetStatusFramePeriod(PeriodicFrame::STATUS_3);
 }
 
 A301StatusSignal<HAL_A301PeriodicStatus0> A301::GetPeriodicStatus0() const {

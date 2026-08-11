@@ -23,36 +23,36 @@ namespace wpi {
 class A301 final : public MotorController {
  public:
   /** The factory-default A301 device ID. */
-  static constexpr int kDefaultDeviceId = HAL_A301_DEFAULT_DEVICE_ID;
+  static constexpr int DEFAULT_DEVICE_ID = HAL_A301_DEFAULT_DEVICE_ID;
 
   /** A periodic status frame produced by the A301. */
   enum class PeriodicFrame {
     /** Applied output, voltage, current, temperature, and controller state. */
-    kStatus0 = HAL_A301_STATUS_0,
+    STATUS_0 = HAL_A301_STATUS_0,
     /** Fault and warning state. */
-    kStatus1 = HAL_A301_STATUS_1,
+    STATUS_1 = HAL_A301_STATUS_1,
     /** Relative encoder position and velocity. */
-    kStatus2 = HAL_A301_STATUS_2,
+    STATUS_2 = HAL_A301_STATUS_2,
     /** Absolute encoder position. */
-    kStatus3 = HAL_A301_STATUS_3,
+    STATUS_3 = HAL_A301_STATUS_3,
   };
 
   /** A301 gearbox speed variant. */
   enum class GearboxRPM {
     /** The gearbox speed is unknown. */
-    kUnknown = HAL_A301_GEARBOX_RPM_UNKNOWN,
+    UNKNOWN = HAL_A301_GEARBOX_RPM_UNKNOWN,
     /** 215 RPM gearbox. */
-    kRPM215 = HAL_A301_GEARBOX_RPM_215,
+    RPM_215 = HAL_A301_GEARBOX_RPM_215,
     /** 500 RPM gearbox. */
-    kRPM500 = HAL_A301_GEARBOX_RPM_500,
+    RPM_500 = HAL_A301_GEARBOX_RPM_500,
   };
 
   /** Neutral behavior when the controller output is zero. */
   enum class IdleMode {
     /** Allow the motor to coast. */
-    kCoast = HAL_A301_IDLE_MODE_COAST,
+    COAST = HAL_A301_IDLE_MODE_COAST,
     /** Actively brake the motor. */
-    kBrake = HAL_A301_IDLE_MODE_BRAKE,
+    BRAKE = HAL_A301_IDLE_MODE_BRAKE,
   };
 
   /** A301 firmware version information. */
@@ -665,7 +665,7 @@ class A301 final : public MotorController {
   int GetAbsoluteEncoderPositionPeriodMs() const;
 
  private:
-  static constexpr double kDefaultPositionSpeed = 0.0;
+  static constexpr double DEFAULT_POSITION_SPEED = 0.0;
 
   A301StatusSignal<HAL_A301PeriodicStatus0> GetPeriodicStatus0() const;
 
@@ -676,7 +676,7 @@ class A301 final : public MotorController {
   A301StatusSignal<HAL_A301PeriodicStatus3> GetPeriodicStatus3() const;
 
   A301Error SetSetpoint(HAL_A301ControlType controlType, double setpoint,
-                        double positionSpeed = kDefaultPositionSpeed);
+                        double positionSpeed = DEFAULT_POSITION_SPEED);
 
   wpi::util::Handle<HAL_A301Handle, HAL_FreeA301> m_handle;
   int m_busId{};

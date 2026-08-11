@@ -52,7 +52,7 @@ public final class A301StatusSignal<T> {
    * @return true when the value is valid
    */
   public boolean isValid() {
-    return getError() == A301Error.kOk;
+    return getError() == A301Error.OK;
   }
 
   /**

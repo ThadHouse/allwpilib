@@ -19,7 +19,7 @@ import org.wpilib.hardware.motor.MotorController;
 /** High-level interface to a FIRST A301 motor controller. */
 public class A301 implements MotorController, AutoCloseable {
   /** The factory-default A301 device ID. */
-  public static final int kDefaultDeviceId = A301JNI.DEFAULT_DEVICE_ID;
+  public static final int DEFAULT_DEVICE_ID = A301JNI.DEFAULT_DEVICE_ID;
 
   /** A periodic status frame produced by the A301. */
   public enum PeriodicFrame {
@@ -215,7 +215,7 @@ public class A301 implements MotorController, AutoCloseable {
     }
   }
 
-  private static final double kDefaultPositionSpeed = 0.0;
+  private static final double DEFAULT_POSITION_SPEED = 0.0;
 
   private final int m_handle;
   private final int m_busId;
@@ -233,7 +233,7 @@ public class A301 implements MotorController, AutoCloseable {
    * @param bus the CAN bus
    */
   public A301(CANBusMap bus) {
-    this(bus, kDefaultDeviceId);
+    this(bus, DEFAULT_DEVICE_ID);
   }
 
   /**
@@ -921,7 +921,7 @@ public class A301 implements MotorController, AutoCloseable {
   }
 
   private A301Error setSetpoint(ControlType controlType, double setpoint) {
-    return setSetpoint(controlType, setpoint, kDefaultPositionSpeed);
+    return setSetpoint(controlType, setpoint, DEFAULT_POSITION_SPEED);
   }
 
   private A301Error setSetpoint(ControlType controlType, double setpoint, double positionSpeed) {
