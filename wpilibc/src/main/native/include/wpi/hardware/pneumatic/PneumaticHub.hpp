@@ -305,7 +305,8 @@ class PneumaticHub : public PneumaticsBase {
   friend class PneumaticsBase;
   PneumaticHub(CANPort busId, HAL_REVPHHandle handle, int module);
 
-  static std::shared_ptr<PneumaticsBase> GetForModule(CANPort busId, int module);
+  static std::shared_ptr<PneumaticsBase> GetForModule(CANPort busId,
+                                                      int module);
 
   std::shared_ptr<DataStore> m_dataStore;
   HAL_REVPHHandle m_handle;

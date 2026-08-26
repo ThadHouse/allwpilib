@@ -65,7 +65,8 @@ class PneumaticsControlModule::DataStore {
   uint32_t m_reservedMask{0};
   bool m_compressorReserved{false};
   wpi::util::mutex m_reservedLock;
-  PneumaticsControlModule m_moduleObject{CANPort::CAN_S0, HAL_INVALID_HANDLE, 0};
+  PneumaticsControlModule m_moduleObject{CANPort::CAN_S0, HAL_INVALID_HANDLE,
+                                         0};
 };
 
 PneumaticsControlModule::PneumaticsControlModule(CANPort busId)
