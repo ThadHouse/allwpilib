@@ -271,10 +271,10 @@ CameraCalibrator::CameraCalibrator(size_t numWorkers, double squareWidth,
           state->m_isFinished = true;
           return;
         }
-        auto result = mrcal_main(allObservationBoards, allFramesRtToref,
-                                 cv::Size(boardWidth - 1, boardHeight - 1),
-                                 squareWidth * 0.0254, frameShape, 1000,
-                                 stopToken);
+        auto result =
+            mrcal_main(allObservationBoards, allFramesRtToref,
+                       cv::Size(boardWidth - 1, boardHeight - 1),
+                       squareWidth * 0.0254, frameShape, 1000, stopToken);
         if (!result) {
           state->cameraModel = std::nullopt;
           state->m_isFinished = true;

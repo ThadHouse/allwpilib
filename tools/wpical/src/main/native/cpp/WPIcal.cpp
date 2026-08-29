@@ -290,11 +290,9 @@ void CalibrateCamera() {
   static bool calibrating = false;
 
   std::erase_if(videoProcessorCleanupTasks, [](auto& task) {
-    return task.wait_for(std::chrono::seconds{0}) ==
-           std::future_status::ready;
+    return task.wait_for(std::chrono::seconds{0}) == std::future_status::ready;
   });
-  const bool videoProcessorCleanupPending =
-      !videoProcessorCleanupTasks.empty();
+  const bool videoProcessorCleanupPending = !videoProcessorCleanupTasks.empty();
 
   auto cleanupVideoProcessor = [&] {
     if (!videoProcessor) {
@@ -302,8 +300,7 @@ void CalibrateCamera() {
     }
     videoProcessor->Stop();
     videoProcessorCleanupTasks.emplace_back(std::async(
-        std::launch::async,
-        [processor = std::move(videoProcessor)]() mutable {
+        std::launch::async, [processor = std::move(videoProcessor)]() mutable {
           processor.reset();
         }));
   };

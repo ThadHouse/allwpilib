@@ -46,9 +46,9 @@ TEST_CASE("Libdogleg optimization can be canceled", "[wpical]") {
 
   CancellationState cancellationState;
   bool canceled = false;
-  double result = dogleg_optimize2(
-      &state, 1, 1, 1, Evaluate, nullptr, &parameters,
-      CancelAfterSolverStarts, &cancellationState, &canceled, nullptr);
+  double result = dogleg_optimize2(&state, 1, 1, 1, Evaluate, nullptr,
+                                   &parameters, CancelAfterSolverStarts,
+                                   &cancellationState, &canceled, nullptr);
 
   CHECK(result >= 0.0);
   CHECK(canceled);
@@ -59,9 +59,9 @@ TEST_CASE("Mrcal optimization can be canceled", "[wpical]") {
   bool canceled = false;
   auto stats = mrcal_optimize(
       nullptr, -1, nullptr, -1, nullptr, nullptr, nullptr, nullptr, nullptr, 0,
-      0, 0, 0, 0, nullptr, nullptr, 0, 0, nullptr, 0, nullptr, nullptr,
-      nullptr, nullptr, mrcal_problem_selections_t{}, nullptr, 0.0, 0, 0,
-      false, false, AlwaysCancel, nullptr, &canceled);
+      0, 0, 0, 0, nullptr, nullptr, 0, 0, nullptr, 0, nullptr, nullptr, nullptr,
+      nullptr, mrcal_problem_selections_t{}, nullptr, 0.0, 0, 0, false, false,
+      AlwaysCancel, nullptr, &canceled);
 
   CHECK(canceled);
   CHECK(stats.rms_reproj_error__pixels < 0.0);
@@ -74,8 +74,7 @@ TEST_CASE("Mrcal calibration can be canceled before it starts", "[wpical]") {
   std::vector<mrcal_pose_t> frames;
 
   auto result = mrcal_main(observations, frames, cv::Size{10, 10}, 0.03,
-                           cv::Size{1280, 720}, 1200,
-                           stopSource.get_token());
+                           cv::Size{1280, 720}, 1200, stopSource.get_token());
 
   CHECK(result == nullptr);
 }
