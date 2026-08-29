@@ -250,8 +250,7 @@ CameraCalibrator::CameraCalibrator(size_t numWorkers, double squareWidth,
           ++framesQueued;
         }
         m_totalFrames = framesQueued;
-        while (!state->m_isFinished &&
-               TotalFramesProcessed() < framesQueued) {
+        while (!state->m_isFinished && TotalFramesProcessed() < framesQueued) {
           std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
         if (state->m_isFinished) {
