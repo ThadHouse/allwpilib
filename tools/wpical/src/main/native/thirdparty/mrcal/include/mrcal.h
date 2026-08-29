@@ -446,6 +446,9 @@ bool mrcal_corresponding_icam_extrinsics(// out
                                          int Nobservations_point,
                                          const mrcal_observation_point_t* observations_point);
 
+// Return true to stop an optimization at the next iteration boundary
+typedef bool (mrcal_cancel_callback_t)(void* cookie);
+
 // Solve the given optimization problem
 //
 // This is the entry point to the mrcal optimization routine. The argument list
@@ -519,6 +522,50 @@ mrcal_optimize( // out
                 bool verbose,
 
                 bool check_gradient);
+
+// As mrcal_optimize(), but allows the caller to cancel the solve. If cancelled
+// is non-NULL, it is set to true only when cancellation stopped the solve.
+mrcal_stats_t
+mrcal_optimize_cancelable( // out
+                           double* b_packed,
+                           int buffer_size_b_packed,
+                           double* x,
+                           int buffer_size_x,
+
+                           // out, in
+                           double*                 intrinsics,
+                           mrcal_pose_t*           rt_cam_ref,
+                           mrcal_pose_t*           rt_ref_frame,
+                           mrcal_point3_t*         points,
+                           mrcal_calobject_warp_t* calobject_warp,
+
+                           // in
+                           int Ncameras_intrinsics,
+                           int Ncameras_extrinsics,
+                           int Nframes,
+                           int Npoints,
+                           int Npoints_fixed,
+                           const mrcal_observation_board_t* observations_board,
+                           const mrcal_observation_point_t* observations_point,
+                           int Nobservations_board,
+                           int Nobservations_point,
+                           const mrcal_observation_point_triangulated_t*
+                               observations_point_triangulated,
+                           int Nobservations_point_triangulated,
+                           mrcal_point3_t* observations_board_pool,
+                           mrcal_point3_t* observations_point_pool,
+                           const mrcal_lensmodel_t* lensmodel,
+                           const int* imagersizes,
+                           mrcal_problem_selections_t problem_selections,
+                           const mrcal_problem_constants_t* problem_constants,
+                           double calibration_object_spacing,
+                           int calibration_object_width_n,
+                           int calibration_object_height_n,
+                           bool verbose,
+                           bool check_gradient,
+                           mrcal_cancel_callback_t* is_cancelled,
+                           void* cancellation_cookie,
+                           bool* cancelled);
 
 
 // These are cholmod_sparse, cholmod_factor, cholmod_common. I don't want to

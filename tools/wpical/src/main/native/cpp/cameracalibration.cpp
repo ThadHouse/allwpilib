@@ -234,7 +234,8 @@ CameraCalibrator::CameraCalibrator(size_t numWorkers, double squareWidth,
   m_totalFrames = cap.get(cv::CAP_PROP_FRAME_COUNT);
   m_processingThread =
       std::thread([this, boardHeight, boardWidth, squareWidth, state = m_state,
-                   capture = std::move(cap)]() mutable {
+                   capture = std::move(cap),
+                   stopToken = m_stopSource.get_token()]() mutable {
         cv::Size frameShape{
             static_cast<int>(capture.get(cv::CAP_PROP_FRAME_WIDTH)),
             static_cast<int>(capture.get(cv::CAP_PROP_FRAME_HEIGHT))};
@@ -272,7 +273,13 @@ CameraCalibrator::CameraCalibrator(size_t numWorkers, double squareWidth,
         }
         auto result = mrcal_main(allObservationBoards, allFramesRtToref,
                                  cv::Size(boardWidth - 1, boardHeight - 1),
-                                 squareWidth * 0.0254, frameShape, 1000);
+                                 squareWidth * 0.0254, frameShape, 1000,
+                                 stopToken);
+        if (!result) {
+          state->cameraModel = std::nullopt;
+          state->m_isFinished = true;
+          return;
+        }
         state->cameraModel = MrcalResultToCameraModel(*result);
         state->m_isFinished = true;
       });
@@ -306,6 +313,7 @@ int CameraCalibrator::TotalFrames() {
 }
 
 void CameraCalibrator::Stop() {
+  m_stopSource.request_stop();
   m_state->m_isFinished = true;
   for (auto& workers : m_workers) {
     workers->Stop();

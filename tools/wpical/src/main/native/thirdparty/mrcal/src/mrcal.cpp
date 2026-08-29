@@ -6183,7 +6183,7 @@ bool mrcal_optimizer_callback(// out
 }
 
 mrcal_stats_t
-mrcal_optimize( // out
+mrcal_optimize_cancelable( // out
                 // Each one of these output pointers may be NULL
 
                 // Shape (Nstate,)
@@ -6250,8 +6250,21 @@ mrcal_optimize( // out
                 int calibration_object_height_n,
                 bool verbose,
 
-                bool check_gradient)
+                bool check_gradient,
+                mrcal_cancel_callback_t* is_cancelled,
+                void* cancellation_cookie,
+                bool* cancelled)
 {
+    if(cancelled != NULL)
+        *cancelled = false;
+
+    if(is_cancelled != NULL && is_cancelled(cancellation_cookie))
+    {
+        if(cancelled != NULL)
+            *cancelled = true;
+        return (mrcal_stats_t){.rms_reproj_error__pixels = -1.0};
+    }
+
     if( Nobservations_board > 0 )
     {
         if( problem_selections.do_optimize_calobject_warp && calobject_warp == NULL )
@@ -6438,11 +6451,24 @@ mrcal_optimize( // out
             if(solver_context != NULL)
                 dogleg_freeContext(&solver_context);
 
-            norm2_error = dogleg_optimize2(packed_state.data(),
-                                           Nstate, ctx.Nmeasurements, ctx.N_j_nonzero,
-                                           (dogleg_callback_t*)&optimizer_callback, &ctx,
-                                           &dogleg_parameters,
-                                           &solver_context);
+            bool dogleg_cancelled = false;
+            norm2_error = dogleg_optimize2_cancelable(
+                packed_state.data(),
+                Nstate, ctx.Nmeasurements, ctx.N_j_nonzero,
+                (dogleg_callback_t*)&optimizer_callback, &ctx,
+                &dogleg_parameters,
+                (dogleg_cancel_callback_t*)is_cancelled, cancellation_cookie,
+                &dogleg_cancelled,
+                &solver_context);
+
+            if(dogleg_cancelled)
+            {
+                if(cancelled != NULL)
+                    *cancelled = true;
+                if(solver_context != NULL)
+                    dogleg_freeContext(&solver_context);
+                return stats;
+            }
 
             if(norm2_error < 0) {
                 // libdogleg barfed. I quit out
@@ -6609,9 +6635,17 @@ mrcal_optimize( // out
     }
     else
         for(int ivar=0; ivar<Nstate; ivar++)
+        {
+            if(is_cancelled != NULL && is_cancelled(cancellation_cookie))
+            {
+                if(cancelled != NULL)
+                    *cancelled = true;
+                return stats;
+            }
             dogleg_testGradient(ivar, packed_state.data(),
                                 Nstate, ctx.Nmeasurements, ctx.N_j_nonzero,
                                 (dogleg_callback_t*)&optimizer_callback, &ctx);
+        }
 
     stats.rms_reproj_error__pixels =
 #if defined ENABLE_TRIANGULATED_WARNINGS && ENABLE_TRIANGULATED_WARNINGS
@@ -6629,6 +6663,63 @@ mrcal_optimize( // out
         dogleg_freeContext(&solver_context);
 
     return stats;
+}
+
+mrcal_stats_t
+mrcal_optimize( // out
+                double* b_packed_final,
+                int buffer_size_b_packed_final,
+                double* x_final,
+                int buffer_size_x_final,
+
+                // out, in
+                double*                 intrinsics,
+                mrcal_pose_t*           rt_cam_ref,
+                mrcal_pose_t*           rt_ref_frame,
+                mrcal_point3_t*         points,
+                mrcal_calobject_warp_t* calobject_warp,
+
+                // in
+                int Ncameras_intrinsics,
+                int Ncameras_extrinsics,
+                int Nframes,
+                int Npoints,
+                int Npoints_fixed,
+                const mrcal_observation_board_t* observations_board,
+                const mrcal_observation_point_t* observations_point,
+                int Nobservations_board,
+                int Nobservations_point,
+                const mrcal_observation_point_triangulated_t*
+                    observations_point_triangulated,
+                int Nobservations_point_triangulated,
+                mrcal_point3_t* observations_board_pool,
+                mrcal_point3_t* observations_point_pool,
+                const mrcal_lensmodel_t* lensmodel,
+                const int* imagersizes,
+                mrcal_problem_selections_t problem_selections,
+                const mrcal_problem_constants_t* problem_constants,
+                double calibration_object_spacing,
+                int calibration_object_width_n,
+                int calibration_object_height_n,
+                bool verbose,
+                bool check_gradient)
+{
+    return mrcal_optimize_cancelable(
+        b_packed_final, buffer_size_b_packed_final,
+        x_final, buffer_size_x_final,
+        intrinsics, rt_cam_ref, rt_ref_frame, points, calobject_warp,
+        Ncameras_intrinsics, Ncameras_extrinsics, Nframes,
+        Npoints, Npoints_fixed,
+        observations_board, observations_point,
+        Nobservations_board, Nobservations_point,
+        observations_point_triangulated,
+        Nobservations_point_triangulated,
+        observations_board_pool, observations_point_pool,
+        lensmodel, imagersizes, problem_selections, problem_constants,
+        calibration_object_spacing,
+        calibration_object_width_n, calibration_object_height_n,
+        verbose, check_gradient,
+        NULL, NULL, NULL);
 }
 
 bool mrcal_write_cameramodel_file(const char* filename,

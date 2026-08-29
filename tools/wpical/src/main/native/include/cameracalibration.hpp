@@ -7,6 +7,7 @@
 #include <atomic>
 #include <memory>
 #include <optional>
+#include <stop_token>
 #include <string>
 #include <thread>
 #include <vector>
@@ -91,6 +92,7 @@ class CameraCalibrator {
 
   std::atomic_int m_totalFrames;
   std::vector<std::shared_ptr<Worker>> m_workers;
+  std::stop_source m_stopSource;
   std::thread m_processingThread;
 };
 

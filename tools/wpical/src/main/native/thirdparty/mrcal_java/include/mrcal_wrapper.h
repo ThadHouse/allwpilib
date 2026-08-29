@@ -21,6 +21,7 @@
 #include <opencv2/core/mat.hpp>
 #include <opencv2/core/types.hpp>
 #include <span>
+#include <stop_token>
 #include <utility>
 #include <vector>
 
@@ -69,6 +70,12 @@ std::unique_ptr<mrcal_result> mrcal_main(
     cv::Size cameraRes,
     // focal length, in pixels
     double focal_len_guess);
+
+std::unique_ptr<mrcal_result> mrcal_main(
+    std::span<mrcal_point3_t> observations_board,
+    std::span<mrcal_pose_t> frames_rt_toref, cv::Size calobjectSize,
+    double boardSpacing, cv::Size cameraRes, double focal_len_guess,
+    std::stop_token stopToken);
 
 enum class CameraLensModel {
   LENSMODEL_OPENCV5 = 0,
