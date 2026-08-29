@@ -2,7 +2,6 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-#include <stop_token>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -68,7 +67,7 @@ TEST_CASE("Mrcal optimization can be canceled", "[wpical]") {
 }
 
 TEST_CASE("Mrcal calibration can be canceled before it starts", "[wpical]") {
-  std::stop_source stopSource;
+  mrcal_cancellation_source stopSource;
   stopSource.request_stop();
   std::vector<mrcal_point3_t> observations;
   std::vector<mrcal_pose_t> frames;

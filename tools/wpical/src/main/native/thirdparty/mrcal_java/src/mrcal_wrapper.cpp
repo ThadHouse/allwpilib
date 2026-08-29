@@ -42,7 +42,7 @@ mrcal_point3_t *points =
     nullptr; // Seems to always to be None for single camera?
 
 static bool is_cancelled(void *cookie) {
-  return static_cast<std::stop_token *>(cookie)->stop_requested();
+  return static_cast<mrcal_cancellation_token *>(cookie)->stop_requested();
 }
 
 static std::unique_ptr<mrcal_result> mrcal_calibrate(
@@ -59,7 +59,7 @@ static std::unique_ptr<mrcal_result> mrcal_calibrate(
     mrcal_problem_selections_t problem_selections,
     // seed intrinsics/cameramodel to optimize for
     mrcal_lensmodel_t mrcal_lensmodel, std::vector<double> intrinsics,
-    std::stop_token stopToken) {
+    mrcal_cancellation_token stopToken) {
   if (stopToken.stop_requested()) {
     return nullptr;
   }
@@ -358,7 +358,8 @@ std::unique_ptr<mrcal_result> mrcal_main(
     // Chessboard size, in corners (not squares)
     Size calobjectSize, double calibration_object_spacing,
     // res, pixels
-    Size cameraRes, double focal_length_guess, std::stop_token stopToken) {
+    Size cameraRes, double focal_length_guess,
+    mrcal_cancellation_token stopToken) {
 
   std::unique_ptr<mrcal_result> result;
 
