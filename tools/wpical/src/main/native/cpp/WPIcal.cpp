@@ -293,6 +293,8 @@ void CalibrateCamera() {
     return task.wait_for(std::chrono::seconds{0}) ==
            std::future_status::ready;
   });
+  const bool videoProcessorCleanupPending =
+      !videoProcessorCleanupTasks.empty();
 
   auto cleanupVideoProcessor = [&] {
     if (!videoProcessor) {
@@ -377,17 +379,25 @@ void CalibrateCamera() {
         calibrating = false;
         cleanupVideoProcessor();
       }
-    } else if (ImGui::Button("Calibrate") && !cameraVideoPath.empty()) {
-      videoProcessor = std::make_unique<wpical::CameraCalibrator>(
-          numWorkers, squareWidth, markerWidth, boardWidth, boardHeight,
-          cameraVideoPath);
-      calibrating = true;
+    } else {
+      ImGui::BeginDisabled(videoProcessorCleanupPending);
+      if (ImGui::Button("Calibrate") && !cameraVideoPath.empty()) {
+        videoProcessor = std::make_unique<wpical::CameraCalibrator>(
+            numWorkers, squareWidth, markerWidth, boardWidth, boardHeight,
+            cameraVideoPath);
+        calibrating = true;
+      }
+      ImGui::EndDisabled();
     }
     ImGui::SameLine();
     if (ImGui::Button("Close")) {
       cleanupVideoProcessor();
       calibrating = false;
       ImGui::CloseCurrentPopup();
+    }
+    if (videoProcessorCleanupPending) {
+      ImGui::TextUnformatted(
+          "Waiting for the previous calibration to finish...");
     }
     ImGui::EndPopup();
   }
