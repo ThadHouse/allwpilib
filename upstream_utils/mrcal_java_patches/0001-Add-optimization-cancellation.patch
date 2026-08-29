@@ -4,12 +4,12 @@ Date: Sat, 29 Aug 2026 16:18:06 -0700
 Subject: [PATCH] Add optimization cancellation
 
 ---
- src/mrcal_wrapper.cpp | 57 +++++++++++++++++++++++++++++++++++++------
- src/mrcal_wrapper.h   |  7 ++++++
- 2 files changed, 56 insertions(+), 8 deletions(-)
+ src/mrcal_wrapper.cpp | 45 ++++++++++++++++++++++++++++++++++++-------
+ src/mrcal_wrapper.h   |  4 +++-
+ 2 files changed, 41 insertions(+), 8 deletions(-)
 
 diff --git a/src/mrcal_wrapper.cpp b/src/mrcal_wrapper.cpp
-index 0037e22989aad720cd058379e398c958e5269bab..d32d5d9f7a8da62b3d42f49fbef09594586e1a18 100644
+index 0037e22989aad720cd058379e398c958e5269bab..a46988b125074c85a0c436b35bc663e8366d65eb 100644
 --- a/src/mrcal_wrapper.cpp
 +++ b/src/mrcal_wrapper.cpp
 @@ -41,6 +41,10 @@ mrcal_pose_t *extrinsics_rt_fromref =
@@ -37,16 +37,14 @@ index 0037e22989aad720cd058379e398c958e5269bab..d32d5d9f7a8da62b3d42f49fbef09594
    // Number of board observations we've got. List of boards. in python, it's
    // (number of chessboard pictures) x (rows) x (cos) x (3)
    // hard-coded to 8, since that's what I've got below
-@@ -168,7 +177,8 @@ static std::unique_ptr<mrcal_result> mrcal_calibrate(
+@@ -168,6 +177,7 @@ static std::unique_ptr<mrcal_result> mrcal_calibrate(
    int *c_imagersizes = imagersize;
    int verbose = 0;
  
--  auto stats = mrcal_optimize(
 +  bool cancelled = false;
-+  auto stats = mrcal_optimize_cancelable(
+   auto stats = mrcal_optimize(
        NULL, -1, c_x_final, Nmeasurements * sizeof(double), c_intrinsics,
        c_extrinsics, c_frames, c_points, c_calobject_warp, Ncameras_intrinsics,
-       Ncameras_extrinsics, Nframes, Npoints, Npoints_fixed,
 @@ -176,7 +186,12 @@ static std::unique_ptr<mrcal_result> mrcal_calibrate(
        Nobservations_point, NULL, -1, // We don't use these, so pass nulls
        c_observations_board_pool, c_observations_point_pool, &mrcal_lensmodel,
@@ -113,7 +111,7 @@ index 0037e22989aad720cd058379e398c958e5269bab..d32d5d9f7a8da62b3d42f49fbef09594
    }
  
    {
-@@ -463,12 +491,25 @@ std::unique_ptr<mrcal_result> mrcal_main(
+@@ -463,7 +491,10 @@ std::unique_ptr<mrcal_result> mrcal_main(
  
      result = mrcal_calibrate(observations_board, frames_rt_toref, calobjectSize,
                               calibration_object_spacing, cameraRes, options,
@@ -125,23 +123,8 @@ index 0037e22989aad720cd058379e398c958e5269bab..d32d5d9f7a8da62b3d42f49fbef09594
    }
  
    return result;
- }
- 
-+std::unique_ptr<mrcal_result> mrcal_main(
-+    std::span<mrcal_point3_t> observations_board,
-+    std::span<mrcal_pose_t> frames_rt_toref, Size calobjectSize,
-+    double calibration_object_spacing, Size cameraRes,
-+    double focal_length_guess) {
-+  return mrcal_main(observations_board, frames_rt_toref, calobjectSize,
-+                    calibration_object_spacing, cameraRes, focal_length_guess,
-+                    std::stop_token{});
-+}
-+
- bool undistort_mrcal(cv::Mat *dst, const cv::Mat *cameraMat,
-                      const cv::Mat *distCoeffs, CameraLensModel lensModel,
-                      // Extra stuff for splined stereographic models
 diff --git a/src/mrcal_wrapper.h b/src/mrcal_wrapper.h
-index e59586944161cc3809cc2efe6ab19d6245e4180f..5e289b483338511b4c61363c3488eff6bac10ce6 100644
+index e59586944161cc3809cc2efe6ab19d6245e4180f..d77c1388fff58672e181fb42835e26e87d8cf56e 100644
 --- a/src/mrcal_wrapper.h
 +++ b/src/mrcal_wrapper.h
 @@ -21,6 +21,7 @@
@@ -152,16 +135,13 @@ index e59586944161cc3809cc2efe6ab19d6245e4180f..5e289b483338511b4c61363c3488eff6
  #include <utility>
  #include <vector>
  
-@@ -70,6 +71,12 @@ std::unique_ptr<mrcal_result> mrcal_main(
+@@ -68,7 +69,8 @@ std::unique_ptr<mrcal_result> mrcal_main(
+     // res, pixels
+     cv::Size cameraRes,
      // focal length, in pixels
-     double focal_len_guess);
+-    double focal_len_guess);
++    double focal_len_guess,
++    std::stop_token stopToken = {});
  
-+std::unique_ptr<mrcal_result> mrcal_main(
-+    std::span<mrcal_point3_t> observations_board,
-+    std::span<mrcal_pose_t> frames_rt_toref, cv::Size calobjectSize,
-+    double boardSpacing, cv::Size cameraRes, double focal_len_guess,
-+    std::stop_token stopToken);
-+
  enum class CameraLensModel {
    LENSMODEL_OPENCV5 = 0,
-   LENSMODEL_OPENCV8,

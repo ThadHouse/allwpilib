@@ -4,12 +4,13 @@ Date: Sat, 29 Aug 2026 16:18:06 -0700
 Subject: [PATCH 4/4] Add optimization cancellation
 
 ---
- dogleg.c | 79 ++++++++++++++++++++++++++++++++++++++++++++++++++++++--
- dogleg.h | 11 ++++++++
- 2 files changed, 88 insertions(+), 2 deletions(-)
+ dogleg.c | 68 ++++++++++++++++++++++++++++++++++++++++++++++++++++++--
+ dogleg.h |  6 +++++
+ sample.c |  4 +++-
+ 3 files changed, 75 insertions(+), 3 deletions(-)
 
 diff --git a/dogleg.c b/dogleg.c
-index cac3c3d95990cc563432ad30bd62a40d35335ac4..3bb09dbdef9bcc001b1ce9d004fcd84a9cf76cf2 100644
+index cac3c3d95990cc563432ad30bd62a40d35335ac4..9b1b641290989c495200577e4c1799e33e6f15a4 100644
 --- a/dogleg.c
 +++ b/dogleg.c
 @@ -1424,8 +1424,17 @@ static bool evaluateStep_adjustTrustRegion(// out
@@ -113,25 +114,15 @@ index cac3c3d95990cc563432ad30bd62a40d35335ac4..3bb09dbdef9bcc001b1ce9d004fcd84a
    double norm2_x  = ctx->beforeStep->norm2_x;
    if(numsteps < 0)
    {
-@@ -1828,16 +1871,46 @@ double dogleg_optimize2(double* p, unsigned int Nstate,
+@@ -1826,18 +1869,36 @@ double dogleg_optimize2(double* p, unsigned int Nstate,
+                         dogleg_callback_t* f,
+                         void* cookie,
                          const dogleg_parameters2_t* parameters,
++                        dogleg_cancel_callback_t* is_cancelled,
++                        void* cancellation_cookie,
++                        bool* cancelled,
                          dogleg_solverContext_t** returnContext)
  {
-+  return dogleg_optimize2_cancelable(p, Nstate, Nmeas, NJnnz,
-+                                     f, cookie, parameters,
-+                                     NULL, NULL, NULL,
-+                                     returnContext);
-+}
-+
-+double dogleg_optimize2_cancelable(
-+    double* p, unsigned int Nstate,
-+    unsigned int Nmeas, unsigned int NJnnz,
-+    dogleg_callback_t* f, void* cookie,
-+    const dogleg_parameters2_t* parameters,
-+    dogleg_cancel_callback_t* is_cancelled, void* cancellation_cookie,
-+    bool* cancelled,
-+    dogleg_solverContext_t** returnContext)
-+{
 +  bool cancelled_local = false;
 +  if(cancelled == NULL)
 +    cancelled = &cancelled_local;
@@ -160,7 +151,15 @@ index cac3c3d95990cc563432ad30bd62a40d35335ac4..3bb09dbdef9bcc001b1ce9d004fcd84a
                            returnContext);
  }
  
-@@ -1863,6 +1936,7 @@ double dogleg_optimize_dense2(double* p, unsigned int Nstate,
+@@ -1849,6 +1910,7 @@ double dogleg_optimize(double* p, unsigned int Nstate,
+ {
+   return dogleg_optimize2(p,Nstate,Nmeas,NJnnz,f,cookie,
+                           NULL, // no parameters; use the globals
++                          NULL, NULL, NULL,
+                           returnContext);
+ }
+ 
+@@ -1863,6 +1925,7 @@ double dogleg_optimize_dense2(double* p, unsigned int Nstate,
                            NULL, f, NULL,
                            cookie,
                            parameters,
@@ -168,7 +167,7 @@ index cac3c3d95990cc563432ad30bd62a40d35335ac4..3bb09dbdef9bcc001b1ce9d004fcd84a
                            returnContext);
  }
  double dogleg_optimize_dense_products(double* p, unsigned int Nstate,
-@@ -1874,6 +1948,7 @@ double dogleg_optimize_dense_products(double* p, unsigned int Nstate,
+@@ -1874,6 +1937,7 @@ double dogleg_optimize_dense_products(double* p, unsigned int Nstate,
                            NULL, NULL, f,
                            cookie,
                            parameters,
@@ -177,7 +176,7 @@ index cac3c3d95990cc563432ad30bd62a40d35335ac4..3bb09dbdef9bcc001b1ce9d004fcd84a
  }
  double dogleg_optimize_dense(double* p, unsigned int Nstate,
 diff --git a/dogleg.h b/dogleg.h
-index 933e9e894d9d1e29fb0084c472724f8e19b75112..452df4fc30329c0c415dad89db22ef9c488e2a82 100644
+index 933e9e894d9d1e29fb0084c472724f8e19b75112..8c941a53c1ac889fa8d94e1d60b1d801eacd27fa 100644
 --- a/dogleg.h
 +++ b/dogleg.h
 @@ -45,6 +45,9 @@ typedef void (dogleg_callback_dense_products_t)(// in
@@ -190,18 +189,28 @@ index 933e9e894d9d1e29fb0084c472724f8e19b75112..452df4fc30329c0c415dad89db22ef9c
  // an operating point of the solver
  typedef struct
  {
-@@ -285,6 +288,14 @@ double dogleg_optimize2(double* p, unsigned int Nstate,
+@@ -284,6 +287,9 @@ double dogleg_optimize2(double* p, unsigned int Nstate,
+                         unsigned int Nmeas, unsigned int NJnnz,
                          dogleg_callback_t* f, void* cookie,
                          const dogleg_parameters2_t* parameters,
++                        dogleg_cancel_callback_t* is_cancelled,
++                        void* cancellation_cookie,
++                        bool* cancelled,
                          dogleg_solverContext_t** returnContext);
-+double dogleg_optimize2_cancelable(
-+    double* p, unsigned int Nstate,
-+    unsigned int Nmeas, unsigned int NJnnz,
-+    dogleg_callback_t* f, void* cookie,
-+    const dogleg_parameters2_t* parameters,
-+    dogleg_cancel_callback_t* is_cancelled, void* cancellation_cookie,
-+    bool* cancelled,
-+    dogleg_solverContext_t** returnContext);
  
  // Main optimization function if we're using dense linear algebra. The arguments
- // are very similar to the sparse version: dogleg_optimize()
+diff --git a/sample.c b/sample.c
+index 0afd0f0c84b365c066d237cd313711b143f29905..621903799e213f03cb6d5ac1384b62ecb65bea25 100644
+--- a/sample.c
++++ b/sample.c
+@@ -413,7 +413,9 @@ int main(int argc, char* argv[] )
+   if(      solve_type == DOGLEG_SPARSE         )
+     optimum = dogleg_optimize2(p, Nstate, Nmeasurements, Jnnz,
+                                &optimizerCallback, &dogleg_parameters,
+-                               &dogleg_parameters, NULL);
++                               &dogleg_parameters,
++                               NULL, NULL, NULL,
++                               NULL);
+   else if( solve_type == DOGLEG_DENSE         )
+     optimum = dogleg_optimize_dense2(p, Nstate, Nmeasurements,
+                                      &optimizerCallback_dense, &dogleg_parameters,

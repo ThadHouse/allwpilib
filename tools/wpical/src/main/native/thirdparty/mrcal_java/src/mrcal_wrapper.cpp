@@ -178,7 +178,7 @@ static std::unique_ptr<mrcal_result> mrcal_calibrate(
   int verbose = 0;
 
   bool cancelled = false;
-  auto stats = mrcal_optimize_cancelable(
+  auto stats = mrcal_optimize(
       NULL, -1, c_x_final, Nmeasurements * sizeof(double), c_intrinsics,
       c_extrinsics, c_frames, c_points, c_calobject_warp, Ncameras_intrinsics,
       Ncameras_extrinsics, Nframes, Npoints, Npoints_fixed,
@@ -498,16 +498,6 @@ std::unique_ptr<mrcal_result> mrcal_main(
   }
 
   return result;
-}
-
-std::unique_ptr<mrcal_result> mrcal_main(
-    std::span<mrcal_point3_t> observations_board,
-    std::span<mrcal_pose_t> frames_rt_toref, Size calobjectSize,
-    double calibration_object_spacing, Size cameraRes,
-    double focal_length_guess) {
-  return mrcal_main(observations_board, frames_rt_toref, calobjectSize,
-                    calibration_object_spacing, cameraRes, focal_length_guess,
-                    std::stop_token{});
 }
 
 bool undistort_mrcal(cv::Mat *dst, const cv::Mat *cameraMat,

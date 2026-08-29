@@ -1869,22 +1869,10 @@ double dogleg_optimize2(double* p, unsigned int Nstate,
                         dogleg_callback_t* f,
                         void* cookie,
                         const dogleg_parameters2_t* parameters,
+                        dogleg_cancel_callback_t* is_cancelled,
+                        void* cancellation_cookie,
+                        bool* cancelled,
                         dogleg_solverContext_t** returnContext)
-{
-  return dogleg_optimize2_cancelable(p, Nstate, Nmeas, NJnnz,
-                                     f, cookie, parameters,
-                                     NULL, NULL, NULL,
-                                     returnContext);
-}
-
-double dogleg_optimize2_cancelable(
-    double* p, unsigned int Nstate,
-    unsigned int Nmeas, unsigned int NJnnz,
-    dogleg_callback_t* f, void* cookie,
-    const dogleg_parameters2_t* parameters,
-    dogleg_cancel_callback_t* is_cancelled, void* cancellation_cookie,
-    bool* cancelled,
-    dogleg_solverContext_t** returnContext)
 {
   bool cancelled_local = false;
   if(cancelled == NULL)
@@ -1922,6 +1910,7 @@ double dogleg_optimize(double* p, unsigned int Nstate,
 {
   return dogleg_optimize2(p,Nstate,Nmeas,NJnnz,f,cookie,
                           NULL, // no parameters; use the globals
+                          NULL, NULL, NULL,
                           returnContext);
 }
 

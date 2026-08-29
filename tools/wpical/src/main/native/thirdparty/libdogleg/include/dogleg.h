@@ -287,15 +287,10 @@ double dogleg_optimize2(double* p, unsigned int Nstate,
                         unsigned int Nmeas, unsigned int NJnnz,
                         dogleg_callback_t* f, void* cookie,
                         const dogleg_parameters2_t* parameters,
+                        dogleg_cancel_callback_t* is_cancelled,
+                        void* cancellation_cookie,
+                        bool* cancelled,
                         dogleg_solverContext_t** returnContext);
-double dogleg_optimize2_cancelable(
-    double* p, unsigned int Nstate,
-    unsigned int Nmeas, unsigned int NJnnz,
-    dogleg_callback_t* f, void* cookie,
-    const dogleg_parameters2_t* parameters,
-    dogleg_cancel_callback_t* is_cancelled, void* cancellation_cookie,
-    bool* cancelled,
-    dogleg_solverContext_t** returnContext);
 
 // Main optimization function if we're using dense linear algebra. The arguments
 // are very similar to the sparse version: dogleg_optimize()
